@@ -46,6 +46,11 @@
 ## Коммит
 `feat: монорепозиторий, Vite вместо Webpack, корневые конфиги ESLint/Prettier`
 
+## Фиксы после основной работы (08.07.2026, вторая половина сессии)
+- **winston/index.ts** — TS2345: убран кастомный интерфейс `PrintF` (несовместимость с winston@3.15+)
+- **logs/pass.ts** — создан файл-заглушка `packages/backend/src/logs/pass.ts` для dev (в продакшене нужно заменить на реальный пароль)
+- **redis/init.ts** — ошибки `ECONNREFUSED` подавлены в dev-режиме (try/catch + `process.env.NODE_ENV`)
+
 ## Предупреждения/заметки
 - **`vite build` падает** из-за циклических зависимостей чанков. Это не мешает разработке (dev работает), но блокирует production-сборку. Нужно решить на отдельном этапе. Примеры проблемных модулей: `useCompany` (company/index.ts), `usePages`, `useUI`, `useUser`, `validate`.
 - **`@mui/styled-engine-sc`** — используется алиас `@mui/styled-engine` → `@mui/styled-engine-sc`. Проверить, что MUI 7 корректно работает в dev с этим алиасом (в Webpack работало).
