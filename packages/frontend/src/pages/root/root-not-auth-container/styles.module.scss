@@ -1,0 +1,12 @@
+.root {
+  width: 100%;
+};
+
+.wrapper {
+  // background-image: url("shared/assets/fon.jpg");
+  background-position: bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: calc(100vh - 65px);
+};

@@ -1,0 +1,7 @@
+export * from './calc-increased'
+export * from './get-color-by-increased'
+export * from './get-comparison-values'
+export { getInverted } from './get-inverted'
+export * from './get-increased'
+export * from './get-reversed-indicators'
+export * from './get-value-and-reduction'

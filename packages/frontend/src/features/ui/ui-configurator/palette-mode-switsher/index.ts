@@ -1,0 +1,1 @@
+export { PaletteModeSwitcher } from './ui';

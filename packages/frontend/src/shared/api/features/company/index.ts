@@ -1,0 +1,5 @@
+export type { ReqGetCompany, SetParamsCompany } from './get-params-company'
+export { getParamsCompany } from './get-params-company'
+export { updateCompany } from './update-company'
+export type { DeleteSheet } from './delete-sheet'
+export { deleteSheet } from './delete-sheet'

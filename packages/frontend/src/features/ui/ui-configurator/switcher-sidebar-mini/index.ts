@@ -1,0 +1,1 @@
+export { SwitcherSidebarMini } from './ui';

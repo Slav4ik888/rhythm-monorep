@@ -1,0 +1,31 @@
+doctype html
+html
+    head
+        meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+        title Подтверждение адреса электронной почты - Rhythm #{courseName}
+        style.
+            .container { padding: 0 100px; font-size: 16px; }
+            .code-container { width: 100%; text-align: center; font-size: 20px; font-weight: bold; }
+            .code-span { background: #eee; border-radius: 5px; padding: 5px; }
+            .footer { font-size: 12px; }
+            .italic { font-style: italic; }
+
+    body.container
+        a(href=url_site)
+            img(src="https://firebasestorage.googleapis.com/v0/b/osnova-course.appspot.com/o/rhythm%2Fbase%2Flogo_rhythm_white.png?alt=media&token=11654dea-32f4-46e3-9b77-d145f6a4aa40", alt='Информационная панель руководителя "Ритм"' style="width: 130px;")
+        h3 Здравствуйте, #{name}
+        p для завершения регистрации, на платформе&nbsp;
+            a(href=url_site) #{platform_name}
+            span , введите этот код:&nbsp;
+        p.code-container
+            span.code-span #{href=code}
+
+        br
+        br
+        p Если Вы не регистрировались, просто проигнорируйте это письмо.
+
+        hr
+        footer.footer
+            footer.footer
+            p С наилучшими пожеланиями,
+            p.italic #{platform_name}

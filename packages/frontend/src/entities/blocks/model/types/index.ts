@@ -1,0 +1,4 @@
+
+enum DashboardComponentType {
+  BOX = 'box',
+}

@@ -9,26 +9,26 @@
 
 ## Этап 1: Монорепозиторий + Vite
 
-- [ ] 1.1 Создать структуру монорепозитория:
-  - [ ] 1.1.1 Перенести `frontend/` → `packages/frontend/`
-  - [ ] 1.1.2 Перенести `backend/` → `packages/backend/`
-  - [ ] 1.1.3 Создать `packages/shared/` (общие типы, валидаторы)
-  - [ ] 1.1.4 Создать корневой `package.json` с `workspaces`
-  - [ ] 1.1.5 Настроить корневые конфиги: `eslint.config.mjs`, `.prettierrc`, `.gitignore`
-- [ ] 1.2 Замена Webpack → Vite во фронтенде:
-  - [ ] 1.2.1 Удалить webpack-зависимости и конфиги
-  - [ ] 1.2.2 Установить Vite + плагины
-  - [ ] 1.2.3 Настроить `vite.config.ts` с алиасами
-  - [ ] 1.2.4 Перенести `public/index.html` → `index.html`
-  - [ ] 1.2.5 Обновить скрипты в `packages/frontend/package.json`
-  - [ ] 1.2.6 Настроить path aliases в `tsconfig.json`
-- [ ] 1.3 Адаптировать бэкенд под монорепозиторий:
-  - [ ] 1.3.1 Обновить пути в `packages/backend/package.json`
-  - [ ] 1.3.2 Настроить `tsconfig.json` с корректными путями
-- [ ] 1.4 Валидация:
-  - [ ] 1.4.1 `npm run dev -w packages/frontend` — запускается
-  - [ ] 1.4.2 `npm run dev -w packages/backend` — запускается
-  - [ ] 1.4.3 `npm run lint` — ESLint 0 ошибок
+- [x] 1.1 Создать структуру монорепозитория:
+  - [x] 1.1.1 Перенести `frontend/` → `packages/frontend/`
+  - [x] 1.1.2 Перенести `backend/` → `packages/backend/`
+  - [x] 1.1.3 Создать `packages/shared/` (общие типы, валидаторы)
+  - [x] 1.1.4 Создать корневой `package.json` с `workspaces`
+  - [x] 1.1.5 Настроить корневые конфиги: `eslint.config.mjs`, `.prettierrc`, `.gitignore`
+- [x] 1.2 Замена Webpack → Vite во фронтенде:
+  - [x] 1.2.1 Удалить webpack-зависимости и конфиги
+  - [x] 1.2.2 Установить Vite + плагины
+  - [x] 1.2.3 Настроить `vite.config.ts` с алиасами
+  - [x] 1.2.4 Перенести `public/index.html` → `index.html`
+  - [x] 1.2.5 Обновить скрипты в `packages/frontend/package.json`
+  - [x] 1.2.6 Настроить path aliases в `tsconfig.json`
+- [x] 1.3 Адаптировать бэкенд под монорепозиторий:
+  - [x] 1.3.1 Обновить пути в `packages/backend/package.json`
+  - [x] 1.3.2 Настроить `tsconfig.json` с корректными путями
+- [x] 1.4 Валидация:
+  - [x] 1.4.1 `npm run dev -w packages/frontend` — запускается (Vite dev server, порт 3000, HTTP 200)
+  - [x] 1.4.2 `npm run dev -w packages/backend` — запускается (Koa, nodemon + ts-node)
+  - [x] 1.4.3 `npm run lint` — ESLint 0 ошибок
 
 ## Этап 2: Покрытие тестами
 

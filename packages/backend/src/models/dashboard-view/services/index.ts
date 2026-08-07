@@ -1,0 +1,6 @@
+export { serviceDashboardUpdateGroupItems } from './update'
+export { serviceDashboardViewDeleteGroup } from './delete-group'
+export { serviceDashboardViewCreateGroupItems } from './create-group-items'
+export { serviceGetDashboardViewItems } from './get-view-items'
+export { serviceDashboardViewGetAllViewItems } from './get-all-views'
+export { serviceGetDashboardBunches } from './get-bunches'

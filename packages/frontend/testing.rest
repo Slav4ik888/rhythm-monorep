@@ -1,0 +1,48 @@
+POST http://localhost:7575/api/devGetBunches HTTP/1.1
+Content-Type: application/json
+
+{
+  "companyId": "jOiXJDIY0nJeiIuBMtI4",
+  "bunchIds": [
+    "43fe8f30-6c5e-416f-b891-f44f7994ea5d",
+    "50d07f91-d453-4706-a0ff-c36ada0e2477",
+    "91d69554-2236-439c-912d-cfa91a7e870d"
+  ]
+}
+
+###
+GET http://rhy.thm.su/api/hello HTTP/1.1
+Content-Type: application/json
+
+
+###
+POST http://localhost:7575/api/devCreateDemoCompany HTTP/1.1
+Content-Type: application/json
+
+{
+  "id"               : "demoPecarLight_sP4kL",
+  "companyName"      : "",
+  "ownerId"          : "pT5sk0UDkzgVGXtCRLjk72h4jwV2",
+  "owner"            : "korzan.va@mail.ru",
+
+  "logoUrl"          : "",
+  "status"           : "",
+
+  "googleData"       : {
+    "url": ""
+  },
+  "customSettings"   : {},
+  "dashboardMembers" : [],
+  "companyMembers"   : [],
+
+  "bunchesUpdated"   : {},
+  "sheets"           : {},
+  "createdAt"        : {
+    "userId" : "pT5sk0UDkzgVGXtCRLjk72h4jwV2",
+    "date"   : "1754308380396"
+  },
+  "lastChange"       : {
+    "userId" : "pT5sk0UDkzgVGXtCRLjk72h4jwV2",
+    "date"   : "1754308380396"
+  }
+}

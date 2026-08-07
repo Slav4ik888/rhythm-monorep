@@ -46,11 +46,7 @@ Thumbs.db
 *.swo
 *~
 
-# Старые проекты (имеют свои .git, будут перенесены в packages/ на Этапе 1)
-/backend/
-/frontend/
-
-# Монорепозиторий (дополнительно)
+# Монорепозиторий (сборка)
 packages/frontend/build/
 packages/frontend/dist/
 packages/backend/server/

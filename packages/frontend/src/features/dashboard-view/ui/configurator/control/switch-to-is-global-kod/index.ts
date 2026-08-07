@@ -1,0 +1,1 @@
+export { SwitchToIsGlobalKod } from './ui'

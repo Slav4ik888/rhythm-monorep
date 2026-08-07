@@ -1,0 +1,1 @@
+export { SwitcherSidebarHidden } from './ui';

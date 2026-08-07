@@ -1,0 +1,7 @@
+export { calcTrend2 } from './calc-trend-2'
+export { getData } from './get-data'
+export { getDataDoughnut } from './get-data-doughnut'
+export { getOptions } from './get-options'
+export { getTemplateData } from './get-template-data'
+export { getTemplateDataDoughnut } from './get-template-data-doughnut'
+export { getBackgroundColors, TEMPLATE_COLORS } from './get-data-doughnut/utils'

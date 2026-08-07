@@ -1,0 +1,69 @@
+@import "./css/normalize.scss";
+@import "./variables/global";
+/* // @import "./themes/light";
+// @import "./themes/dark"; */
+
+@font-face {
+  font-family: "Manropelight";
+  src: url("./fonts/Manropelight.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Montserrat-Regular";
+  src: url("./fonts/montserrat/static/Montserrat-Regular.ttf") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat-SemiBold";
+  src: url("./fonts/montserrat/static/Montserrat-SemiBold.ttf") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat-Bold";
+  src: url("./fonts/montserrat/static/Montserrat-Bold.ttf") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+// Чтобы, при первоначальной загрузке, тем кто ночью запустит сайт, не ударило по глазам...
+// а затем заиграет установленная тема
+/* Светлая тема (по умолчанию) */
+:root {
+  --bg-color: white;
+  --text-color: black;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #141414;
+    --text-color: white;
+  }
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-family-main);
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes hint-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
