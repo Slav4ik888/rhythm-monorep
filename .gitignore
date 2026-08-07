@@ -1,0 +1,58 @@
+# Зависимости
+node_modules
+
+# Логи
+logs
+*.log
+npm-debug.log*
+firebase-debug.log*
+firebase-debug.*.log*
+
+# Firebase
+.firebase/
+.firebaserc
+
+# Optional npm cache directory
+.npm
+
+# Output of 'npm pack'
+*.tgz
+
+# Переменные окружения
+.env
+.env.*
+!.env.example
+
+# Сборка
+/build
+/server
+/dist
+*.tsbuildinfo
+
+# Конфиги с секретами
+keys.ts
+src/libs/firebase/config/
+src/libs/storage/config/private
+src/libs/emails/email-config.ts
+
+# Файлы операционной системы
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Старые проекты (имеют свои .git, будут перенесены в packages/ на Этапе 1)
+/backend/
+/frontend/
+
+# Монорепозиторий (дополнительно)
+packages/frontend/build/
+packages/frontend/dist/
+packages/backend/server/
+packages/backend/dist/
+packages/shared/dist/
