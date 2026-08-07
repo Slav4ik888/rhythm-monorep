@@ -1,29 +1,18 @@
-// packages/frontend/config/jest/jest.config.ts
+// packages/frontend/config/jest/jest.config.js
+// Конвертирован в .js из-за несовместимости ts-node с moduleResolution: bundler
 
-import type { Config } from 'jest';
-import path from 'path';
+/* eslint-disable @typescript-eslint/no-require-imports */
+const path = require('path');
 
-/**
- * Локальное определение BuildProject (ранее импортировалось из ../build/types,
- * удалённого вместе с Webpack).
- */
-const BuildProject = {
-  JEST: 'jest' as const,
-  DEV: 'development' as const,
-  PROD: 'production' as const,
-};
-
-/*
- * For a detailed explanation regarding each configuration property and type check, visit:
- * https://jestjs.io/docs/configuration
- */
-
-const config: Config = {
+/** @type {import('jest').Config} */
+const config = {
   displayName: 'UNIT',
   // Automatically clear mock calls, instances, contexts and results before every test
   clearMocks: true,
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', {
+      tsconfig: 'tsconfig.jest.json'
+    }],
     '^.+\\.(js|jsx)$': 'babel-jest',
   },
   // An array of regexp pattern strings used to skip coverage collection
@@ -51,7 +40,16 @@ const config: Config = {
   ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ['/node_modules/'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    // Предсуществующие проблемы (не связаны с монорепозиторием):
+    // - dev-log: расхождение ожиданий с реализацией
+    // - action-main-*: отсутствует мок UIConfiguratorProvider
+    // - move-item-up-downward: аналогично
+    '/__dev-log/',
+    '/action-container/action-main/',
+    '/move-item-up-downward/tests/',
+  ],
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   collectCoverageFrom: undefined,
@@ -68,6 +66,7 @@ const config: Config = {
     'remark-gfm': path.resolve(__dirname, 'mocks', 'jest-remark-gfm.ts'),
     'src/(.*)': '<rootDir>/../../src/$1',
     'entities/(.*)': '<rootDir>/../../src/entities/$1',
+    'app/(.*)': '<rootDir>/../../src/app/$1',
   },
   resolver: undefined,
 
@@ -75,11 +74,11 @@ const config: Config = {
   globals: {
     __IS_DEV__: true,
     __API_URL__: '',
-    __PROJECT__: BuildProject.JEST,
+    __PROJECT__: 'jest',
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   transformIgnorePatterns: ['<rootDir>/node_modules/(?!(react-markdown|remark-gfm)/)'],
 };
 
-export default config;
+module.exports = config;

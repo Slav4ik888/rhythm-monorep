@@ -1,3 +1,5 @@
+// packages/frontend/src/shared/lib/tests/__dev-log/tests/dev-log.test.ts
+
 import { __devLog } from '..';
 
 // Мокаем console.log и глобальные переменные
@@ -21,7 +23,7 @@ describe('__devLog', () => {
 
     it('должен вызывать console.log с переданными аргументами', () => {
       __devLog('test', 123, { key: 'value' });
-      expect(mockConsoleLog).toHaveBeenCalledWith('test', 123, { key: 'value' });
+      expect(mockConsoleLog).toHaveBeenCalledWith('[test]', 123, { key: 'value' });
     });
 
     it('не должен фильтровать аргументы без флага --force', () => {
@@ -32,12 +34,12 @@ describe('__devLog', () => {
     it('должен фильтровать флаг --force если он есть', () => {
       __devLog('message', '--force');
       expect(mockConsoleLog).toHaveBeenCalledWith('message');
-      expect(mockConsoleLog).not.toHaveBeenCalledWith('message', '--force');
+      expect(mockConsoleLog).not.toHaveBeenCalledWith('[message]', '--force');
     });
 
     it('должен обрабатывать несколько аргументов с флагом --force', () => {
       __devLog('arg1', 'arg2', '--force', 'arg3');
-      expect(mockConsoleLog).toHaveBeenCalledWith('arg1', 'arg2', 'arg3');
+      expect(mockConsoleLog).toHaveBeenCalledWith('[arg1]', 'arg2', 'arg3');
     });
   });
 

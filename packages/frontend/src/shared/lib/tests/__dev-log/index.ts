@@ -1,3 +1,4 @@
+// packages/frontend/src/shared/lib/tests/__dev-log/index.ts
 
 /**
  * Выводит сообщение в консоль, если не продакшен.
@@ -14,12 +15,16 @@ export function __devLog(funcName: any, ...args: any[]): void {
 
   if (__IS_DEV__ || hasForceFlag) {
     // Фильтруем аргументы, исключая флаг '--force'
-    const filteredArgs = args.filter(arg => arg !== '--force');
-    if (args) {
+    const filteredArgs = args.filter((arg) => arg !== '--force');
+    // args — всегда массив (rest-параметр), проверяем длину filteredArgs
+    if (filteredArgs.length > 0) {
       // eslint-disable-next-line no-console
       console.log(`[${funcName}]`, ...filteredArgs);
-    }
-    else {
+    } else if (args.length === 0) {
+      // eslint-disable-next-line no-console
+      console.log(funcName);
+    } else {
+      // Все аргументы были --force — выводим только имя функции
       // eslint-disable-next-line no-console
       console.log(funcName);
     }

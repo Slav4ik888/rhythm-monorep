@@ -9,11 +9,11 @@
     "preview": "vite preview",
     "lint:ts": "npx eslint \"**/*.{ts,tsx}\"",
     "lint:ts:fix": "npx eslint \"**/*.{ts,tsx}\" --fix",
-    "test:entities": "jest --detectOpenHandles --config ./config/jest/jest.config-entities.ts",
-    "test:features": "jest --detectOpenHandles --config ./config/jest/jest.config-features.ts",
-    "test:shared": "jest --detectOpenHandles --config ./config/jest/jest.config-shared.ts",
-    "test:widgets": "jest --detectOpenHandles --config ./config/jest/jest.config-widgets.ts",
-    "test:unit": "jest --config ./config/jest/jest.config.ts",
+    "test:entities": "jest --detectOpenHandles --config ./config/jest/jest.config-entities.js",
+    "test:features": "jest --detectOpenHandles --config ./config/jest/jest.config-features.js",
+    "test:shared": "jest --detectOpenHandles --config ./config/jest/jest.config-shared.js",
+    "test:widgets": "jest --detectOpenHandles --config ./config/jest/jest.config-widgets.js",
+    "test:unit": "jest --config ./config/jest/jest.config.js",
     "test": "npm run test:unit && npm run test:entities && npm run test:features && npm run test:shared && npm run test:widgets"
   },
   "dependencies": {

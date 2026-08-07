@@ -1,12 +1,14 @@
+// packages/backend/config/jest/jest.config-shared.ts
+
 import type { Config } from 'jest';
 import cfg from './jest.config';
 
-
-const config: Config = Object.assign(cfg, {
+const config: Config = {
+  ...cfg,
   displayName: 'SHARED',
-  testMatch: [
-    '**/shared/**/*.test.ts'
-  ]
-});
+  // Переопределяем testPathIgnorePatterns, убирая /shared/ — иначе shared-тесты игнорируются
+  testPathIgnorePatterns: ['/node_modules/'],
+  testMatch: ['**/shared/**/*.test.ts'],
+};
 
 export default config;
