@@ -31,6 +31,13 @@ module.exports = {
         'max-len': 0,
       },
     },
+    {
+      // Конфигурационные файлы не требуют type-aware правил (не включены в tsconfig)
+      files: ['*.config.*', '**/config/**/*.config.*'],
+      rules: {
+        '@typescript-eslint/consistent-type-exports': 0,
+      },
+    },
   ],
   ignorePatterns: [
     'node_modules',

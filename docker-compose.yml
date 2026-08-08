@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Firebase Auth эмулятор
+  firebase-auth:
+    image: spurin/firebase-auth-emulator:latest
+    container_name: rhythm-firebase-auth
+    ports:
+      - '9099:9099'
+    environment:
+      - FIREBASE_AUTH_EMULATOR_HOST=0.0.0.0
+      - FIREBASE_AUTH_EMULATOR_PORT=9099
+    volumes:
+      - firebase-auth-data:/app/data
+
+  # Firestore эмулятор
+  firestore:
+    image: mtlynch/firestore-emulator:latest
+    container_name: rhythm-firestore
+    ports:
+      - '8080:8080'
+    environment:
+      - FIRESTORE_PROJECT_ID=rhy-thm-su
+      - FIRESTORE_LISTEN_ADDRESS=0.0.0.0:8080
+    volumes:
+      - firestore-data:/data
+
+  # Firebase Storage эмулятор (опционально)
+  firebase-storage:
+    image: oittaa/gcp-storage-emulator:latest
+    container_name: rhythm-firebase-storage
+    ports:
+      - '9199:9199'
+    environment:
+      - PORT=9199
+    volumes:
+      - firebase-storage-data:/storage
+
+volumes:
+  firebase-auth-data:
+  firestore-data:
+  firebase-storage-data:

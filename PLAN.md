@@ -44,12 +44,12 @@
 - [ ] 3.2 React Router 6 → React Router 7
 - [ ] 3.3 Redux Toolkit → Zustand
 - [ ] 3.4 TanStack Query для серверного состояния
-- [ ] 3.5 PWA (vite-plugin-pwa + workbox)
+- [x] 3.5 PWA (vite-plugin-pwa + workbox)
 - [ ] 3.6 Koa → NestJS + Fastify
-- [ ] 3.7 Docker Compose для Firebase эмуляторов
-- [ ] 3.8 Husky + lint-staged
-- [ ] 3.9 README.dev.md с глоссарием доменных терминов
-- [ ] 3.10 Обновление MUI до актуальной версии
+- [x] 3.7 Docker Compose для Firebase эмуляторов
+- [x] 3.8 Husky + lint-staged
+- [x] 3.9 README.dev.md с глоссарием доменных терминов
+- [ ] 3.10 Обновление MUI до актуальной версии (v7.2.0 → v9.3.1, крупная миграция)
 
 ---
 

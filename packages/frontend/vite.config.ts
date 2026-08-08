@@ -2,6 +2,7 @@
 
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
@@ -10,7 +11,60 @@ export default defineConfig(({ mode }) => {
   const apiUrl = process.env.VITE_API_URL || 'http://localhost:7575';
 
   return {
-    plugins: [react(), svgr()],
+    plugins: [
+      react(),
+      svgr(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.png'],
+        manifest: {
+          name: 'Информационная панель руководителя «Ритм»',
+          short_name: 'Ритм',
+          description: 'PWA-приложение для визуализации бизнес-данных',
+          theme_color: '#1976d2',
+          background_color: '#ffffff',
+          display: 'standalone',
+          orientation: 'any',
+          start_url: '/',
+          scope: '/',
+          lang: 'ru',
+          icons: [
+            {
+              src: '/favicon.png',
+              sizes: '192x192',
+              type: 'image/png',
+            },
+            {
+              src: '/favicon.png',
+              sizes: '512x512',
+              type: 'image/png',
+            },
+            {
+              src: '/favicon.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/api\.rhy\.thm\.su\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24, // 24 часа
+                },
+              },
+            },
+          ],
+        },
+      }),
+    ],
 
     resolve: {
       alias: {

@@ -1,47 +1,67 @@
 # Контекст для следующей сессии
 
 ## Дата
+
 08.08.2026
 
 ## Контекст: что сделано в этой сессии
 
-### Исправлены ошибки на странице `/demoPecarColor_JlY5D/dashboard`
+### Выполнены задачи Этапа 3 (быстрые победы)
 
-**Ошибка 1: `does not provide an export named 'Template'`**
-- Проблема: интерфейс `Template` (type-only) экспортировался через value-синтаксис → esbuild стирал его
-- Решение (4 файла): заменены `export { Template }` → `export type { Template }` и `import { Template }` → `import type { Template }`
+**3.8 Husky + lint-staged:**
 
-**Ошибка 2: `InvalidCharacterError: '...triangle-growth.svg' is not a valid name`**
-- Проблема: SVG импортировался как React-компонент, но `vite-plugin-svgr` был установлен, но не подключён в `vite.config.ts`
-- Решение (3 файла):
-  - `vite.config.ts`: добавлен `import svgr` + `svgr()` в plugins
-  - `growth-icon/ui/component.tsx`: импорт с суффиксом `?react`
-  - `app/types/global.d.ts`: добавлена декларация `*.svg?react`
+- Установлены `husky` и `lint-staged` в корневой `package.json`
+- `npx husky init` создал `.husky/pre-commit`
+- pre-commit hook запускает `npx lint-staged`
+- Конфигурация lint-staged: `*.{ts,tsx}` → eslint + prettier, `*.{json,scss,css,md}` → prettier
 
-### Результат
-- `npm run test -w packages/frontend` — 184/185 suites, 1332/1333 tests ✅ (1 предсуществующая `config.test.ts: ASSEMBLY_DATE`)
+**3.9 README.dev.md:**
 
-## Следующие шаги: Этап 3 — Технологические улучшения
+- Создан `README.dev.md` в корне проекта — техническое руководство для разработчиков
+- Содержит: архитектуру, глоссарий доменных терминов, соглашения по коду, структуру Firestore, API эндпоинты, переменные окружения, команды разработки, деплой
 
-1. React 18 → React 19
-2. React Router 6 → React Router 7
-3. Redux Toolkit → Zustand
-4. TanStack Query для серверного состояния
-5. PWA (vite-plugin-pwa + workbox)
-6. Koa → NestJS + Fastify
-7. Docker Compose для Firebase эмуляторов
-8. Husky + lint-staged
-9. README.dev.md с глоссарием доменных терминов
-10. Обновление MUI до актуальной версии
+**3.7 Docker Compose для Firebase эмуляторов:**
+
+- Создан `docker-compose.yml` в корне проекта
+- Сервисы: firebase-auth (9099), firestore (8080), firebase-storage (9199)
+- Все с persistent volumes
+
+**3.5 PWA (vite-plugin-pwa + workbox):**
+
+- Установлен `vite-plugin-pwa` в `packages/frontend`
+- Обновлён `vite.config.ts`: добавлен `VitePWA` с манифестом, workbox, runtimeCaching для API
+- Обновлён `index.html`: meta-теги (theme-color, apple-mobile-web-app), ссылки на manifest и apple-touch-icon
+
+**3.10 Проверка MUI:**
+
+- Текущая версия: `@mui/material@7.2.0`
+- Актуальная: `9.3.1` — требуется крупная миграция (ломающие изменения в API)
+- Перенесено в следующие сессии, зафиксировано в PLAN.md
+
+## Следующие шаги: Этап 3 — Крупные миграции
+
+Осталось выполнить:
+
+1. **3.1 — React 18 → React 19** (ломающие изменения: createRoot API, удаление legacy API, новые хуки)
+2. **3.2 — React Router 6 → React Router 7** (API v7: data routers, loaders, actions)
+3. **3.3 — Redux Toolkit → Zustand** (полная замена стейт-менеджера)
+4. **3.4 — TanStack Query** (серверное состояние)
+5. **3.6 — Koa → NestJS + Fastify** (полная переработка бэкенда)
+6. **3.10 — MUI 7 → MUI 9** (ломающие изменения)
+
+**Рекомендуемый порядок на следующую сессию:**
+Начать с React 19 (фундамент), затем React Router 7, потом Zustand + TanStack Query.
 
 ## Коммит
-`fix: исправлен type-only экспорт Template и добавлена поддержка SVG-компонентов`
+
+`feat: husky+lint-staged, README.dev.md, docker-compose, PWA (vite-plugin-pwa)`
 
 ## Предупреждения/заметки
 
-- **Скрипт `.planning/scripts/fix-type-exports.js`** — запускать при добавлении новых barrel-файлов или типов.
-- **`vite build` всё ещё падает** из-за циклических зависимостей чанков Rollup.
-- **ESLint (~1405 ошибок)** — предсуществующие.
-- **1 упавший тест** — `config.test.ts` (ASSEMBLY_DATE), предсуществующая.
-- **Важно:** при добавлении новых интерфейсов/типов в barrel-файлы всегда использовать `export type`.
-- **SVG как React-компонент:** использовать `import Foo from './foo.svg?react'` (не забывать `?react`).
+- **Husky:** после клонирования репозитория `npm install` автоматически вызывает `prepare` → `husky`
+- **PWA:** манифест генерируется автоматически при сборке, favicon.png используется как иконка (192/512)
+- **Docker Compose:** проверить доступность образов (`spurin/firebase-auth-emulator`, `mtlynch/firestore-emulator`, `oittaa/gcp-storage-emulator`) перед первым запуском
+- **MUI 9:** migration guide — https://mui.com/material-ui/migration/upgrade-to-v9/ (огромный объём изменений)
+- **vite build** всё ещё падает из-за циклических зависимостей чанков Rollup (предсуществующая проблема)
+- **ESLint (~1405 ошибок)** — предсуществующие
+- **1 упавший тест** — `config.test.ts` (ASSEMBLY_DATE), предсуществующая
