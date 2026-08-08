@@ -1,6 +1,5 @@
 import { isFieldValueBool } from '..';
 
-
 describe('isFieldValueBool', () => {
   test('Field value is boolean - true', () => {
     expect(isFieldValueBool({ data: true }, 'data')).toEqual(true);
@@ -26,7 +25,6 @@ describe('isFieldValueBool', () => {
   test('Field value is null', () => {
     expect(isFieldValueBool({ data: null }, 'data')).toEqual(false);
   });
-  
 });
 
 // npm run test:unit is-field-value-bool.test.ts

@@ -1,3 +1,3 @@
-export type Item = Object & { [k: string]: unknown }
+export type Item = object & { [k: string]: unknown };
 
-export type Items = Item[] | string[] | number[]
+export type Items = Item[] | string[] | number[];

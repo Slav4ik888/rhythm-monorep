@@ -1,35 +1,33 @@
-import { Mocks } from "./types";
-
-
+import { Mocks } from './types';
 
 export const mocks: Mocks = [
   [
     {
-      description : `Верные данные`,
-      obj         : { id: `userId123` }
+      description: 'Верные данные',
+      obj: { id: 'userId123' },
     },
-    `id`
+    'id',
   ],
   [
     {
-      description : `Obj is undefined`,
-  // @ts-ignore
-      obj         : undefined
+      description: 'Obj is undefined',
+      // @ts-ignore
+      obj: undefined,
     },
-    ``
+    '',
   ],
   [
     {
-      description : `Obj is empty`,
-      obj         : {}
+      description: 'Obj is empty',
+      obj: {},
     },
-    ``
+    '',
   ],
   [
     {
-      description : `Obj with greater than 1 filed`,
-      obj         : { id: `userId123`, some: `foobee` }
+      description: 'Obj with greater than 1 filed',
+      obj: { id: 'userId123', some: 'foobee' },
     },
-    ``
+    '',
   ],
 ];

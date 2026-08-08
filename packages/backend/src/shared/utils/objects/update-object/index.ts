@@ -1,17 +1,18 @@
+// packages/backend/src/shared/utils/objects/update-object/index.ts
+
 import { isArrsEqual } from '../../arrays';
 import { isArr, isObj, isUndefined, isNotObj } from '../../../../libs/validators';
 import { cloneObj } from '../objects';
 import { setValueByScheme } from '../set-value-by-scheme';
-
-
 
 /**
  * Check updObj of new field, that absent in prevObj
  * Add new field to newObj
  */
 const addNewField = (newObj: object, prevObj: object, updObj: object, prevScheme: string = ''): void => {
-  if (isNotObj(updObj)) return
-  
+  if (isNotObj(updObj)) return;
+
+  /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
   for (const key in updObj) {
     const scheme = prevScheme ? `${prevScheme}.${key}` : key;
 
@@ -20,8 +21,10 @@ const addNewField = (newObj: object, prevObj: object, updObj: object, prevScheme
       const updValue = updObj[key];
 
       // @ts-ignore
-      if (isUndefined(prevObj[key])) { // New field
+      if (isUndefined(prevObj[key])) {
+        // New field
         setValueByScheme(newObj, scheme, updValue);
+        // eslint-disable-next-line no-continue
         continue;
       }
 
@@ -31,44 +34,40 @@ const addNewField = (newObj: object, prevObj: object, updObj: object, prevScheme
   }
 };
 
-
 /** Check is Array or any type and save */
 const addChanges = (newObj: object, prevValue: unknown, updValue: unknown, scheme: string) => {
   if (isArr(prevValue as unknown as object[])) {
-    if (! isArrsEqual(prevValue as unknown as object[], updValue as unknown as object[])) {
+    if (!isArrsEqual(prevValue as unknown as object[], updValue as unknown as object[])) {
       setValueByScheme(newObj, scheme, updValue);
     }
-  }
-  else if (prevValue !== updValue) {
+  } else if (prevValue !== updValue) {
     setValueByScheme(newObj, scheme, updValue);
   }
 };
 
-
 /** Add changes */
 const checkAndAddChanges = (newObj: object, prevObj: object, updObj: object, prevScheme: string = ''): void => {
+  /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
   for (const key in prevObj) {
     const scheme = prevScheme ? `${prevScheme}.${key}` : key;
 
     if (Object.prototype.hasOwnProperty.call(prevObj, key)) {
-      const
-        // @ts-ignore
-        value    = prevObj[key],
+      const // @ts-ignore
+        value = prevObj[key],
         // @ts-ignore
         updValue = updObj[key];
 
+      // eslint-disable-next-line no-continue
       if (isUndefined(updValue)) continue; // В этом элементе не было изменений
 
       if (isObj(value)) {
         checkAndAddChanges(newObj, value, updValue, scheme);
-      }
-      else {
+      } else {
         addChanges(newObj, value, updValue, scheme);
       }
     }
   }
 };
-
 
 /**
  * v.2023-05-19
@@ -77,22 +76,18 @@ const checkAndAddChanges = (newObj: object, prevObj: object, updObj: object, pre
  * Обновляет атомарно
  * Not deleted fields
  */
-export function updateObject<T extends object, O extends Partial<T & any>>(
-  prevObj   : T,
-  updFields : O
-): T & O | T {
-
-  if (! prevObj && ! updFields) return {} as T;
-  if (  prevObj && ! updFields) return prevObj;
-  if (! prevObj &&   updFields) return updFields as unknown as T;
+export function updateObject<T extends object, O extends Partial<T & any>>(prevObj: T, updFields: O): (T & O) | T {
+  if (!prevObj && !updFields) return {} as T;
+  if (prevObj && !updFields) return prevObj;
+  if (!prevObj && updFields) return updFields as unknown as T;
 
   const newObj = cloneObj(prevObj);
 
   // CHECK prevObj
   checkAndAddChanges(newObj, prevObj, updFields);
-  
-  // CHECK new field in updFields 
+
+  // CHECK new field in updFields
   addNewField(newObj, prevObj, updFields);
 
   return newObj;
-};
+}

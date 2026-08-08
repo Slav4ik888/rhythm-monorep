@@ -1,5 +1,4 @@
-import {withZero} from '.';
-
+import { withZero } from '.';
 
 const mocks = [
   [undefined, '00'],
@@ -10,10 +9,8 @@ const mocks = [
   ['1', '01'],
 ];
 
-
 describe('withZero', () => {
-  mocks.forEach(m => it(`${m[0]}`, () => expect(withZero(m[0] as string | number))
-    .toEqual(m[1])))
+  mocks.forEach((m) => it(`${m[0]}`, () => expect(withZero(m[0] as string | number)).toEqual(m[1])));
 });
 
 // npm run test:unit with-zero.test.ts

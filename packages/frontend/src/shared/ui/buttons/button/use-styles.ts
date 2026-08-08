@@ -1,26 +1,25 @@
 import { CustomTheme } from 'app/providers/theme';
 import { SxCard } from 'shared/styles';
-import type { Variant } from "./types";
-import { ButtonType } from "./types";;
-
-
+import type { Variant } from './types';
+import { ButtonType } from './types';
 
 export const useStyles = (
-  theme    : CustomTheme,
-  sx       : SxCard,
-  type     : ButtonType,
-  variant  : Variant,
-  disabled : boolean | undefined
+  theme: CustomTheme,
+  sx: SxCard,
+  type: ButtonType,
+  variant: Variant,
+  disabled: boolean | undefined,
 ) => {
-  const
-    isPrimary   = type === ButtonType.PRIMARY,
+  const isPrimary = type === ButtonType.PRIMARY,
     isContained = variant === 'contained';
 
   let color = isContained
     ? isPrimary
-      ? theme.palette.primary.contrastText : theme.palette.secondary.contrastText
+      ? theme.palette.primary.contrastText
+      : theme.palette.secondary.contrastText
     : isPrimary
-      ? theme.palette.primary.main : theme.palette.secondary.main;
+      ? theme.palette.primary.main
+      : theme.palette.secondary.main;
 
   if (disabled) {
     color = theme.palette.text.light;
@@ -30,16 +29,16 @@ export const useStyles = (
     ? 'inherit'
     : isContained
       ? isPrimary
-        ? theme.palette.primary.main : theme.palette.secondary.light
-      : 'inherit'
-
+        ? theme.palette.primary.main
+        : theme.palette.secondary.light
+      : 'inherit';
 
   return {
     root: {
       color,
       background,
       transition: 'all 0.2s ease',
-      ...sx?.root
-    }
-  }
+      ...sx?.root,
+    },
+  };
 };

@@ -1,9 +1,8 @@
-import type { Errors } from "../../validators";
-import { isObj } from "../../validators";;
+import type { Errors } from '../../validators';
+import { isObj } from '../../validators';
 
 /**
  * For slices
  */
-export const getPayloadError = (payload: Errors | undefined): Errors => isObj(payload)
-  ? payload as Errors
-  : {} as Errors;
+export const getPayloadError = (payload: Errors | undefined): Errors =>
+  isObj(payload) ? (payload as Errors) : ({} as Errors);

@@ -1,41 +1,36 @@
 import { FC, ReactNode, useEffect, useMemo, useReducer } from 'react';
-import {
-  ThemeProvider as MuiThemeProvider, createTheme, useTheme as useMUITheme
- } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider, createTheme, useTheme as useMUITheme } from '@mui/material/styles';
 import type { PaletteMode, UIConfiguratorProviderState } from '../types';
 import { reducer, setMode, setSidebarColor } from '../model/ui-configurator-reducer/reducer';
 import { calcLeftOffsetScrollButton, getThemeByName } from '../utils';
-import type { UIConfiguratorContextType } from "../model/ui-configurator-reducer/ui-configurator-context";
-import { UIConfiguratorContext } from "../model/ui-configurator-reducer/ui-configurator-context";;
+import type { UIConfiguratorContextType } from '../model/ui-configurator-reducer/ui-configurator-context';
+import { UIConfiguratorContext } from '../model/ui-configurator-reducer/ui-configurator-context';
 import { LS } from 'shared/lib/local-storage';
 import { isNotUndefined } from 'shared/lib/validators';
 import { SIDEBAR_FULL_WIDTH } from '../consts';
 
-
-
 const fromLS = LS.getUIConfiguratorState();
 
-const isSidebar   = isNotUndefined(fromLS?.isSidebar) ? Boolean(fromLS?.isSidebar) : true;
+const isSidebar = isNotUndefined(fromLS?.isSidebar) ? Boolean(fromLS?.isSidebar) : true;
 const sidebarMini = fromLS?.sidebarMini || false;
 
 const initialState: UIConfiguratorProviderState = {
-  mode                   : fromLS?.mode                   || 'system',
-  isOpenConfigurator     : fromLS?.isOpenConfigurator     || false,
-  navbarFixed            : fromLS?.navbarFixed            || true,
-  navbarTransparent      : fromLS?.navbarTransparent      || false,
-  navbarColor            : fromLS?.navbarColor            || 'navbar_white',
+  mode: fromLS?.mode || 'system',
+  isOpenConfigurator: fromLS?.isOpenConfigurator || false,
+  navbarFixed: fromLS?.navbarFixed || true,
+  navbarTransparent: fromLS?.navbarTransparent || false,
+  navbarColor: fromLS?.navbarColor || 'navbar_white',
   isSidebar,
-  isMobileOpenSidebar    : false,
-  sidebarWidth           : fromLS?.sidebarWidth           || SIDEBAR_FULL_WIDTH,
+  isMobileOpenSidebar: false,
+  sidebarWidth: fromLS?.sidebarWidth || SIDEBAR_FULL_WIDTH,
   sidebarMini,
-  sidebarColor           : fromLS?.sidebarColor           || 'sidebar_black',
-  leftOffsetScrollButton : calcLeftOffsetScrollButton(isSidebar, sidebarMini), // При монтировании ScrollableWorkspace рассчитается
+  sidebarColor: fromLS?.sidebarColor || 'sidebar_black',
+  leftOffsetScrollButton: calcLeftOffsetScrollButton(isSidebar, sidebarMini), // При монтировании ScrollableWorkspace рассчитается
 };
 
-
 interface Props {
-  initial? : PaletteMode // For Story
-  children : ReactNode
+  initial?: PaletteMode; // For Story
+  children: ReactNode;
 }
 
 export const UIConfiguratorProvider: FC<Props> = ({ initial, children }) => {
@@ -58,14 +53,9 @@ export const UIConfiguratorProvider: FC<Props> = ({ initial, children }) => {
 
   const theme = useMemo(() => createTheme(getThemeByName(muiTheme, controller)), [muiTheme, controller]);
 
-
   return (
     <UIConfiguratorContext.Provider value={value}>
-      <MuiThemeProvider theme={theme}>
-        {
-          children
-        }
-      </MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
     </UIConfiguratorContext.Provider>
-  )
+  );
 };

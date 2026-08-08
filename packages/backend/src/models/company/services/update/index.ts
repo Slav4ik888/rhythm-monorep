@@ -3,9 +3,6 @@ import { creatorFixDate } from '../../../base';
 import { DbRef, getRefDoc } from '../../../helpers';
 import { PartialCompany } from '../../types';
 
-
-
-
 /** Update Company in DB */
 export const serviceUpdateCompany = async (company: PartialCompany, userId: string): Promise<PartialCompany> => {
   const companyId = company.id;
@@ -16,5 +13,5 @@ export const serviceUpdateCompany = async (company: PartialCompany, userId: stri
 
   await getRefDoc(DbRef.COMPANY, { companyId }).update(dataInDot);
 
-  return company
+  return company;
 };

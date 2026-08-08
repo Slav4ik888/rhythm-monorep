@@ -1,35 +1,34 @@
 import { SCHEMA_NAME } from './schema-names';
 
-
 export const definitions = {
-  $id  : SCHEMA_NAME.DEFS_BASE,
-  type : 'object',
+  $id: SCHEMA_NAME.DEFS_BASE,
+  type: 'object',
 
   definitions: {
     date: {
-      type    : 'number',
-      minimum : 0,
-      maximum : 4102423200000
+      type: 'number',
+      minimum: 0,
+      maximum: 4102423200000,
     },
     email: {
-      type      : 'string',
-      maxLength : 50,
-      format    : 'email'
+      type: 'string',
+      maxLength: 50,
+      format: 'email',
     },
     password: {
-      type      : "string",
-      minLength : 6,
-      maxLength : 50
+      type: 'string',
+      minLength: 6,
+      maxLength: 50,
     },
-    confirmPassword : {
+    confirmPassword: {
       const: {
-        $data: "1/password"
-      }
+        $data: '1/password',
+      },
     },
     order: {
-      type    : 'number',
-      minimum : 0,
-      maximum : 1000000
-    }
-  }
-}
+      type: 'number',
+      minimum: 0,
+      maximum: 1000000,
+    },
+  },
+};

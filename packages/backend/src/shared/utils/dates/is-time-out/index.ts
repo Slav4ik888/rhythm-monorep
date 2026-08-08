@@ -8,14 +8,13 @@ import { getCurrentMs } from '../get-current-ms';
  * v.23-04-20
  */
 export function isTimeOut(
-  lastTime : string | number, // предыдущее время
-  waiting  : number  // ожидание в ms
+  lastTime: string | number, // предыдущее время
+  waiting: number, // ожидание в ms
 ): boolean {
   if (!lastTime) return true;
 
-  const
-    lastTimeMs = (isNum(lastTime) ? lastTime : Date.parse(lastTime as string)) as number,
+  const lastTimeMs = (isNum(lastTime) ? lastTime : Date.parse(lastTime as string)) as number,
     currentTimeMs = getCurrentMs();
 
   return waiting < currentTimeMs - lastTimeMs;
-};
+}

@@ -1,71 +1,70 @@
+// packages/backend/src/shared/utils/objects/get-changes/index.ts
+
 import { isArrsEqual } from '../../arrays';
 import { isArr, isUndefined, isObj, isNotObj } from '../../../../libs/validators';
 import { setValueByScheme } from '../set-value-by-scheme';
-
-
 
 /**
  * Check updObj of new field, that absent in prevObj
  * Add new field to newObj
  */
+// eslint-disable-next-line max-len
 const checkAndAddNewField = (newObj: object, prevObj: object, updObj: object, prevScheme: string = ''): void => {
-  if (isNotObj(updObj)) return
-  
+  if (isNotObj(updObj)) return;
+
+  /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
   for (const key in updObj) {
     const scheme = prevScheme ? `${prevScheme}.${key}` : key;
 
     if (Object.prototype.hasOwnProperty.call(updObj, key)) {
-  // @ts-ignore
+      // @ts-ignore
       const updValue = updObj[key];
 
-  // @ts-ignore
-      if (isUndefined(prevObj[key])) { // New field
+      // @ts-ignore
+      if (isUndefined(prevObj[key])) {
+        // New field
         setValueByScheme(newObj, scheme, updValue);
+        // eslint-disable-next-line no-continue
         continue;
       }
 
-  // @ts-ignore
+      // @ts-ignore
       checkAndAddNewField(newObj, prevObj[key], updValue, scheme);
     }
   }
 };
 
-
-
 /** Check is Array or any type and save */
 const checkIfNotObj = (newObj: object, prevValue: unknown, updValue: unknown, scheme: string) => {
   if (isArr(prevValue as unknown as object[])) {
-    if (! isArrsEqual(prevValue as unknown as object[], updValue as unknown as object[])) setValueByScheme(newObj, scheme, updValue);
-  }
-  else if (prevValue !== updValue) setValueByScheme(newObj, scheme, updValue);
+    // eslint-disable-next-line max-len
+    if (!isArrsEqual(prevValue as unknown as object[], updValue as unknown as object[]))
+      setValueByScheme(newObj, scheme, updValue);
+  } else if (prevValue !== updValue) setValueByScheme(newObj, scheme, updValue);
 };
 
-
-
-
 const checkChanges = (newObj: object, prevObj: object, updObj: object, prevScheme: string = ''): void => {
+  /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
   for (const key in prevObj) {
     const scheme = prevScheme ? `${prevScheme}.${key}` : key;
 
     if (Object.prototype.hasOwnProperty.call(prevObj, key)) {
-      const
-  // @ts-ignore
+      const // @ts-ignore
         value = prevObj[key],
-  // @ts-ignore
+        // @ts-ignore
         updValue = updObj[key];
 
+      // eslint-disable-next-line no-continue
       if (isUndefined(updValue)) continue; // В этом элементе не было изменений
 
       if (isObj(value)) {
         checkChanges(newObj, value, updValue, scheme);
-      }
-      else {
+      } else {
         checkIfNotObj(newObj, value, updValue, scheme);
       }
     }
   }
 };
-
 
 /**
  * v.2023-05-16
@@ -76,16 +75,16 @@ const checkChanges = (newObj: object, prevObj: object, updObj: object, prevSchem
  * @param updObj  - новый объект
  */
 export function getChanges<T extends object>(prevObj: T, updObj: Partial<T>): Partial<T> {
-  if ((! prevObj && ! updObj) || ! updObj) return {};
-  if (! prevObj) return updObj;
+  if ((!prevObj && !updObj) || !updObj) return {};
+  if (!prevObj) return updObj;
 
   const newObj = {};
 
   // CHECK prevObj
   checkChanges(newObj, prevObj, updObj);
-  
-  // CHECK new field in updObj 
+
+  // CHECK new field in updObj
   checkAndAddNewField(newObj, prevObj, updObj);
 
-  return newObj
+  return newObj;
 }

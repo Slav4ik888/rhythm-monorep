@@ -3,13 +3,11 @@ import { BunchAction } from '../../../../shared/lib/structures/bunch';
 import { serviceDashboardViewCreateGroupItems } from '../../services';
 import { ViewItem } from '../../types';
 
-
-
 export interface CreateGroupViewItems {
-  bunchUpdatedMs : number
-  companyId      : string
-  viewItems      : ViewItem[]
-  bunchAction    : BunchAction
+  bunchUpdatedMs: number;
+  companyId: string;
+  viewItems: ViewItem[];
+  bunchAction: BunchAction;
 }
 
 /**
@@ -23,7 +21,7 @@ export const createGroupViewItemsModel = async (ctx: Context): Promise<void> => 
 
   // TODO: validateNewView(ctx, userData);
 
-  if (! companyId || ! viewItems || ! viewItems?.length || ! bunchUpdatedMs || ! bunchAction ) {
+  if (!companyId || !viewItems || !viewItems?.length || !bunchUpdatedMs || !bunchAction) {
     ctx.throw(400, 'invalid body required field');
   }
 

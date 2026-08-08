@@ -8,26 +8,25 @@ import SMTPTransport from 'nodemailer-smtp-transport';
 import StubTransport from 'nodemailer-stub-transport';
 import { SendEmailOptions } from './types';
 
-
 const { user, pass } = emailConfig;
 
-const transportEngine = process.env.NODE_ENV === 'test' ?
-  StubTransport() :
-  SMTPTransport({
-    // host: 'smtp.yandex.ru',
-    host   : 'smtp.gmail.com',
-    port   : 465,
-    secure : true,
-    auth   : {
-      user,
-      pass
-    },
-  });
+const transportEngine =
+  process.env.NODE_ENV === 'test'
+    ? StubTransport()
+    : SMTPTransport({
+        // host: 'smtp.yandex.ru',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user,
+          pass,
+        },
+      });
 
 const transport = createTransport(transportEngine);
 
 transport.use('compile', htmlToText());
-
 
 /**
  * sendMail - функция, отправляющая письмо на указанный адрес
@@ -46,23 +45,20 @@ transport.use('compile', htmlToText());
  */
 export async function sendMail(options: SendEmailOptions) {
   const { template, locals, to, subject, attachments } = options;
-  const html = renderFile(
-      join(__dirname, './templates', template) + '.pug',
-      locals || {}
-  );
+  const html = renderFile(`${join(__dirname, './templates', template)}.pug`, locals || {});
 
   const message = {
     html: juice(html),
     to: {
-      name    : 'not named',
-      address : to,
+      name: 'not named',
+      address: to,
     },
     subject,
-    attachments
+    attachments,
   };
 
   return transport.sendMail(message);
-};
+}
 
 const _transportEngine = transportEngine;
 export { _transportEngine as transportEngine };

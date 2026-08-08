@@ -1,19 +1,16 @@
-import type { Operation, OperationArguments } from "../../../types";
-import { DbRefName } from "../../../types";;
+import type { Operation, OperationArguments } from '../../../types';
+import { DbRefName } from '../../../types';
 import { createSet } from '../../base';
 
-
-export const createDocumentSet = (
-  args : OperationArguments & { id: string },
-  path : string[] = []
-): Operation => createSet(
-  args,
-  {
-    id        : args.id,
-    dbRefName : DbRefName.DOCUMENTS
-  },
-  path
-)
+export const createDocumentSet = (args: OperationArguments & { id: string }, path: string[] = []): Operation =>
+  createSet(
+    args,
+    {
+      id: args.id,
+      dbRefName: DbRefName.DOCUMENTS,
+    },
+    path,
+  );
 
 // {
 //   path    : [],

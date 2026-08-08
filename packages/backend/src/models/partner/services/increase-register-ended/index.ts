@@ -5,20 +5,17 @@ import { CompanyId } from '../../../company';
 import { Email } from '../../../base';
 import { db } from '../../../../libs/firebase';
 
-
-
 /** increase register ended in DB */
 export const serviceIncreaseRegisterEnded = async (
-  partnerId : string,
-  email     : Email,
-  companyId : CompanyId
+  partnerId: string,
+  email: Email,
+  companyId: CompanyId,
 ): Promise<undefined> => {
-
   // Set | Update
   const ref = getRefDoc(DbRef.PARTNER, { partnerId });
 
   const docTemp = await ref.get();
-  if (! docTemp.exists) return
+  if (!docTemp.exists) return;
 
   const partner = docTemp.data() as PartnerData;
 
@@ -26,9 +23,7 @@ export const serviceIncreaseRegisterEnded = async (
   const batch = db.batch();
 
   batch.update(ref, {
-    registered: partner.registered
-      ? partner.registered + 1
-      : 1
+    registered: partner.registered ? partner.registered + 1 : 1,
   });
 
   batch.update(ref, {
@@ -38,9 +33,9 @@ export const serviceIncreaseRegisterEnded = async (
       [email]: {
         email,
         companyId,
-        createdAt: getCurrentMs()
-      }
-    }
+        createdAt: getCurrentMs(),
+      },
+    },
   });
 
   // Commit the batch

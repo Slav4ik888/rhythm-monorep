@@ -1,9 +1,11 @@
+// packages/frontend/src/shared/lib/hooks/use-click-outside/index.ts
+
 import { useEffect, MouseEvent } from 'react';
 
 // Improved version of https://usehooks.com/useOnClickOutside/
 export const useClickOutside = (
-  ref: React.MutableRefObject<undefined>,
-  handler: (event: MouseEvent | TouchEvent) => void
+  ref: React.MutableRefObject<HTMLElement | null>,
+  handler: (event: MouseEvent | TouchEvent) => void,
 ) => {
   useEffect(() => {
     let startedInside = false;

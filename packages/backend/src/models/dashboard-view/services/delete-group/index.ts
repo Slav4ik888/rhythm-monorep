@@ -6,8 +6,6 @@ import { convertToDot } from '../../../../shared/utils/objects';
 import { getBunchesTimestamps } from '../../utils';
 import { FieldValue } from 'firebase-admin/firestore';
 
-
-
 /** Delete group ViewItems from DB */
 export const serviceDashboardViewDeleteGroup = async (ctx: Context): Promise<undefined> => {
   const { viewItems, companyId, bunchUpdatedMs } = ctx.request.body as DeleteViews;
@@ -15,10 +13,10 @@ export const serviceDashboardViewDeleteGroup = async (ctx: Context): Promise<und
   // Get a new write batch
   const batch = db.batch();
 
-  viewItems.forEach(item => {
+  viewItems.forEach((item) => {
     const ref = getRefDoc(DbRef.BUNCH, { companyId, bunchId: item.bunchId });
     const updateObject = {
-      [item.id]: FieldValue.delete()
+      [item.id]: FieldValue.delete(),
     };
     batch.update(ref, updateObject);
   });
@@ -27,9 +25,6 @@ export const serviceDashboardViewDeleteGroup = async (ctx: Context): Promise<und
   const ref = getRefDoc(DbRef.COMPANY, { companyId });
   batch.update(ref, convertToDot({ bunchesUpdated: getBunchesTimestamps(viewItems, bunchUpdatedMs) }));
 
-
   // Commit the batch
   await batch.commit();
-
-  return
 };

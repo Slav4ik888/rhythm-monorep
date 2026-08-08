@@ -1,14 +1,13 @@
 import { WEEK_DAYS, WEEK_DAYS_FULL, WEEK_DAYS_RU } from './utils/consts';
 
-
 /**
  * Возвращает день недель в нужном формате
  */
 export function getWeekDay(
-  timestamp : number, // таймстамп
-  format    : string  // формат, в котором нужно вернуть timestamp
-): string {           // день недели в нужном формате
-
+  timestamp: number, // таймстамп
+  format: string, // формат, в котором нужно вернуть timestamp
+): string {
+  // день недели в нужном формате
   const newDate = new Date(timestamp);
 
   const formatType = {
@@ -27,6 +26,7 @@ export function getWeekDay(
     case formatType.largeRus:
       return WEEK_DAYS_FULL[newDate.getDay()];
 
-    default: return timestamp.toString();
+    default:
+      return timestamp.toString();
   }
 }

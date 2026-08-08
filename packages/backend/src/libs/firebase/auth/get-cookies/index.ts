@@ -8,10 +8,10 @@ export function getCookies(ctx: Context): object {
 
   if (cookieHeader) {
     const cookies = cookieHeader.split(';');
-    cookies.forEach(function (item) {
+    cookies.forEach((item) => {
       const crumbs = item.split('=');
       if (crumbs.length > 1) cookie[crumbs[0].trim()] = crumbs[1].trim();
     });
   }
-  return cookie
+  return cookie;
 }

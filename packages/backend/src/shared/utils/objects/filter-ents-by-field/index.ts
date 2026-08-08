@@ -1,70 +1,44 @@
+// packages/backend/src/shared/utils/objects/filter-ents-by-field/index.ts
 
-/**
- * Default
- */
-  // @ts-ignore
-const validate = (entities, field, value, id) => entities[id]?.[field] === value;
+import { isArr } from '../../../../libs/validators';
+import type { Item, Entities } from '../../arrays';
 
-/**
- * If entities[id][field] is array
- */
-  // @ts-ignore
-const includesValidate = (entities, field, value, id) => entities[id]?.[field]?.includes(value);
+function getValidator<T>(value: T | T[], includes?: boolean, validFunc?: (ent: Item, value: T) => boolean) {
+  if (validFunc) {
+    return (ents: Item, field: string, v: T, id: string) => validFunc(ents[id] as Item, v);
+  }
 
-/**
- * Check by one of in Value
- */
-  // @ts-ignore
-const valueIsArray = (entities, field, value, id) => value.includes(entities[id]?.[field]);
-  
-/**
- * For recived validFunc
- */
-  // @ts-ignore
-const validatorFunc = (entities, field, _, id, validFunc) => validFunc(entities[id]?.[field]);
-
-
-  // @ts-ignore
-const getValidator = (value, includes, validFunc) => validFunc
-  ? validatorFunc
-  : Array.isArray(value)
-      ? valueIsArray
-      : includes
-          ? includesValidate
-          : validate;
-  
-
-
-interface Entities<O extends object> {
-  [id: string]: O
+  if (isArr(value)) {
+    if (includes) return (ents: Item, field: string, v: T[], id: string) => (ents[id] as Item)[field]?.includes(v);
+    else return (ents: Item, field: string, v: T[], id: string) => v.includes((ents[id] as Item)[field]);
+  } else if (includes) return (ents: Item, field: string, v: T, id: string) => (ents[id] as Item)[field]?.includes(v);
+  else return (ents: Item, field: string, v: T, id: string) => (ents[id] as Item)[field] === v;
 }
 
 /**
- * Filter entities by field and value - entities[id][field] === value
- * @param ents
- * @param field     - field for filter
- * @param value     - checked value
- * @param includes  - if entities[id][field] is array
- * @param validFunc 
+ * v.2023-05-08
+ * Filter ents by field value
+ * Возвращает объект с полями значения который равны value
  */
 export function filterEntsByField<O extends object, T>(
-  entities   : Entities<O>,
-  field      : string,
-  value      : T | T[],
-  includes?  : boolean,
-  validFunc? : Function
+  entities: Entities<O>,
+  field: string,
+  value: T | T[],
+  includes?: boolean,
+  validFunc?: (ent: Item, value: T) => boolean,
 ): Entities<O> {
-  let ents = {};
-  if (!field || typeof value === `undefined`) return ents;
+  const ents = {};
+  if (!field || typeof value === 'undefined') return ents;
 
   const validator = getValidator(value, includes, validFunc);
 
-  for (let id in entities) {
+  /* eslint-disable-next-line guard-for-in, no-restricted-syntax */
+  for (const id in entities) {
     if (Object.prototype.hasOwnProperty.call(entities, id)) {
-  // @ts-ignore
-      if (validator(entities, field, value, id, validFunc)) ents[id] = entities[id];
+      // @ts-ignore
+      if (validator(entities, field, value, id)) ents[id] = entities[id];
     }
   }
 
   return ents;
-};
+}

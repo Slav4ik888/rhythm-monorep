@@ -1,16 +1,15 @@
 import { Item } from '../types';
 
-export function updateArrBySomeChanges(
-  arr: Item[], field: string, changesArr: string[], obj: Partial<Item>): Item[] {
+export function updateArrBySomeChanges(arr: Item[], field: string, changesArr: string[], obj: Partial<Item>): Item[] {
   if (!arr?.length) return [];
 
-  let newArr = [] as Item[];
+  const newArr = [] as Item[];
 
-  arr.forEach(lastItem => {
-    const res = changesArr.find(ch => ch === lastItem[field]);
+  arr.forEach((lastItem) => {
+    const res = changesArr.find((ch) => ch === lastItem[field]);
     if (res) newArr.push({ ...lastItem, ...obj });
-    else newArr.push(lastItem)
-  })
+    else newArr.push(lastItem);
+  });
 
   return newArr;
 }

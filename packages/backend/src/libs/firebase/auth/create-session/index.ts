@@ -4,20 +4,13 @@ import { User } from '../../../../models/user';
 import { redisSetSession } from '../../../redis';
 import { admin } from '../../config/admin-sdk';
 
-
-
 interface SessionOptions {
-  maxAge   : number
-  httpOnly : boolean
-  path     : string
-};
-  
+  maxAge: number;
+  httpOnly: boolean;
+  path: string;
+}
 
-export async function createSession(
-  ctx     : Context,
-  idToken : string,
-  user    : User
-): Promise<void> {
+export async function createSession(ctx: Context, idToken: string, user: User): Promise<void> {
   // Set session expiration to 30 days.
   const expiresIn = cfg.SESSION_EXP;
 
@@ -30,16 +23,16 @@ export async function createSession(
   // Set cookie policy for session cookie.
   // ADD secure: true, когда будет https
   const sessionOptions: SessionOptions = {
-    maxAge   : expiresIn,
-    httpOnly : true,
-    path     : '/'
+    maxAge: expiresIn,
+    httpOnly: true,
+    path: '/',
   };
 
   // Set to Redis
   redisSetSession(user, sessionCookie);
 
   // Add UserId
-  const cookie = user.id + '/' + sessionCookie;
-  
+  const cookie = `${user.id}/${sessionCookie}`;
+
   ctx.cookies.set(cfg.COOKIE_NAME, cookie, sessionOptions);
 }

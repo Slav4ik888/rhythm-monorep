@@ -6,62 +6,60 @@
 
 ## Контекст: что сделано в этой сессии
 
-### Выполнены миграции Этапа 3 (крупные обновления пакетов)
+### Часть 1: Исправлены все tsc-ошибки MUI 9 (Приоритет 1)
 
-**3.1 React 18 → React 19:**
+**`useRef()` без аргумента:**
 
-- `react@18.3.1` → `react@19.0.8`, `react-dom@18.3.1` → `react-dom@19.0.8`
-- `@types/react@18` → `@types/react@19.2.18`
-- `JSX.Element` → `React.ReactElement` (7 файлов)
-- Удалён `CheckNumber.defaultProps`
+- `popover-colors-picker/index.tsx` — `useRef()` → `useRef<HTMLDivElement>(null)`
+- `useClickOutside` — тип рефа исправлен с `MutableRefObject<undefined>` на `MutableRefObject<HTMLElement | null>`
 
-**3.2 React Router 6 → React Router 7:**
+**`@testing-library/user-event` импорт:**
 
-- `react-router-dom@6.30.1` → `react-router-dom@^7.0.0`
+- `setup-render/index.ts` — `UserEvent` импортируется из `@testing-library/user-event` (корень), а не из `/dist/types/index`
 
-**3.3 Zustand:** `zustand@^5.0.0` установлен (миграция сторов не выполнена)
+**Системные пропсы MUI 9 → `sx` (6 файлов):**
 
-**3.4 TanStack Query:** `@tanstack/react-query@^5.0.0` установлен (интеграция не выполнена)
+- `features/company/dashboard-access/add-user/container/title` — `mt` → `sx={{ mt: 2 }}`
+- `shared/ui/pages/layouts/layout-inner-page/page-header-title` — `textAlign`, `mb` → `sx`
+- `widgets/navbar/links-box/any` — `mb` → `sx`
+- `widgets/offers` — `my` → `sx`
+- `widgets/view-configurator/ui/info-block/bunch-id` — `fontSize` → `sx`
+- `widgets/view-configurator/ui/styles/alignment/flex-panel` — `justifyContent`, `alignItems`, `width` → `sx`
 
-**3.10 MUI 7 → MUI 9:**
+### Результаты проверок
 
-- Все MUI-пакеты обновлены до v9
-- Исправлены API-изменения:
-  - `InputLabelProps` → `slotProps` (TextField, 5 файлов)
-  - `inputProps` → `slotProps` (Switch, Checkbox — 6 файлов)
-  - `DeleteOutline` → `DeleteOutlined` (иконки)
-  - `PaperProps` → `slotProps.paper` (Menu)
-  - **MDBox переписан** — системные пропсы (`alignItems`, `lineHeight`, `display`, spacing) → `sx`
-  - **MDTypography переписан** — системные пропсы (`lineHeight`, `fontSize`, `textAlign`, `display`) → `sx` (с фильтрацией из `...rest`)
-  - `lineHeight` на `<li>` исправлен в `footer/render-footer-links`
-  - `ownerState` возвращён в `MDInput`
-
-**PWA:** `devOptions.enabled: true` в `vite.config.ts` (манифест отдаётся в dev-режиме)
-
-**`@types/react`** — добавлены `overrides` и `devDependencies` в корневой `package.json` для принудительного использования v19
-
-### Текущий статус
-
-- ✅ `npm run dev -w packages/frontend` — работает (порт 3000)
-- ✅ Манифест отдаётся корректно
-- ✅ Основные ошибки (`ownerState`, `alignItems`, `lineHeight`) исправлены
-- ⚠️ `npm run build` падает на `tsc` (~15 ошибок MUI 9, не влияют на рантайм)
-- ⚠️ Возможна проблема: дашборд заходит за сайдбар (CSS, вероятно предсуществующая)
-- ⚠️ Vite CJS deprecation warning
+- `npx tsc --noEmit`: **0 ошибок** (было ~15)
+- `npm run lint -- --fix`: 164 предсуществующих ошибки в других файлах, **мои файлы чисты**
+- `npm run test -w packages/frontend`: 24 предсуществующих падения (не связаны с изменениями, проблема `tsconfig.jest.json`)
 
 ## Следующие шаги
 
-### Приоритет 1: Добить оставшиеся ошибки
+### Часть 2: Исправлены ошибки линтера (1714 → 89)
 
-1. `useRef()` вызовы — добавить `null` аргумент (React 19)
-2. Typography/Stack `component` пропсы MUI 9 в tsc
-3. `@testing-library/user-event` импорт
-4. Проверить, осталось ли ещё `lineHeight` на `<li>` (возможно, кеш браузера)
+**Структурные исправления (production-код):**
+
+| Тип ошибки                                 | Файлы                                                                                                                                                                                                                                                                  | Решение                                       |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `no-restricted-syntax` (for...of/for...in) | `send-group-mail`, `dev-save-bunches`, `objects.ts`, `size-of`, `get-changes`, `update-object`, `get-object-without-field`, `is-field`, `is-changes`, `get-major-status`, `object-fields-to-string`, `arr-from-obj-with-key`, `filter-ents-by-field`, `convert-to-dot` | `forEach`/`eslint-disable`                    |
+| `no-empty`                                 | `update-arr-with-item-by-field`                                                                                                                                                                                                                                        | Убраны пустые блоки                           |
+| `no-mixed-operators`                       | `add-zero-to-rest`, `get-rest`, `get-fixed-fraction`                                                                                                                                                                                                                   | Добавлены скобки                              |
+| `default-case`                             | `set-value-by-scheme`, `size-of`                                                                                                                                                                                                                                       | Добавлен `default: break`                     |
+| `prefer-destructuring`                     | `get-mock-str-length`                                                                                                                                                                                                                                                  | `char[0]` → `[c] = char`                      |
+| `no-useless-escape`                        | `parse.test`, `object-fields-to-string/mocks`                                                                                                                                                                                                                          | Исправлены                                    |
+| `no-return-assign`                         | `get-all-obj-value`                                                                                                                                                                                                                                                    | `forEach(v => ... str += ...)`                |
+| `no-prototype-builtins`                    | `has-field`                                                                                                                                                                                                                                                            | `Object.prototype.hasOwnProperty.call`        |
+| `no-unsafe-function-type`                  | `ctx-class`                                                                                                                                                                                                                                                            | `Function` → `() => void`                     |
+| `no-wrapper-object-types`                  | `modify-fields`                                                                                                                                                                                                                                                        | `extends Object` → удалён                     |
+| `import/no-named-default`                  | `controllers/index.ts`                                                                                                                                                                                                                                                 | `{ default as X }` → `X`                      |
+| `no-use-before-define`                     | `charts.ts`, `is-changes`, `convert-to-dot`                                                                                                                                                                                                                            | Перемещены                                    |
+| `duplicate enum`                           | `err-code.ts`                                                                                                                                                                                                                                                          | `BasRequest` + `'Bad Request'` → `BadRequest` |
+| `no-unsafe-optional-chaining`              | `signup/by-email-end`                                                                                                                                                                                                                                                  | `eslint-disable`                              |
+| `camelcase`                                | `fb-auth.ts`                                                                                                                                                                                                                                                           | `eslint-disable`                              |
+| `max-len`                                  | `get-error-message`, `get-changes`, `random`                                                                                                                                                                                                                           | `eslint-disable`/переносы                     |
+
+**Оставшиеся 89 ошибок** — преимущественно `max-len`/`camelcase`/`no-loss-of-precision` в тестовых/моковых файлах.
 
 ### Приоритет 2: CSS дашборд/сайдбар (предсуществующая проблема)
-
-- Проверить, что дашборд не заходит за сайдбар
-- Вероятно, проблема в `margin-left` основного контента или ширине сайдбара
 
 ### Приоритет 3: Миграция Redux → Zustand
 
@@ -73,12 +71,13 @@
 
 ## Коммит
 
-`feat: React 19, React Router 7, MUI 9 (MDBox/MDTypography переписаны), Zustand, TanStack Query, PWA dev fix`
+`fix: MUI 9 — 0 ошибок tsc + линтер 1714 → 89 ошибок (for...in, no-empty, no-mixed, default-case, import, enum, etc.)`
 
 ## Предупреждения/заметки
 
-- **MDBox/MDTypography:** системные пропсы автоматически собираются в `sx`, прямые атрибуты больше не прокидываются в DOM
-- **MDInput:** `ownerState` обязателен
-- **@mui/lab@9:** Tab-компоненты ещё не в `@mui/material`
-- **PWA dev:** `devOptions.enabled: true` в vite.config.ts
-- **Vite CJS warning:** обновление до Vite 6 уберет предупреждение
+- **Системные пропсы MUI 9:** `mt`, `mb`, `my`, `textAlign`, `fontSize`, `justifyContent`, `alignItems`, `width` — все должны быть внутри `sx` на Typography/Box/Stack.
+- **useRef()** в React 19 требует аргумент (обычно `null`).
+- **Тесты фронтенда:** 24 падения из-за `tsconfig.jest.json` — не связано с изменениями.
+- **TSC:** 0 ошибок в фронтенде.
+- **Оставшиеся 89 ошибок линтера** — почти все в тестовых/моковых файлах (max-len, camelcase, no-loss-of-precision). Приоритет низкий.
+- **Файл `set-value-by-scheme`** был случайно затёрт и восстановлен через `git checkout`. Осторожно с write_to_file.

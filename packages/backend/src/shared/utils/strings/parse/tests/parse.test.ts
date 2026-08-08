@@ -1,13 +1,12 @@
-import { parse } from '..';
+// packages/backend/src/shared/utils/strings/parse/tests/parse.test.ts
 
+import { parse } from '..';
 
 describe('parse', () => {
   test('str === undefined', () => expect(parse(undefined as unknown as string)).toEqual(''));
   test('str === ""', () => expect(parse('')).toEqual(''));
-  test('str === "[]"', () => expect(parse("[]")).toEqual([]));
-  test('str === "{\"str\":\"Slava\"}"', () => expect(parse("{\"str\":\"Slava\"}")).toEqual({str:"Slava"}));
-
-
+  test('str === "[]"', () => expect(parse('[]')).toEqual([]));
+  test('str === {"str":"Slava"}', () => expect(parse('{"str":"Slava"}')).toEqual({ str: 'Slava' }));
 });
 
 // npm run test:unit parse.test.ts

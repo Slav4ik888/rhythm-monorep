@@ -1,10 +1,9 @@
-
 interface MockItem<A> {
-  description : string;
-  arr         : Array<A>;
-  fieldArr    : string;
-  value       : string;
-};
+  description: string;
+  arr: Array<A>;
+  fieldArr: string;
+  value: string;
+}
 
 type MockResult<A> = Array<A>;
 

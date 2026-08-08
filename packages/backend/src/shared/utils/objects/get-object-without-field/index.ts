@@ -1,3 +1,5 @@
+// packages/backend/src/shared/utils/objects/get-object-without-field/index.ts
+
 import { cloneObj } from '../objects';
 
 export function getObjectWithoutField<T>(obj: T, field1: string, field2?: string): T {
@@ -7,17 +9,19 @@ export function getObjectWithoutField<T>(obj: T, field1: string, field2?: string
 
   const newObj = cloneObj(obj);
 
+  /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
   for (const key in newObj) {
     if (Object.prototype.hasOwnProperty.call(newObj, key)) {
       if (key === field1) {
         if (field2) {
+          /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
           for (const key2 in newObj[key]) {
             if (Object.prototype.hasOwnProperty.call(newObj[key], key2)) {
-  // @ts-ignore
-              if (key2 === field2) delete newObj[field1][field2]
+              // @ts-ignore
+              if (key2 === field2) delete newObj[field1][field2];
             }
           }
-  // @ts-ignore
+          // @ts-ignore
         } else delete newObj[field1];
       }
     }

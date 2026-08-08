@@ -3,15 +3,12 @@ import { isNoEmptyFields } from '../../../shared/utils/objects';
 import { ERR_CODE } from '../err-code';
 import { getErrorMessage } from '../get-error-message';
 
-
-
 type Result = Errors & {
-  message? : string
-}
-
+  message?: string;
+};
 
 export const getErrors = (errors: Errors): Result => {
-  if (! errors) return { general: getErrorMessage(ERR_CODE.General) };
+  if (!errors) return { general: getErrorMessage(ERR_CODE.General) };
 
   const isNotEmpty = isNoEmptyFields(errors);
   let result: Result = {};
@@ -46,19 +43,17 @@ export const getErrors = (errors: Errors): Result => {
     default:
       if (errors.code) {
         result = { general: `[${errors?.code}]: ${errors?.message}` };
-      }
-      else if (isNotEmpty) {
+      } else if (isNotEmpty) {
         result = { ...errors };
-      }
-      else result = {
-        general: getErrorMessage(ERR_CODE.General),
-        unknownError: 'true' // Если неизвестная ошибка, нужно её всю залогировать
-      };
-
+      } else
+        result = {
+          general: getErrorMessage(ERR_CODE.General),
+          unknownError: 'true', // Если неизвестная ошибка, нужно её всю залогировать
+        };
   }
 
   if (errors.message) result.message = getErrorMessage(ERR_CODE[errors.message]);
-  if (errors.code)    result.code    = errors.code;
+  if (errors.code) result.code = errors.code;
 
-  return result
-}
+  return result;
+};

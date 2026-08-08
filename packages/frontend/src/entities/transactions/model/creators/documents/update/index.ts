@@ -1,19 +1,16 @@
-import type { Operation, OperationArguments } from "../../../types";
-import { DbRefName } from "../../../types";;
+import type { Operation, OperationArguments } from '../../../types';
+import { DbRefName } from '../../../types';
 import { createUpdate } from '../../base';
 
-
-export const createDocumentUpdate = (
-  args : OperationArguments & { id: string },
-  path : string[] = []
-): Operation => createUpdate(
-  args,
-  {
-    id        : args.id,
-    dbRefName : DbRefName.DOCUMENTS
-  },
-  path
-);
+export const createDocumentUpdate = (args: OperationArguments & { id: string }, path: string[] = []): Operation =>
+  createUpdate(
+    args,
+    {
+      id: args.id,
+      dbRefName: DbRefName.DOCUMENTS,
+    },
+    path,
+  );
 
 // {
 //   path    : [],

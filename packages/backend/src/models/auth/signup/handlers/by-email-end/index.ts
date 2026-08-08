@@ -1,3 +1,5 @@
+// packages/backend/src/models/auth/signup/handlers/by-email-end/index.ts
+
 import { setCookie } from '../../../../../libs/firebase';
 import { createNewCompany, createNewUser, complectionUser } from '../../services';
 import { checkIsNotFreeEmail } from '../../../utils';
@@ -8,10 +10,9 @@ import { checkCodeAnswer } from './utils';
 import { sendNotifications } from './send-notifications';
 import { serviceIncreaseRegisterEnded } from '../../../../partner';
 
-
-
 export async function signupByEmailEndModel(ctx: Context): Promise<any> {
   const { signupDataEnd } = ctx.request.body;
+  // eslint-disable-next-line no-unsafe-optional-chaining
   const { email, emailCode } = ctx.request.body?.signupDataEnd;
 
   validateSignupDataEnd(ctx, signupDataEnd);
@@ -29,7 +30,7 @@ export async function signupByEmailEndModel(ctx: Context): Promise<any> {
   await complectionUser(newUserData, companyId);
   await setCookie(ctx, userCredential, newUserData, 'signup');
 
-  const referrerId = newUserData.partner.referrerId;
+  const { referrerId } = newUserData.partner;
   if (referrerId) await serviceIncreaseRegisterEnded(referrerId, email, companyId);
 
   await sendNotifications(ctx, newUserData, data.signupData?.firstName);
@@ -37,6 +38,6 @@ export async function signupByEmailEndModel(ctx: Context): Promise<any> {
   ctx.body = {
     newUserData,
     newCompanyData,
-    message: 'Поздравляем с успешной регистрацией!'
+    message: 'Поздравляем с успешной регистрацией!',
   };
 }

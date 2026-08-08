@@ -4,7 +4,7 @@
  *  1 => 01, 12 => 12, 12345 => 45
  */
 export function withZero(n: string | number): string {
-  if (!n) return `00`;
+  if (!n) return '00';
 
-  return (`0` + n).slice(-2);
+  return `0${n}`.slice(-2);
 }

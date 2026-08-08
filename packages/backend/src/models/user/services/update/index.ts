@@ -3,20 +3,14 @@ import { creatorFixDate } from '../../../base';
 import { DbRef, getRefDoc } from '../../../helpers';
 import { PartialUser } from '../../types';
 
-
-
-
 /** Update User in DB */
 export const serviceUpdateUser = async (user: PartialUser, userId: string): Promise<undefined> => {
-  const
-    companyId = user.companyId,
-    id        = user.id;
+  const { companyId } = user,
+    { id } = user;
 
   if (isField(user, 'lastChange')) user.lastChange = creatorFixDate(userId);
 
   const dataInDot = convertToDot(user);
 
   await getRefDoc(DbRef.USER, { companyId, userId: id }).update(dataInDot);
-
-  return
 };

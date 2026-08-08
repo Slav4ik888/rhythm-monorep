@@ -1,14 +1,14 @@
 import { hasAnyField } from '..';
-import { objWithManyAnyFields, objWithOneAnyField, objWithoutSomeFields, schema } from './mocks'
+import { objWithManyAnyFields, objWithOneAnyField, objWithoutSomeFields, schema } from './mocks';
 
 describe('hasAnyField', () => {
   test('Object is undefined', () => {
-  // @ts-ignore
+    // @ts-ignore
     expect(hasAnyField(undefined, schema)).toEqual(false);
   });
 
   test('Schema is undefined', () => {
-  // @ts-ignore
+    // @ts-ignore
     expect(hasAnyField(schema, undefined)).toEqual(false);
   });
 
@@ -27,7 +27,6 @@ describe('hasAnyField', () => {
   test('Object with many any fields', () => {
     expect(hasAnyField(objWithManyAnyFields, schema)).toEqual(true);
   });
-  
 });
 
 // npm run test:unit has-any-field.test.ts

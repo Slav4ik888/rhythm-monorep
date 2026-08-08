@@ -1,4 +1,3 @@
-
 /**
  * v.2024-09-28
  * Возвращает строку с разделением тысяч пробелом
@@ -8,14 +7,14 @@ export function addSpaceBetweenNumbers(_number: number | string): string {
   if (_number === undefined || _number === null) return '';
 
   const number = parseFloat(_number as string);
-  if (! number && number !== 0) return '';
-  
+  if (!number && number !== 0) return '';
+
   // Перевести в строку
-  let newNumber = String(_number);
+  const newNumber = String(_number);
 
   // Разрезаем до и после знака
   let beforeDot = newNumber.split('.')[0];
-  let afterDot = newNumber.split('.')[1] ? '.' + newNumber.split('.')[1] : '';
+  const afterDot = newNumber.split('.')[1] ? `.${newNumber.split('.')[1]}` : '';
 
   // Добавляем пробелы
   let result = '';
@@ -26,7 +25,7 @@ export function addSpaceBetweenNumbers(_number: number | string): string {
     for (let i = beforeDot.length - 1; i > -1; i--) {
       num++;
       // if (result.length/3 === Math.floor(result.length/3) && (result.length > 0)) {
-      if (num / 4 === Math.floor(num / 4) && (num > 0)) {
+      if (num / 4 === Math.floor(num / 4) && num > 0) {
         num = 0;
         result += ' ';
         i++;
@@ -41,5 +40,5 @@ export function addSpaceBetweenNumbers(_number: number | string): string {
     beforeDot = newResult;
   }
 
-  return beforeDot + afterDot
+  return beforeDot + afterDot;
 }

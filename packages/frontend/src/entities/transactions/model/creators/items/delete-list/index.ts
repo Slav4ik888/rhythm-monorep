@@ -1,20 +1,16 @@
-import type { Operation, OperationArguments } from "../../../types";
-import { DbRefName } from "../../../types";;
+import type { Operation, OperationArguments } from '../../../types';
+import { DbRefName } from '../../../types';
 import { createDeleteList } from '../../base';
 
-
-export const createItemDeleteList = (
-  args      : OperationArguments,
-  pointerId : string,
-  path      : string[] = []
-): Operation => createDeleteList(
-  args,
-  {
-    id        : pointerId,
-    dbRefName : DbRefName.ITEMS
-  },
-  path
-);
+export const createItemDeleteList = (args: OperationArguments, pointerId: string, path: string[] = []): Operation =>
+  createDeleteList(
+    args,
+    {
+      id: pointerId,
+      dbRefName: DbRefName.ITEMS,
+    },
+    path,
+  );
 
 // {
 //   path    : [],

@@ -1,25 +1,28 @@
-import { isObj } from '../../../../libs/validators';
+// packages/backend/src/shared/utils/objects/is-changes/index.ts
 
+import { isObj } from '../../../../libs/validators';
 
 function checkIsChanges<T>(first: T, second: T) {
   // console.log('second: ', second);
   // console.log('first: ', first);
   let result = false; // Нет изменений
 
-  if (! first && second) return true;
+  if (!first && second) return true;
 
-  for (let key in second) {
+  /* eslint-disable-next-line no-restricted-syntax */
+  for (const key in second) {
     if (Object.prototype.hasOwnProperty.call(second, key)) {
       // console.log('second[key]: ', second[key]);
 
-      if (isObj(second[key])) { // Ищем string | number | boolean
+      if (isObj(second[key])) {
+        // Ищем string | number | boolean
+        // eslint-disable-next-line no-use-before-define
         const res = isChanges(first?.[key], second?.[key]);
         if (res) {
           result = true;
           // console.log(`result IN1: ${key}: `, first?.[key], ` - `, second?.[key]);
         }
-      }
-      else if (second?.[key] !== first?.[key]) {
+      } else if (second?.[key] !== first?.[key]) {
         // console.log('second[key]: ', second[key]);
         // console.log('first[key]: ', first?.[key]);
         // console.log(`result IN2: ${key}: `, second?.[key], ` - `, first?.[key]);
@@ -30,8 +33,7 @@ function checkIsChanges<T>(first: T, second: T) {
   }
 
   return result;
-};
-
+}
 
 /**
  * Проверяет были ли изменения в новом объекте
@@ -47,4 +49,4 @@ export function isChanges<T>(prevObj: T, newObj: T): boolean {
   // console.log('result2: ', result2);
 
   return result1 || result2;
-};
+}

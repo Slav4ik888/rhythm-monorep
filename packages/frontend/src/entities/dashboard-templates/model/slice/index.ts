@@ -4,11 +4,14 @@ import { getPayloadError as getError } from 'shared/lib/errors';
 import type { StateSchemaDashboardTemplates } from './state-schema';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { ViewItem, ViewItemId } from 'entities/dashboard-view';
-import type { ResGetTemplates } from "../services";
-import { getTemplates } from "../services";;
+import type { ResGetTemplates } from '../services';
+import { getTemplates } from '../services';
 import { updateEntities } from 'entities/base';
 import {
-  deleteTemplate, DeleteTemplate, UpdateTemplate, updateTemplate
+  deleteTemplate,
+  DeleteTemplate,
+  UpdateTemplate,
+  updateTemplate,
 } from 'shared/api/features/dashboard-templates';
 import { LS } from 'shared/lib/local-storage';
 import { BunchesUpdated } from 'shared/lib/structures/bunch';
@@ -18,29 +21,26 @@ import { findMainViewItemById, findTemplateBySelectedId, isThisTemplate as isThi
 import { getAllChildren } from 'shared/lib/structures/view-items';
 import type { Template } from '../types';
 
-
-
 const initialState: StateSchemaDashboardTemplates = {
-  loading        : false,
-  errors         : {},
-  _isMounted     : false,
-  bunchesUpdated : undefined,
-  entities       : {},
-  opened         : false,
-  selectedId     : undefined,
-  storedSelected : undefined,
+  loading: false,
+  errors: {},
+  _isMounted: false,
+  bunchesUpdated: undefined,
+  entities: {},
+  opened: false,
+  selectedId: undefined,
+  storedSelected: undefined,
 };
-
 
 export const slice = createSlice({
   name: 'entities/dashboardTemplates',
   initialState,
   reducers: {
     setInitial: (state, { payload }: PayloadAction<StateSchemaDashboardTemplates>) => {
-      state.entities   = payload.entities || {};
+      state.entities = payload.entities || {};
       state.selectedId = payload.selectedId;
-      state.loading    = payload.loading;
-      state.errors     = payload.errors;
+      state.loading = payload.loading;
+      state.errors = payload.errors;
     },
     setIsMounted: (state) => {
       state._isMounted = true;
@@ -62,11 +62,11 @@ export const slice = createSlice({
       state.selectedId = payload;
 
       // Обновляем storedSelected только если изменился Template
-      if (! isThisTemplate) {
-        state.storedSelected = findTemplateBySelectedId(state.entities, payload)
+      if (!isThisTemplate) {
+        state.storedSelected = findTemplateBySelectedId(state.entities, payload);
       }
     },
-    activateMainViewItem:  (state) => {
+    activateMainViewItem: (state) => {
       state.selectedId = findMainViewItemById(state.entities, state.selectedId)?.id;
     },
     deleteSelectedViewItem: (state) => {
@@ -82,65 +82,67 @@ export const slice = createSlice({
 
         state.entities[templateId] = {
           ...state.entities[templateId],
-          viewItems: getArrWithoutArr(viewItems, children).reduce((acc, item) => {
-            acc[item.id] = item;
-            return acc;
-          }, {} as Record<string, ViewItem>),
+          viewItems: getArrWithoutArr(viewItems, children).reduce(
+            (acc, item) => {
+              acc[item.id] = item;
+              return acc;
+            },
+            {} as Record<string, ViewItem>,
+          ),
         };
       }
     },
     cancelUpdateTemplate: (state) => {
       if (state.storedSelected?.id) {
         state.entities[state.storedSelected.id] = {
-          ...state.storedSelected
+          ...state.storedSelected,
         };
       }
-    }
+    },
   },
 
-
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     // GET-BUNCHES-UPDATED []
     builder
       .addCase(getBunchesUpdated.pending, (state) => {
         state.loading = true;
-        state.errors  = {};
+        state.errors = {};
       })
       .addCase(getBunchesUpdated.fulfilled, (state, { payload }: PayloadAction<BunchesUpdated>) => {
         state.bunchesUpdated = payload;
-        state.entities       = updateEntities({}, LS.getTemplates()); // Загружаем Templates из кеша
-        state.loading        = false;
-        state.errors         = {};
+        state.entities = updateEntities({}, LS.getTemplates()); // Загружаем Templates из кеша
+        state.loading = false;
+        state.errors = {};
       })
       .addCase(getBunchesUpdated.rejected, (state, { payload }) => {
-        state.errors  = getError(payload);
+        state.errors = getError(payload);
         state.loading = false;
-      })
+      });
     // GET-BUNCHES []
     builder
       .addCase(getTemplates.pending, (state) => {
         state.loading = true;
-        state.errors  = {};
+        state.errors = {};
       })
       .addCase(getTemplates.fulfilled, (state, { payload }: PayloadAction<ResGetTemplates>) => {
         const { templates, bunchesUpdated } = payload;
 
         state.entities = updateEntities(state.entities, templates);
-        state.loading  = false;
-        state.errors   = {};
+        state.loading = false;
+        state.errors = {};
 
         LS.setTemplates(mergeById(Object.values(state.entities), templates));
         LS.setTemplatesBunchesUpdated(bunchesUpdated); // С сервера приходит весь актуальный объект
       })
       .addCase(getTemplates.rejected, (state, { payload }) => {
-        state.errors  = getError(payload);
+        state.errors = getError(payload);
         state.loading = false;
-      })
+      });
     // UPDATE TEMPLATE
     builder
       .addCase(updateTemplate.pending, (state) => {
         state.loading = true;
-        state.errors  = {};
+        state.errors = {};
       })
       .addCase(updateTemplate.fulfilled, (state, { payload }: PayloadAction<UpdateTemplate>) => {
         const { template, bunchUpdatedMs, fullSet } = payload;
@@ -150,46 +152,46 @@ export const slice = createSlice({
         }
 
         state.entities = updateEntities(state.entities, [template]);
-        state.loading  = false;
-        state.errors   = {};
+        state.loading = false;
+        state.errors = {};
 
         LS.setTemplates(Object.values(state.entities));
         LS.setTemplatesBunchesUpdated({
           ...LS.getTemplatesBunchesUpdated(),
-          [template.bunchId || '1']: bunchUpdatedMs
+          [template.bunchId || '1']: bunchUpdatedMs,
         });
       })
       .addCase(updateTemplate.rejected, (state, { payload }) => {
-        state.errors  = getError(payload);
+        state.errors = getError(payload);
         state.loading = false;
-      })
+      });
     // DELETE TEMPLATE
     builder
       .addCase(deleteTemplate.pending, (state) => {
         state.loading = true;
-        state.errors  = {};
+        state.errors = {};
       })
       .addCase(deleteTemplate.fulfilled, (state, { payload }: PayloadAction<DeleteTemplate>) => {
         const { templateId, bunchUpdatedMs, bunchId } = payload;
 
         delete state.entities[templateId];
 
-        state.selectedId     = undefined;
+        state.selectedId = undefined;
         state.storedSelected = undefined;
-        state.loading        = false;
-        state.errors         = {};
+        state.loading = false;
+        state.errors = {};
 
         LS.setTemplates(Object.values(state.entities));
         LS.setTemplatesBunchesUpdated({
           ...LS.getTemplatesBunchesUpdated(),
-          [bunchId]: bunchUpdatedMs
+          [bunchId]: bunchUpdatedMs,
         });
       })
       .addCase(deleteTemplate.rejected, (state, { payload }) => {
-        state.errors  = getError(payload);
+        state.errors = getError(payload);
         state.loading = false;
-      })
-  }
-})
+      });
+  },
+});
 
 export const { actions, reducer } = slice;

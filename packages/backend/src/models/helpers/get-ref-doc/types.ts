@@ -1,39 +1,37 @@
-
 // TODO: начал делать но не получилось...
 
 export interface RefDataDocUsersType {
-  companyId : string
-  userId    : string
+  companyId: string;
+  userId: string;
 }
 
 export interface RefDataDocCompanyType {
-  companyId : string
+  companyId: string;
 }
 
 export interface RefDataDocTasksType {
-  userId : string
-  taskId : string
+  userId: string;
+  taskId: string;
 }
 
 export interface RefDataDocCommentsType {
-  taskOwnerId : string
-  commentId   : string
+  taskOwnerId: string;
+  commentId: string;
 }
 
 export interface RefDataDocGradeType {
-  email     : string
-  chapterId : string
+  email: string;
+  chapterId: string;
 }
 
 export interface RefDataDocSertificateType {
-  sertificateId: string
+  sertificateId: string;
 }
 
-
-export type RefDataDocType = RefDataDocUsersType |
-  RefDataDocCompanyType |
-  RefDataDocTasksType |
-  RefDataDocCommentsType |
-  RefDataDocGradeType |
-  RefDataDocSertificateType
-  
+export type RefDataDocType =
+  | RefDataDocUsersType
+  | RefDataDocCompanyType
+  | RefDataDocTasksType
+  | RefDataDocCommentsType
+  | RefDataDocGradeType
+  | RefDataDocSertificateType;

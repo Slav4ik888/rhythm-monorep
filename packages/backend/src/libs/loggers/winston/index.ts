@@ -7,9 +7,7 @@ const { createLogger, format, transports } = winston,
   { combine, timestamp, label, printf } = format,
   rootPath = '../../../logs/';
 
-const myFormat = printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`;
-});
+const myFormat = printf(({ level, message, label, timestamp }) => `${timestamp} [${label}] ${level}: ${message}`);
 
 const loggerServer = createLogger({
   level: 'info',

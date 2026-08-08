@@ -1,18 +1,10 @@
-export { createReduxStore } from './config/store'
-export type { AppDispatch } from './config/store'
-export type { CustomAxiosError } from "./config/error-handlers";
-export { errorHandlers } from "./config/error-handlers";
+export { createReduxStore } from './config/store';
+export type { AppDispatch } from './config/store';
+export type { CustomAxiosError } from './config/error-handlers';
+export { errorHandlers } from './config/error-handlers';
 
-export type {
-  StateKey,
-  ReduxStoreWithManager,
-  StateSchema,
-  ThunkConfig,
-  ThunkExtraArg
-} from './config/state'
+export type { StateKey, ReduxStoreWithManager, StateSchema, ThunkConfig, ThunkExtraArg } from './config/state';
 
-export {
-  selectState
-} from './config/state'
+export { selectState } from './config/state';
 
-export { StoreProvider } from './ui'
+export { StoreProvider } from './ui';

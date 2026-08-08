@@ -1,5 +1,6 @@
-import { Mocks } from './types'
+// packages/backend/src/shared/utils/objects/object-fields-to-string/tests/mocks.ts
 
+import { Mocks } from './types';
 
 export const mocks: Mocks = [
   [
@@ -15,33 +16,34 @@ export const mocks: Mocks = [
           d: undefined,
           e: NaN,
           f: null,
-          ['g']: 'myndy'
+          g: 'myndy',
         },
-        last: 123
-      }
+        last: 123,
+      },
     },
-    'error: , mask: Какой-то текcт, obj: { a: 1, b: str, c: [{\"a\":123}], d: undefined, e: NaN, f: null, g: myndy }, last: 123'
+    'error: , mask: Какой-то текcт, obj: { a: 1, b: str, c: [{"a":123}],' +
+      ' d: undefined, e: NaN, f: null, g: myndy }, last: 123',
   ],
   [
     {
       description: 'Obj is undefined',
-  // @ts-ignore
-      obj: undefined
+      // @ts-ignore
+      obj: undefined,
     },
-    ''
+    '',
   ],
   [
     {
       description: 'Obj is string',
-      obj: 'Obj is string'
+      obj: 'Obj is string',
     },
-    'Obj is string'
+    'Obj is string',
   ],
   [
     {
       description: 'Obj is array',
-      obj: [{ a: 1 }]
+      obj: [{ a: 1 }],
     },
-    "[{\"a\":1}]"
+    '[{"a":1}]',
   ],
-]
+];

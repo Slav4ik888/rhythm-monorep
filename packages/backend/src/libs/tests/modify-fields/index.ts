@@ -1,11 +1,11 @@
+// packages/backend/src/libs/tests/modify-fields/index.ts
+
 import { MOCK_FIX_DATE } from '../../../models/base';
 
-
-export interface ModifyFields extends Object {
-  createdAt  : number
-  lastChange : number
+export interface ModifyFields {
+  createdAt: number;
+  lastChange: number;
 }
-
 
 /**
  * 2023-12-19
@@ -14,10 +14,9 @@ export interface ModifyFields extends Object {
  * lastChange
  */
 export function modifyFields<ModifyFields>(obj: ModifyFields): ModifyFields {
-
   return {
     ...obj,
-    createdAt  : MOCK_FIX_DATE,
-    lastChange : MOCK_FIX_DATE
-  }
-};
+    createdAt: MOCK_FIX_DATE,
+    lastChange: MOCK_FIX_DATE,
+  };
+}

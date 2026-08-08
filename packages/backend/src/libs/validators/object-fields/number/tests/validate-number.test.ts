@@ -1,8 +1,6 @@
 import { ErrorText } from '../../../errors-texts';
 import { validateNumber } from '..';
 
-
-
 describe('validateNumber', () => {
   // Not required
 
@@ -27,13 +25,15 @@ describe('validateNumber', () => {
   });
 
   test('Number less min', () => {
-    expect(validateNumber({ someFieldName: 28 }, 'someFieldName', { min: 29, max: 31 }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.NUM_LESS_THAN });
+    expect(validateNumber({ someFieldName: 28 }, 'someFieldName', { min: 29, max: 31 }).errors).toEqual({
+      someFieldName: ErrorText.NUM_LESS_THAN,
+    });
   });
 
   test('Number more max', () => {
-    expect(validateNumber({ someFieldName: 32 }, 'someFieldName', { min: 29, max: 31 }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.NUM_MORE_THAN });
+    expect(validateNumber({ someFieldName: 32 }, 'someFieldName', { min: 29, max: 31 }).errors).toEqual({
+      someFieldName: ErrorText.NUM_MORE_THAN,
+    });
   });
 
   test('Data is empty', () => {
@@ -50,36 +50,40 @@ describe('validateNumber', () => {
   });
 
   test('Number is undefined', () => {
-    expect(validateNumber({ someFieldName: undefined }, 'someFieldName').errors)
-      .toEqual({ ['someFieldName']: ErrorText.NOT_BE_UNDEFINED });
+    expect(validateNumber({ someFieldName: undefined }, 'someFieldName').errors).toEqual({
+      someFieldName: ErrorText.NOT_BE_UNDEFINED,
+    });
   });
 
-
   test('Number is {}', () => {
-    expect(validateNumber({ someFieldName: {} }, 'someFieldName').errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: {} }, 'someFieldName').errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is []', () => {
-    expect(validateNumber({ someFieldName: [] }, 'someFieldName').errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: [] }, 'someFieldName').errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is null', () => {
-    expect(validateNumber({ someFieldName: null }, 'someFieldName').errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: null }, 'someFieldName').errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is boolean = false', () => {
-    expect(validateNumber({ someFieldName: false }, 'someFieldName').errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: false }, 'someFieldName').errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is boolean = true', () => {
-    expect(validateNumber({ someFieldName: true }, 'someFieldName').errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: true }, 'someFieldName').errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
-
 
   // Required
 
@@ -96,57 +100,70 @@ describe('validateNumber', () => {
   });
 
   test('Valid string, with min max, [required]', () => {
-    expect(validateNumber({ someFieldName: 100 }, 'someFieldName', { required: true, min: 100, max: 100 }).errors).toEqual({});
+    expect(
+      validateNumber({ someFieldName: 100 }, 'someFieldName', { required: true, min: 100, max: 100 }).errors,
+    ).toEqual({});
   });
 
   test('Valid string, with min max, [required]', () => {
-    expect(validateNumber({ someFieldName: 100 }, 'someFieldName', { required: true, min: 99, max: 101 }).errors).toEqual({});
+    expect(
+      validateNumber({ someFieldName: 100 }, 'someFieldName', { required: true, min: 99, max: 101 }).errors,
+    ).toEqual({});
   });
 
   test('Number less min, [required]', () => {
-    expect(validateNumber({ someFieldName: 28 }, 'someFieldName', { required: true, min: 29, max: 31 }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.NUM_LESS_THAN });
+    expect(validateNumber({ someFieldName: 28 }, 'someFieldName', { required: true, min: 29, max: 31 }).errors).toEqual(
+      { someFieldName: ErrorText.NUM_LESS_THAN },
+    );
   });
 
   test('Number more max, [required]', () => {
-    expect(validateNumber({ someFieldName: 32 }, 'someFieldName', { required: true, min: 29, max: 31 }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.NUM_MORE_THAN });
+    expect(validateNumber({ someFieldName: 32 }, 'someFieldName', { required: true, min: 29, max: 31 }).errors).toEqual(
+      { someFieldName: ErrorText.NUM_MORE_THAN },
+    );
   });
 
   test('Data is undefined', () => {
     // @ts-ignore
-    expect(validateNumber(undefined, 'someFieldName', { required: true }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.REQUIRED });
+    expect(validateNumber(undefined, 'someFieldName', { required: true }).errors).toEqual({
+      someFieldName: ErrorText.REQUIRED,
+    });
   });
 
   test('Number is undefined, [required]', () => {
-    expect(validateNumber({ someFieldName: undefined }, 'someFieldName', { required: true }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.NOT_BE_UNDEFINED });
+    expect(validateNumber({ someFieldName: undefined }, 'someFieldName', { required: true }).errors).toEqual({
+      someFieldName: ErrorText.NOT_BE_UNDEFINED,
+    });
   });
 
   test('Number is {}, [required]', () => {
-    expect(validateNumber({ someFieldName: {} }, 'someFieldName', { required: true }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: {} }, 'someFieldName', { required: true }).errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is [], [required]', () => {
-    expect(validateNumber({ someFieldName: [] }, 'someFieldName', { required: true }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: [] }, 'someFieldName', { required: true }).errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is null, [required]', () => {
-    expect(validateNumber({ someFieldName: null }, 'someFieldName', { required: true }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: null }, 'someFieldName', { required: true }).errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is boolean = false', () => {
-    expect(validateNumber({ someFieldName: false }, 'someFieldName', { required: true }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: false }, 'someFieldName', { required: true }).errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 
   test('Number is boolean = true', () => {
-    expect(validateNumber({ someFieldName: true }, 'someFieldName', { required: true }).errors)
-      .toEqual({ ['someFieldName']: ErrorText.INVALID_DATA });
+    expect(validateNumber({ someFieldName: true }, 'someFieldName', { required: true }).errors).toEqual({
+      someFieldName: ErrorText.INVALID_DATA,
+    });
   });
 });
 

@@ -1,11 +1,9 @@
 import { withZero } from '../../with-zero';
 
-
-
 export const getDDMMYYYYd = (date: Date): string => {
-  const day   = withZero(date.getDate());
+  const day = withZero(date.getDate());
   const month = withZero(date.getMonth() + 1);
-  const year  = date.getFullYear();
-  
-  return `${day}.${month}.${year}` // `DD.MM.YYYY`
+  const year = date.getFullYear();
+
+  return `${day}.${month}.${year}`; // `DD.MM.YYYY`
 };

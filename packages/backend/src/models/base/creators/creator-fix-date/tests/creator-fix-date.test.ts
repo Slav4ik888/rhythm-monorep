@@ -3,18 +3,17 @@ import { MOCK_USER_ID } from '../../../../user/mocks';
 import { creatorFixDate } from '..';
 import { getCurrentMs, sec } from '../../../../../shared/utils/dates';
 
-
 describe('creatorFixDate', () => {
   test('With userId & date', () => {
     expect(creatorFixDate(MOCK_USER_ID, MOCK_DATE_13_03_2023)).toEqual({
-      userId : MOCK_USER_ID,
-      date   : MOCK_DATE_13_03_2023
+      userId: MOCK_USER_ID,
+      date: MOCK_DATE_13_03_2023,
     });
   });
 
   test('With userId, but without date', () => {
     const res = creatorFixDate(MOCK_USER_ID);
-    
+
     expect(res.userId).toBe(MOCK_USER_ID);
 
     expect(res.date).not.toBeUndefined();

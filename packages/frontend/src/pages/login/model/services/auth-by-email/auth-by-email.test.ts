@@ -4,8 +4,8 @@
 import { Company } from 'entities/company';
 import { User } from 'entities/user';
 import { TestAsyncThunk } from 'shared/lib/tests';
-import type { ResAuthByLogin } from ".";
-import { authByLogin } from ".";;
+import type { ResAuthByLogin } from '.';
+import { authByLogin } from '.';
 
 describe('authByLogin', () => {
   test('Succes login', async () => {

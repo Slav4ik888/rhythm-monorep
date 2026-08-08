@@ -4,4 +4,4 @@ export async function serviceGoogleGetData(url: string): Promise<string | undefi
   const response = await axios.get(url);
 
   return response.data;
-};
+}

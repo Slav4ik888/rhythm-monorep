@@ -10,8 +10,7 @@ import {
 } from '../../base';
 import { ErrorText } from '../../errors-texts';
 import type { Validation } from '../../types';
-import type { ContainsField } from '../types';
-import type { ValidateOptions } from '../types';
+import type { ContainsField, ValidateOptions } from '../types';
 
 /**
  * v.2023-05-09

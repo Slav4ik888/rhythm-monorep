@@ -3,19 +3,15 @@ import { createLogTemp, loggerLogin as logger } from '../../../libs/loggers';
 import models from '../../../models';
 import { responseError } from '../../../views';
 
-
-
 export async function resetEmailPasswordController(ctx: Context): Promise<any> {
-  const
-    email   = ctx.request.body.email,
+  const { email } = ctx.request.body,
     logTemp = createLogTemp(ctx, 'resetEmailPassword', email),
-    error   = responseError(ctx, logger, logTemp);
-  
+    error = responseError(ctx, logger, logTemp);
+
   try {
     await models.auth.resetEmailPassword(ctx);
     logger.info(`${logTemp} success`);
-  }
-  catch (err) {
+  } catch (err) {
     error(err);
   }
 }

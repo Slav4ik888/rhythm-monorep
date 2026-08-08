@@ -1,23 +1,24 @@
-import type { Operation } from "../../../types";
-import { DbRefName } from "../../../types";;
+import type { Operation } from '../../../types';
+import { DbRefName } from '../../../types';
 import { createListAfter } from '../../base';
 
-
 export const createDocumentListAfter = (
-  id        : string,
-  pointerId : string,
-  path      : string[] = [],
-  after     : string = '',
-): Operation => createListAfter(
-  {
-    id, after
-  },
-  {
-    id: pointerId,
-    dbRefName : DbRefName.DOCUMENTS
-  },
-  path
-);
+  id: string,
+  pointerId: string,
+  path: string[] = [],
+  after: string = '',
+): Operation =>
+  createListAfter(
+    {
+      id,
+      after,
+    },
+    {
+      id: pointerId,
+      dbRefName: DbRefName.DOCUMENTS,
+    },
+    path,
+  );
 
 // {
 //   path    : ['sheets', 'mainSheet', 'itemIds'],

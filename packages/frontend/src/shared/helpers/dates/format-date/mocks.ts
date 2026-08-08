@@ -1,24 +1,24 @@
-import type { FORMAT } from "../utils/consts";
-import { SUB } from "../utils/consts";;
+import type { FORMAT } from '../utils/consts';
+import { SUB } from '../utils/consts';
 
 interface Item {
-  ms          : number | string,
-  format      : FORMAT,
-  sub?        : SUB;
+  ms: number | string;
+  format: FORMAT;
+  sub?: SUB;
 }
 
 interface ArrayItem extends Array<string | Item> {
-  0: Item,
-  1: string
+  0: Item;
+  1: string;
 }
 
 const arr: Array<ArrayItem> = [
   [{ ms: undefined as unknown as number, format: 'Month' }, 'Указана некорректная дата'],
-  [{ ms: null as unknown as number,      format: 'Month' }, 'Указана некорректная дата'],
-  [{ ms: 0,         format: 'Month' }, 'January'],
-  [{ ms: '-1',      format: 'Month' }, 'January'],
-  [{ ms: -1,        format: 'Month' }, 'January'],
-  [{ ms: '123',     format: 'Month' }, 'January'],
+  [{ ms: null as unknown as number, format: 'Month' }, 'Указана некорректная дата'],
+  [{ ms: 0, format: 'Month' }, 'January'],
+  [{ ms: '-1', format: 'Month' }, 'January'],
+  [{ ms: -1, format: 'Month' }, 'January'],
+  [{ ms: '123', format: 'Month' }, 'January'],
   [{ ms: '1640995200000', format: 'Month' }, 'January'],
   [{ ms: 'Sat Jan 01 2022 19:29:31 GMT+0800 (Иркутск, стандартное время)', format: 'Month' }, 'January'],
 
@@ -121,7 +121,6 @@ const arr: Array<ArrayItem> = [
   // [{ ms: 1640995200000, format: FORMAT.HHMM }, '08:00'],
   // [{ ms: 1641036571000, format: FORMAT.HHMM }, '19:29'],
   // [{ ms: 1641085896541, format: FORMAT.HHMM }, '09:11'],
-
 ];
 
 export default arr;

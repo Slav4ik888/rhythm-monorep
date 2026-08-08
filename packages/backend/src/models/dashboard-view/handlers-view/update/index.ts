@@ -2,15 +2,14 @@ import { Context } from '../../../../app/types/global';
 import { serviceDashboardUpdateGroupItems } from '../../services';
 import { PartialViewItem } from '../../types';
 
-
 export interface PartialViewItemUpdate extends PartialViewItem {
-  bunchId: string
+  bunchId: string;
 }
 
 export interface UpdateViewItem {
-  bunchUpdatedMs : number
-  companyId      : string
-  viewItems      : PartialViewItemUpdate[]
+  bunchUpdatedMs: number;
+  companyId: string;
+  viewItems: PartialViewItemUpdate[];
 }
 
 /**
@@ -23,7 +22,7 @@ export const updateGroupViewItemsModel = async (ctx: Context): Promise<void> => 
   // TODO: Remove fields that are not allowed to be updated
 
   // TODO: validateUpdateViewItem (ctx, userData);
-  if (! companyId || ! viewItems || ! viewItems?.length || ! bunchUpdatedMs ) {
+  if (!companyId || !viewItems || !viewItems?.length || !bunchUpdatedMs) {
     ctx.throw(400, 'invalid body required field');
   }
 

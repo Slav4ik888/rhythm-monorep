@@ -14,8 +14,7 @@ import {
 } from '../../base';
 import { ErrorText } from '../../errors-texts';
 import type { Validation } from '../../types';
-import type { ContainsField } from '../types';
-import type { ValidateStringOptions } from '../types';
+import type { ContainsField, ValidateStringOptions } from '../types';
 
 /**
  * v.2023-05-08

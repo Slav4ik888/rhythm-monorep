@@ -66,6 +66,8 @@ module.exports = {
     'no-unused-vars': 0,
     'no-unused-expressions': 0,
     'function-paren-newline': 0,
+    'operator-linebreak': 0,
+    'no-useless-concat': 0,
     'brace-style': 0,
     'import/no-extraneous-dependencies': 0,
     'import/no-unresolved': 0,
@@ -157,7 +159,8 @@ module.exports = {
           {
             name: '@mui/icons-material',
             message:
-              'Используйте прямой импорт из конкретного модуля, например: "import Menu from \'@mui/icons-material/Menu\'"',
+              'Используйте прямой импорт из конкретного модуля,'
+              + ' например: "import Menu from \'@mui/icons-material/Menu\'"',
           },
         ],
       },

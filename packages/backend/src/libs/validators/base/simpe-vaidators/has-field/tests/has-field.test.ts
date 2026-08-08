@@ -1,6 +1,5 @@
 import { isHasField } from '..';
 
-
 describe('isHasField', () => {
   test('Data has the field, value is undefined', () => {
     expect(isHasField({ data: undefined }, 'data')).toEqual(true);
@@ -22,8 +21,6 @@ describe('isHasField', () => {
     // @ts-ignore
     expect(isHasField(undefined, 'data')).toEqual(false);
   });
-
-  
 });
 
 // npm run test:unit has-field.test.ts

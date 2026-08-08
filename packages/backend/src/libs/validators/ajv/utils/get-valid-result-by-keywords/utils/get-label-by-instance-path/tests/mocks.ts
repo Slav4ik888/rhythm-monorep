@@ -1,40 +1,38 @@
-import { Mocks } from "./types";
-import { MockItem } from './types';
+import { Mocks, MockItem } from './types';
 import { ErrorObject } from 'ajv';
-
 
 export const mocks: Mocks = [
   [
     {
       description: 'instancePath: /bankBIK',
       err: {
-        instancePath: '/bankBIK'
-      } as ErrorObject
+        instancePath: '/bankBIK',
+      } as ErrorObject,
     },
-    'bankBIK'
+    'bankBIK',
   ],
   [
     {
       description: 'instancePath: /bankBIK',
       err: {
-        instancePath: '/bankBIK'
-      } as ErrorObject
+        instancePath: '/bankBIK',
+      } as ErrorObject,
     },
-    'bankBIK'
+    'bankBIK',
   ],
   [
     {
       description: 'instancePath: undefined',
       err: {
-        instancePath: undefined as unknown as string
-      } as ErrorObject
+        instancePath: undefined as unknown as string,
+      } as ErrorObject,
     },
-    'general'
+    'general',
   ],
   [
     {
       description: 'err: undefined',
     } as MockItem,
-    'general'
+    'general',
   ],
 ];

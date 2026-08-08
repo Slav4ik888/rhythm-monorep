@@ -1,12 +1,11 @@
-import type { DefaultIconId } from "../../default-icons";
-import { defaultIcons } from "../../default-icons";;
-
+import type { DefaultIconId } from '../../default-icons';
+import { defaultIcons } from '../../default-icons';
 
 /**
  * Get icon by id
  */
 export const getIconById = (id?: DefaultIconId | null): MuiIcon | string => {
-  if (! id) return ''
+  if (!id) return '';
 
   return defaultIcons[id];
-}
+};

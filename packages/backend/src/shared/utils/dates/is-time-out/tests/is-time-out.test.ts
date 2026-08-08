@@ -1,20 +1,17 @@
 import { isTimeOut } from '..';
 import { getCurrentMs } from '../../get-current-ms';
 
-
 describe('isTimeOut', () => {
   // lastTime is string
   test('lastTime is string & time isn`t out', () => {
-    const
-      lastTime = new Date().toISOString(),
+    const lastTime = new Date().toISOString(),
       waiting = 1000;
 
     expect(isTimeOut(lastTime, waiting)).toEqual(false);
   });
 
   test('lastTime is string & time is out', () => {
-    const
-      lastTime = new Date(getCurrentMs() - 1).toISOString(),
+    const lastTime = new Date(getCurrentMs() - 1).toISOString(),
       waiting = 0;
 
     expect(isTimeOut(lastTime, waiting)).toEqual(true);
@@ -22,23 +19,18 @@ describe('isTimeOut', () => {
 
   // lastTime is number
   test('lastTime is number & time isn`t out', () => {
-    const
-      lastTime = getCurrentMs(),
+    const lastTime = getCurrentMs(),
       waiting = 1000;
 
     expect(isTimeOut(lastTime, waiting)).toEqual(false);
   });
 
-   test('lastTime is number & time is out', () => {
-    const
-      lastTime = getCurrentMs() - 1,
+  test('lastTime is number & time is out', () => {
+    const lastTime = getCurrentMs() - 1,
       waiting = 0;
 
     expect(isTimeOut(lastTime, waiting)).toEqual(true);
   });
-
-
-
 });
 
 // npm run test:unit is-time-out.test.ts

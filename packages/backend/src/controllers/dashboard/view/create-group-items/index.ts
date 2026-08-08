@@ -3,18 +3,14 @@ import { createLogTemp, loggerDashboardView as logger } from '../../../../libs/l
 import models from '../../../../models';
 import { responseError } from '../../../../views';
 
-
-
 export async function dashboardViewCreateGroupItemsController(ctx: Context): Promise<any> {
-  const
-    logTemp = createLogTemp(ctx, 'dashboardViewCreateGroupItems'),
-    error   = responseError(ctx, logger, logTemp);
-  
+  const logTemp = createLogTemp(ctx, 'dashboardViewCreateGroupItems'),
+    error = responseError(ctx, logger, logTemp);
+
   try {
     await models.dashboard.view.createGroupItems(ctx);
     logger.info(`${logTemp} success`);
-  }
-  catch (err) {
+  } catch (err) {
     error(err);
   }
 }

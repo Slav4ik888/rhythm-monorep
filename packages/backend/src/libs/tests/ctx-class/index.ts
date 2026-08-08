@@ -1,14 +1,15 @@
-import { Errors } from '../../validators';
+// packages/backend/src/libs/tests/ctx-class/index.ts
 
+import { Errors } from '../../validators';
 
 /** For tests when throw error */
 export class CtxClass {
-  status : number = 200
-  errors : Errors = {}
-  fn     : Function
+  status: number = 200;
+  errors: Errors = {};
+  fn: () => void;
 
-  constructor (fn: Function) {
-    this.fn = fn
+  constructor(fn: () => void) {
+    this.fn = fn;
   }
 
   throw(status: number, errors: Errors) {
@@ -16,4 +17,4 @@ export class CtxClass {
     this.errors = errors;
     this.fn();
   }
-};
+}

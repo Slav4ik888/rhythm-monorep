@@ -5,8 +5,6 @@ import { SignupData } from '../../../auth';
 import { getCurrentMs } from '../../../../shared/utils/dates';
 import { db } from '../../../../libs/firebase';
 
-
-
 /** increase register started in DB */
 export const serviceIncreaseRegisterStarted = async (ctx: Context): Promise<undefined> => {
   const { signupData } = ctx.request.body as { signupData: SignupData };
@@ -16,7 +14,7 @@ export const serviceIncreaseRegisterStarted = async (ctx: Context): Promise<unde
   const ref = getRefDoc(DbRef.PARTNER, { partnerId });
 
   const docTemp = await ref.get();
-  if (! docTemp.exists) return
+  if (!docTemp.exists) return;
 
   const partner = docTemp.data() as PartnerData;
 
@@ -24,9 +22,7 @@ export const serviceIncreaseRegisterStarted = async (ctx: Context): Promise<unde
   const batch = db.batch();
 
   batch.update(ref, {
-    registerStarted: partner.registerStarted
-      ? partner.registerStarted + 1
-      : 1
+    registerStarted: partner.registerStarted ? partner.registerStarted + 1 : 1,
   });
 
   batch.update(ref, {
@@ -37,13 +33,11 @@ export const serviceIncreaseRegisterStarted = async (ctx: Context): Promise<unde
         email,
         companyName,
         firstName,
-        createdAt: getCurrentMs()
-      }
-    }
+        createdAt: getCurrentMs(),
+      },
+    },
   });
 
   // Commit the batch
   await batch.commit();
-
-  return
 };
