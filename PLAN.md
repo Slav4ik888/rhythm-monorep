@@ -42,7 +42,17 @@
 
 - [ ] 3.1 React 18 → React 19 (установлены пакеты, исправлен JSX namespace)
 - [x] 3.2 React Router 6 → React Router 7 (пакеты обновлены)
-- [ ] 3.3 Redux Toolkit → Zustand (zustand установлен, миграция сторов не выполнена)
+- [x] 3.3 Redux Toolkit → Zustand — миграция entities/ui выполнена (zustand стор + хук + замена 12 файлов с actionsUI → useUIStore.getState())
+- [ ] 3.3.1 Мигрировать entities/user (с thunk'ами — переделать на прямые API-вызовы)
+- [ ] 3.3.2 Мигрировать entities/company
+- [ ] 3.3.3 Мигрировать entities/docs
+- [ ] 3.3.4 Мигрировать entities/hints
+- [ ] 3.3.5 Мигрировать entities/dashboard-data
+- [ ] 3.3.6 Мигрировать entities/dashboard-templates
+- [ ] 3.3.7 Мигрировать entities/dashboard-view
+- [ ] 3.3.8 Мигрировать entities/transactions
+- [ ] 3.3.9 Мигрировать страничные сторы (login, signup)
+- [ ] 3.3.10 Убрать Redux Provider из app/providers, удалить зависимости
 - [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)
 - [x] 3.5 PWA (vite-plugin-pwa + workbox)
 - [ ] 3.6 Koa → NestJS + Fastify

@@ -1,6 +1,6 @@
 // packages/backend/src/shared/utils/objects/filter-ents-by-field/tests/types.ts
 
-export interface Item {
+export interface Item extends Record<string, unknown> {
   id: string;
   name: string;
   value: boolean;
@@ -21,7 +21,7 @@ interface MockItem<O extends object> {
   field: string;
   value: string | string[];
   includes?: boolean;
-  validFunc?: (item: O) => boolean;
+  validFunc?: (ent: Record<string, unknown>, value: string) => boolean;
 }
 
 type MockResult<O extends object> = Entities<O>;

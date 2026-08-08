@@ -1,18 +1,31 @@
 // packages/backend/src/shared/utils/objects/filter-ents-by-field/index.ts
 
 import { isArr } from '../../../../libs/validators';
-import type { Item, Entities } from '../../arrays';
+import type { Entities } from '../../arrays';
 
-function getValidator<T>(value: T | T[], includes?: boolean, validFunc?: (ent: Item, value: T) => boolean) {
+type EntsRecord = Record<string, Record<string, unknown>>;
+
+type Validator<T> = (ents: EntsRecord, field: string, v: T, id: string) => boolean;
+
+// eslint-disable-next-line max-len
+function getValidator<T>(
+  value: T | T[],
+  includes?: boolean,
+  validFunc?: (ent: Record<string, unknown>, value: T) => boolean,
+): Validator<T> {
   if (validFunc) {
-    return (ents: Item, field: string, v: T, id: string) => validFunc(ents[id] as Item, v);
+    return (ents: EntsRecord, field: string, v: T, id: string) => validFunc(ents[id], v);
   }
 
-  if (isArr(value)) {
-    if (includes) return (ents: Item, field: string, v: T[], id: string) => (ents[id] as Item)[field]?.includes(v);
-    else return (ents: Item, field: string, v: T[], id: string) => v.includes((ents[id] as Item)[field]);
-  } else if (includes) return (ents: Item, field: string, v: T, id: string) => (ents[id] as Item)[field]?.includes(v);
-  else return (ents: Item, field: string, v: T, id: string) => (ents[id] as Item)[field] === v;
+  if (Array.isArray(value)) {
+    if (includes)
+      return (ents: EntsRecord, field: string, v: T, id: string) => (ents[id][field] as unknown[])?.includes(v);
+    else
+      return (ents: EntsRecord, field: string, v: T, id: string) =>
+        (v as unknown as unknown[]).includes(ents[id][field]);
+  } else if (includes)
+    return (ents: EntsRecord, field: string, v: T, id: string) => (ents[id][field] as unknown[])?.includes(v);
+  else return (ents: EntsRecord, field: string, v: T, id: string) => ents[id][field] === v;
 }
 
 /**
@@ -25,9 +38,9 @@ export function filterEntsByField<O extends object, T>(
   field: string,
   value: T | T[],
   includes?: boolean,
-  validFunc?: (ent: Item, value: T) => boolean,
+  validFunc?: (ent: Record<string, unknown>, value: T) => boolean,
 ): Entities<O> {
-  const ents = {};
+  const ents: Entities<O> = {};
   if (!field || typeof value === 'undefined') return ents;
 
   const validator = getValidator(value, includes, validFunc);
@@ -35,7 +48,7 @@ export function filterEntsByField<O extends object, T>(
   /* eslint-disable-next-line guard-for-in, no-restricted-syntax */
   for (const id in entities) {
     if (Object.prototype.hasOwnProperty.call(entities, id)) {
-      // @ts-ignore
+      // @ts-expect-error validator работает с EntsRecord, entities — Entities<O extends object>
       if (validator(entities, field, value, id)) ents[id] = entities[id];
     }
   }

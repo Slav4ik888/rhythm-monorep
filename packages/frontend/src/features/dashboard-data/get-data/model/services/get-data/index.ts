@@ -1,6 +1,8 @@
+// packages/frontend/src/features/dashboard-data/get-data/model/services/get-data/index.ts
+
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CustomAxiosError, errorHandlers, ThunkConfig } from 'app/providers/store';
-import { actionsUI } from 'entities/ui';
+import { useUIStore } from 'entities/ui';
 import { Errors } from 'shared/lib/validators';
 import { getEntities } from './utils';
 import { LS } from 'shared/lib/local-storage';
@@ -8,13 +10,7 @@ import { __devLog } from 'shared/lib/tests/__dev-log';
 import { API_PATHS } from 'shared/api';
 import { ResGetGoogleData, ReqGetGoogleData } from 'shared/types';
 
-
-
-export const getData = createAsyncThunk<
-  ResGetGoogleData,
-  ReqGetGoogleData,
-  ThunkConfig<Errors>
->(
+export const getData = createAsyncThunk<ResGetGoogleData, ReqGetGoogleData, ThunkConfig<Errors>>(
   'features/dashboard/getData',
   async ({ companyId, dashboardSheetId }, thunkApi) => {
     const { extra, dispatch, rejectWithValue } = thunkApi;
@@ -29,19 +25,20 @@ export const getData = createAsyncThunk<
 
       const gsData = getEntities(data);
       __devLog('getData', 'gsData: ', gsData);
-      dispatch(actionsUI.setSuccessMessage('Данные с гугл-таблицы загружены'));
-      dispatch(actionsUI.setPageLoading({ 'get-g-data': { text: '', name: 'getData' } }));
+      useUIStore.getState().setSuccessMessage('Данные с гугл-таблицы загружены');
+      useUIStore.getState().setPageLoading({ 'get-g-data': { text: '', name: 'getData' } });
 
       return {
         companyId,
-        data: gsData
+        data: gsData,
       };
-    }
-    catch (e) {
+    } catch (e) {
       errorHandlers(e as CustomAxiosError, dispatch);
-      return rejectWithValue((e as CustomAxiosError).response.data || {
-        general: 'Error in features/dashboard/getData'
-      });
+      return rejectWithValue(
+        (e as CustomAxiosError).response.data || {
+          general: 'Error in features/dashboard/getData',
+        },
+      );
     }
-  }
+  },
 );

@@ -1,3 +1,6 @@
+// packages/backend/src/shared/utils/objects/filter-ents-by-field/tests/filter-ents-by-field.test.ts
+
+import { describe, it, expect } from '@jest/globals';
 import { filterEntsByField } from '..';
 import { Entities, Item, Mocks } from './types';
 
@@ -132,7 +135,7 @@ const mocks: Mocks<Item> = [
       entities,
       field: 'name',
       value: '',
-      validFunc: (type: string) => type === 'chebyrek' || type === 'string888',
+      validFunc: (ent: Record<string, unknown>, _value: string) => ent.name === 'chebyrek' || ent.name === 'string888',
     },
     {
       id_2: { ...entities.id_2 },

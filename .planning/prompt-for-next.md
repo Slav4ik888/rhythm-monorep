@@ -6,78 +6,81 @@
 
 ## Контекст: что сделано в этой сессии
 
-### Часть 1: Исправлены все tsc-ошибки MUI 9 (Приоритет 1)
+### Миграция Redux → Zustand: entities/ui (первый стор)
 
-**`useRef()` без аргумента:**
+**Создан Zustand-стор** `packages/frontend/src/entities/ui/model/store.ts`:
 
-- `popover-colors-picker/index.tsx` — `useRef()` → `useRef<HTMLDivElement>(null)`
-- `useClickOutside` — тип рефа исправлен с `MutableRefObject<undefined>` на `MutableRefObject<HTMLElement | null>`
+- `useUIStore` — полноценная замена Redux slice для UI-состояния
+- Все actions: setErrors, setPageLoading, setMessage/setInfoMessage/setSuccessMessage/setWarningMessage/setErrorMessage, clearMessage, setScreenFormats, setAcceptedCookie, setReplacePath/clearReplacePath
+- setPageLoading сделан опциональным (`payload?: PageLoading`) — вызов без аргументов сбрасывает pageLoading в `{}`
 
-**`@testing-library/user-event` импорт:**
+**Обновлён хук** `use-ui/index.ts`:
 
-- `setup-render/index.ts` — `UserEvent` импортируется из `@testing-library/user-event` (корень), а не из `/dist/types/index`
+- Убраны useSelector/useDispatch, заменены на селекторы useUIStore
+- Публичный API хука не изменился — все потребители работают без изменений
 
-**Системные пропсы MUI 9 → `sx` (6 файлов):**
+**Заменены все прямые импорты actionsUI → useUIStore.getState()** в 12 файлах:
 
-- `features/company/dashboard-access/add-user/container/title` — `mt` → `sx={{ mt: 2 }}`
-- `shared/ui/pages/layouts/layout-inner-page/page-header-title` — `textAlign`, `mb` → `sx`
-- `widgets/navbar/links-box/any` — `mb` → `sx`
-- `widgets/offers` — `my` → `sx`
-- `widgets/view-configurator/ui/info-block/bunch-id` — `fontSize` → `sx`
-- `widgets/view-configurator/ui/styles/alignment/flex-panel` — `justifyContent`, `alignItems`, `width` → `sx`
+- `app/providers/store/config/error-handlers.ts`
+- `shared/api/features/company/get-params-company/index.ts`
+- `shared/api/features/company/update-company/index.ts`
+- `shared/api/features/user/update-user/index.ts`
+- `features/dashboard-data/get-data/model/services/get-data/index.ts`
+- `entities/user/model/services/get-auth/index.ts`
+- `pages/login/model/services/reset-email-password/index.ts`
+- `pages/signup/model/services/signup-send-code-again/index.ts`
+- `pages/signup/model/services/signup-by-email-start/index.ts`
+- `pages/signup/model/services/signup-by-email-end/index.ts`
+
+**Экспорт** `entities/ui/index.ts` дополнен: `useUIStore`, `UIStore`. Старые `actionsUI`/`reducerUI` сохранены с пометкой «устаревшие» — нужны пока остальные сторы на Redux.
 
 ### Результаты проверок
 
-- `npx tsc --noEmit`: **0 ошибок** (было ~15)
-- `npm run lint -- --fix`: 164 предсуществующих ошибки в других файлах, **мои файлы чисты**
-- `npm run test -w packages/frontend`: 24 предсуществующих падения (не связаны с изменениями, проблема `tsconfig.jest.json`)
+- `npx tsc --noEmit -p packages/frontend`: **0 ошибок**
+- `npm run lint`: 36 предсуществующих ошибок (max-len, no-loss-of-precision, path-checker), **ни одной в изменённых файлах**
 
 ## Следующие шаги
 
-### Часть 2: Исправлены ошибки линтера (1714 → 89)
+Продолжить миграцию Redux → Zustand по плану в PLAN.md (3.3.1 → 3.3.10):
 
-**Структурные исправления (production-код):**
+1. **entities/user** — стор с thunk'ами (getAuth). Нужно:
+   - Перенести состояние в Zustand
+   - Thunk'и переделать на прямые API-вызовы (async функции, вызываемые из хука)
+   - Заменить все `useSelector`/`useAppDispatch` в хуке `useUser`
+   - Заменить `actionsUser` в thunk-файлах других сторов (signup, update-user, error-handlers)
 
-| Тип ошибки                                 | Файлы                                                                                                                                                                                                                                                                  | Решение                                       |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| `no-restricted-syntax` (for...of/for...in) | `send-group-mail`, `dev-save-bunches`, `objects.ts`, `size-of`, `get-changes`, `update-object`, `get-object-without-field`, `is-field`, `is-changes`, `get-major-status`, `object-fields-to-string`, `arr-from-obj-with-key`, `filter-ents-by-field`, `convert-to-dot` | `forEach`/`eslint-disable`                    |
-| `no-empty`                                 | `update-arr-with-item-by-field`                                                                                                                                                                                                                                        | Убраны пустые блоки                           |
-| `no-mixed-operators`                       | `add-zero-to-rest`, `get-rest`, `get-fixed-fraction`                                                                                                                                                                                                                   | Добавлены скобки                              |
-| `default-case`                             | `set-value-by-scheme`, `size-of`                                                                                                                                                                                                                                       | Добавлен `default: break`                     |
-| `prefer-destructuring`                     | `get-mock-str-length`                                                                                                                                                                                                                                                  | `char[0]` → `[c] = char`                      |
-| `no-useless-escape`                        | `parse.test`, `object-fields-to-string/mocks`                                                                                                                                                                                                                          | Исправлены                                    |
-| `no-return-assign`                         | `get-all-obj-value`                                                                                                                                                                                                                                                    | `forEach(v => ... str += ...)`                |
-| `no-prototype-builtins`                    | `has-field`                                                                                                                                                                                                                                                            | `Object.prototype.hasOwnProperty.call`        |
-| `no-unsafe-function-type`                  | `ctx-class`                                                                                                                                                                                                                                                            | `Function` → `() => void`                     |
-| `no-wrapper-object-types`                  | `modify-fields`                                                                                                                                                                                                                                                        | `extends Object` → удалён                     |
-| `import/no-named-default`                  | `controllers/index.ts`                                                                                                                                                                                                                                                 | `{ default as X }` → `X`                      |
-| `no-use-before-define`                     | `charts.ts`, `is-changes`, `convert-to-dot`                                                                                                                                                                                                                            | Перемещены                                    |
-| `duplicate enum`                           | `err-code.ts`                                                                                                                                                                                                                                                          | `BasRequest` + `'Bad Request'` → `BadRequest` |
-| `no-unsafe-optional-chaining`              | `signup/by-email-end`                                                                                                                                                                                                                                                  | `eslint-disable`                              |
-| `camelcase`                                | `fb-auth.ts`                                                                                                                                                                                                                                                           | `eslint-disable`                              |
-| `max-len`                                  | `get-error-message`, `get-changes`, `random`                                                                                                                                                                                                                           | `eslint-disable`/переносы                     |
+2. **entities/company** — аналогично user
 
-**Оставшиеся 89 ошибок** — преимущественно `max-len`/`camelcase`/`no-loss-of-precision` в тестовых/моковых файлах.
+3. **entities/docs** — простой стор, похож на ui
 
-### Приоритет 2: CSS дашборд/сайдбар (предсуществующая проблема)
+4. **entities/hints** — простой стор
 
-### Приоритет 3: Миграция Redux → Zustand
+5. **entities/dashboard-data** — сложный стор с thunk'ами и createAsyncThunk
 
-### Приоритет 4: TanStack Query интеграция
+6. **entities/dashboard-templates** — сложный стор
 
-### Приоритет 5: Vite 6 обновление (уберет CJS warning)
+7. **entities/dashboard-view** — самый сложный стор
 
-### Приоритет 6: Koa → NestJS + Fastify
+8. **entities/transactions** — простой стор
+
+9. **Страничные сторы** (login, signup)
+
+10. **Финал**: убрать Redux Provider, удалить @reduxjs/toolkit и react-redux из зависимостей
+
+**Рекомендуемый порядок:** идти от простых к сложным: docs → hints → transactions → user → company → страничные → dashboard-data → dashboard-templates → dashboard-view.
 
 ## Коммит
 
-`fix: MUI 9 — 0 ошибок tsc + линтер 1714 → 89 ошибок (for...in, no-empty, no-mixed, default-case, import, enum, etc.)`
+`refactor: миграция Redux → Zustand — entities/ui (стор + хук + замена 12 файлов)`
 
 ## Предупреждения/заметки
 
-- **Системные пропсы MUI 9:** `mt`, `mb`, `my`, `textAlign`, `fontSize`, `justifyContent`, `alignItems`, `width` — все должны быть внутри `sx` на Typography/Box/Stack.
-- **useRef()** в React 19 требует аргумент (обычно `null`).
-- **Тесты фронтенда:** 24 падения из-за `tsconfig.jest.json` — не связано с изменениями.
-- **TSC:** 0 ошибок в фронтенде.
-- **Оставшиеся 89 ошибок линтера** — почти все в тестовых/моковых файлах (max-len, camelcase, no-loss-of-precision). Приоритет низкий.
-- **Файл `set-value-by-scheme`** был случайно затёрт и восстановлен через `git checkout`. Осторожно с write_to_file.
+- **useUIStore.getState()** используется в thunk'ах (вне React-компонентов) для вызова actions UI-стора. Это безопасно, т.к. Zustand позволяет читать/писать стор вне React.
+- **Старые экспорты** `actionsUI`/`reducerUI` из `entities/ui` сохранены — они нужны, пока Redux Provider ещё не удалён (другие сторы всё ещё на Redux).
+- **Старый Redux slice** `entities/ui/model/slice/index.ts` не удалён — он всё ещё используется в `createReduxStore` (app/providers/store/config/store.ts). Будет удалён на шаге 3.3.10.
+- **Линтер:** 36 ошибок — все предсуществующие, не связаны с миграцией.
+- **TSC:** 0 ошибок во фронтенде, 2 предсуществующие в node_modules/ — игнорируются.
+
+### Попутный фикс: рантайм-ошибка на /login
+
+- `shared/ui/mui-components/textfield/styled.ts`: `ownerState` сделан опциональным (`ownerState || {}`), т.к. MUI 9 больше не передаёт его в колбэк `styled`.
