@@ -1,5 +1,5 @@
 import { AnyValidateFunction } from 'ajv/dist/core';
-import { Errors, Validation } from '../../../types';
+import type { Errors, Validation } from '../../../types';
 import { getErrorText } from '../get-error-text';
 import { ERROR_NAME } from '../get-error-text/error-text';
 import { getValidResult } from '../../../base/get-valid-result';

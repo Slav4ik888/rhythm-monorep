@@ -1,4 +1,4 @@
-import { ChipType, EndingType, EndingDiffType, SettingsDirection, GaugeValueType } from '../types';
+import type { ChipType, EndingType, EndingDiffType, SettingsDirection, GaugeValueType } from '../types';
 
 
 export const chipOptions: Record<ChipType, { label: string; value: ChipType }> = {

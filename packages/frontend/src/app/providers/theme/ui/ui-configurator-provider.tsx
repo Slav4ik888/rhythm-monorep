@@ -2,12 +2,11 @@ import { FC, ReactNode, useEffect, useMemo, useReducer } from 'react';
 import {
   ThemeProvider as MuiThemeProvider, createTheme, useTheme as useMUITheme
  } from '@mui/material/styles';
-import { PaletteMode, UIConfiguratorProviderState } from '../types';
+import type { PaletteMode, UIConfiguratorProviderState } from '../types';
 import { reducer, setMode, setSidebarColor } from '../model/ui-configurator-reducer/reducer';
 import { calcLeftOffsetScrollButton, getThemeByName } from '../utils';
-import {
-  UIConfiguratorContext, UIConfiguratorContextType
-} from '../model/ui-configurator-reducer/ui-configurator-context';
+import type { UIConfiguratorContextType } from "../model/ui-configurator-reducer/ui-configurator-context";
+import { UIConfiguratorContext } from "../model/ui-configurator-reducer/ui-configurator-context";;
 import { LS } from 'shared/lib/local-storage';
 import { isNotUndefined } from 'shared/lib/validators';
 import { SIDEBAR_FULL_WIDTH } from '../consts';

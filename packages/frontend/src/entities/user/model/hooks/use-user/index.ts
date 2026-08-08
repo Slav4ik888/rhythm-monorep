@@ -3,7 +3,8 @@ import * as s from '../../selectors';
 import { actions } from '../../slice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
-import { getAuth, ReqGetAuth } from '../../services';
+import type { ReqGetAuth } from "../../services";
+import { getAuth } from "../../services";;
 import { Errors } from 'shared/lib/validators';
 
 

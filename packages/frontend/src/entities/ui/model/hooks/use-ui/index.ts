@@ -1,12 +1,12 @@
 import * as s from '../../selectors';
 import { actions } from '../../slice';
-import { Message } from '../../../types';
+import type { Message } from '../../../types';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
 import { isGreaterMd as isGreaterMdFn } from '../../utils';
 import { Errors } from 'shared/lib/validators';
 import { useMemo } from 'react';
-import { PageLoading } from '../../slice/state-schema';
+import type { PageLoading } from '../../slice/state-schema';
 import { isDarkMode, useUIConfiguratorController } from 'app/providers/theme';
 
 

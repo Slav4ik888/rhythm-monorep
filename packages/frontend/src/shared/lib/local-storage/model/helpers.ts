@@ -6,7 +6,7 @@ import { BunchesViewItem } from 'entities/dashboard-view/types';
 import { StateSchemaUser } from 'entities/user';
 import { isStr } from '../../validators';
 import { ResGetData } from 'shared/types';
-import { BunchesUpdated } from '../../structures/bunch';
+import type { BunchesUpdated } from '../../structures/bunch';
 import { setStorageData, getStorageData, removeStorageData } from './main';
 
 

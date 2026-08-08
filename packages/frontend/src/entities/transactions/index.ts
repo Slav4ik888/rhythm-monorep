@@ -9,7 +9,7 @@ export {
 
 export { useTransactions } from './model/hooks'
 export { reducer as reducerTransactions } from './model/slice'
-export { StateSchemaTransactions } from './model/slice/state-schema'
+export type { StateSchemaTransactions } from './model/slice/state-schema'
 
 export {
   createDocumentSet,

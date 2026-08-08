@@ -5,8 +5,9 @@ export {
   actions as actionsUser,
   reducer as reducerUser
 } from './model/slice'
-export { StateSchemaUser } from './model/slice/state-schema'
-export { ReqGetAuth, getAuth } from './model/services'
+export type { StateSchemaUser } from './model/slice/state-schema'
+export type { ReqGetAuth } from "./model/services";
+export { getAuth } from "./model/services";
 
 export { selectUserId } from './model/selectors'
 export { schemas, validateUserData } from './model/validators'

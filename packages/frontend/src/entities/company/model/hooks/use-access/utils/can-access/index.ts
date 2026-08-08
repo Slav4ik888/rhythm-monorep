@@ -1,5 +1,5 @@
 import { ACCESS_PRIORITY } from '../../consts';
-import { AccessLevel } from '../../types';
+import type { AccessLevel } from '../../types';
 
 
 

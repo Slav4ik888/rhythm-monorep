@@ -1,12 +1,12 @@
-import { ActivatedCopied, StateSchemaDashboardView } from '../../slice/state-schema';
-import {
+import type { ActivatedCopied, StateSchemaDashboardView } from '../../slice/state-schema';
+import type {
   SetDashboardViewItems, SetEditMode,
   ChangeOneChartsItem, ChangeOneDatasetsItem, ChangeOneSettingsField, ChangeSelectedStyle, SetDashboardBunchesFromCache
 } from '../../slice/types';
 import { useMemo } from 'react';
 import { useAppDispatch } from 'shared/lib/hooks';
 import { Errors } from 'shared/lib/validators';
-import { PartialViewItem, ViewItemId, ViewItemStyles } from '../../../types';
+import type { PartialViewItem, ViewItemId, ViewItemStyles } from '../../../types';
 import { useDashboardViewState } from '../use-dashboard-view-state';
 import { actions } from '../../slice';
 

@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { StateSchema } from 'app/providers/store';
-import { StateSchemaUser } from '../slice/state-schema';
-import { User, UserSettings } from '../../types';
+import type { StateSchemaUser } from '../slice/state-schema';
+import type { User, UserSettings } from '../../types';
 
 
 export const selectModule = createSelector([(state: StateSchema) => state.user || {} as StateSchemaUser],

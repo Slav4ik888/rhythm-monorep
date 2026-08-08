@@ -1,5 +1,5 @@
 import { Errors } from 'shared/lib/validators';
-import { User } from '../../types/user';
+import type { User } from '../../types/user';
 
 
 export interface StateSchemaUser {

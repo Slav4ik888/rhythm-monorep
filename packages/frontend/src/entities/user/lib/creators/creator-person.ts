@@ -1,5 +1,5 @@
 // import { cloneObj } from 'shared/helpers/objects';
-import { Person } from '../../types';
+import type { Person } from '../../types';
 import { creatorFIO } from './creator-fio';
 
 

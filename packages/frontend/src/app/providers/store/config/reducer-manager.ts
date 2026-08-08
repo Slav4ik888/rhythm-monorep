@@ -1,5 +1,5 @@
 import { AnyAction, combineReducers, Reducer, ReducersMapObject } from '@reduxjs/toolkit';
-import { ReducerManager, StateSchema, StateKey, MountedReducers } from './state';
+import type { ReducerManager, StateSchema, StateKey, MountedReducers } from './state';
 
 
 

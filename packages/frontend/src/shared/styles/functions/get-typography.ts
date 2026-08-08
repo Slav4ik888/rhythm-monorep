@@ -19,7 +19,7 @@ Coded by www.creative-tim.com
  * You can customized the typography styles for the entire Material Dashboard 2 PRO React using thie file.
  */
 
-import { CustomTheme } from '../../../app/providers/theme/types';
+import type { CustomTheme } from '../../../app/providers/theme/types';
 import { pxToRem } from './pxToRem';
 
 

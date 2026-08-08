@@ -1,5 +1,5 @@
 import { ItemBase } from 'entities/base';
-import { ViewItem, ViewItemId, ViewItemType } from '../../../dashboard-view';
+import type { ViewItem, ViewItemId, ViewItemType } from '../../../dashboard-view';
 
 
 

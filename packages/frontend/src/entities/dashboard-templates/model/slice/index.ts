@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Errors } from 'shared/lib/validators';
 import { getPayloadError as getError } from 'shared/lib/errors';
-import { StateSchemaDashboardTemplates } from './state-schema';
+import type { StateSchemaDashboardTemplates } from './state-schema';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { ViewItem, ViewItemId } from 'entities/dashboard-view';
-import { ResGetTemplates, getTemplates } from '../services';
+import type { ResGetTemplates } from "../services";
+import { getTemplates } from "../services";;
 import { updateEntities } from 'entities/base';
 import {
   deleteTemplate, DeleteTemplate, UpdateTemplate, updateTemplate
@@ -15,7 +16,7 @@ import { getBunchesUpdated } from '../services/get-bunches-updated';
 import { getArrWithoutArr, mergeById } from 'shared/helpers/arrays';
 import { findMainViewItemById, findTemplateBySelectedId, isThisTemplate as isThisTemplateFunc } from '../utils';
 import { getAllChildren } from 'shared/lib/structures/view-items';
-import { Template } from '../types';
+import type { Template } from '../types';
 
 
 

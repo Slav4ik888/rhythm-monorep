@@ -1,11 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ThunkConfig, errorHandlers, CustomAxiosError } from 'app/providers/store';
-import { BunchesViewItem } from '../../../types';
+import type { BunchesViewItem } from '../../../types';
 import { API_PATHS } from '../../../../../shared/api/api-paths';
 import { Errors } from 'shared/lib/validators';
 import { LS } from 'shared/lib/local-storage';
 import cfg from 'app/config';
-import { SetDashboardBunches } from '../../slice/types';
+import type { SetDashboardBunches } from '../../slice/types';
 import { BunchesUpdated } from 'shared/lib/structures/bunch';
 
 

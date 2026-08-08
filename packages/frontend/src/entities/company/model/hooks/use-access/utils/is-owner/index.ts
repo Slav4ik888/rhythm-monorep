@@ -1,4 +1,4 @@
-import { ParamsCompany } from '../../../../../types';
+import type { ParamsCompany } from '../../../../../types';
 
 
 /** Является ли пользователь Владельцем аккаунта компании  */

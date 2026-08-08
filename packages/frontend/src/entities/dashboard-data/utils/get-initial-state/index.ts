@@ -1,7 +1,7 @@
 import { LS } from 'shared/lib/local-storage';
 import { PeriodType } from '../../constants';
-import { StateSchemaDashboardData } from '../../model/slice/state-schema';
-import { DashboardPeriod } from '../../types';
+import type { StateSchemaDashboardData } from '../../model/slice/state-schema';
+import type { DashboardPeriod } from '../../types';
 
 
 

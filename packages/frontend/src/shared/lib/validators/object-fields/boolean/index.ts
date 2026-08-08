@@ -1,10 +1,17 @@
-import {
-  getValidResult, isHasField, isFieldValueBool, isFieldValueUndefined, isNotBool, isNotHasField
- } from '../../base';
-import { ErrorText } from '../../errors-texts';
-import { Validation } from '../../types';
-import { ContainsField, ValidateOptions } from '../types';
+// packages/frontend/src/shared/lib/validators/object-fields/boolean/index.ts
 
+import {
+  getValidResult,
+  isHasField,
+  isFieldValueBool,
+  isFieldValueUndefined,
+  isNotBool,
+  isNotHasField,
+} from '../../base';
+import { ErrorText } from '../../errors-texts';
+import type { Validation } from '../../types';
+import type { ContainsField } from '../types';
+import type { ValidateOptions } from '../types';
 
 export const validateBoolean = (data: ContainsField, field: string, options: ValidateOptions = {}): Validation => {
   const { required } = options;
@@ -14,16 +21,16 @@ export const validateBoolean = (data: ContainsField, field: string, options: Val
     return getValidResult({ [field]: ErrorText.NOT_BE_UNDEFINED });
 
   // Check typeof
-  if (isHasField(data, field) && isNotBool(data[field])) return getValidResult({ [field]: ErrorText.INVALID_DATA })
+  if (isHasField(data, field) && isNotBool(data[field])) return getValidResult({ [field]: ErrorText.INVALID_DATA });
 
   // If required
   if (required) {
-    if (! data || isNotHasField(data, field)) return getValidResult({ [field]: ErrorText.REQUIRED });
+    if (!data || isNotHasField(data, field)) return getValidResult({ [field]: ErrorText.REQUIRED });
   }
 
-  if (! data) return getValidResult();
+  if (!data) return getValidResult();
   if (isNotHasField(data, field)) return getValidResult();
-  if (! isFieldValueBool(data, field)) return getValidResult({ [field]: ErrorText.INVALID_DATA })
+  if (!isFieldValueBool(data, field)) return getValidResult({ [field]: ErrorText.INVALID_DATA });
 
   return getValidResult();
 };

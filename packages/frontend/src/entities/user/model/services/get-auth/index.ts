@@ -3,8 +3,8 @@ import { ThunkConfig, errorHandlers, CustomAxiosError } from 'app/providers/stor
 import { actionsCompany, Company } from 'entities/company';
 import { API_PATHS } from 'shared/api';
 import { Errors } from 'shared/lib/validators';
-import { User } from '../../../types';
-import { SetUser } from '../../slice/types';
+import type { User } from '../../../types';
+import type { SetUser } from '../../slice/types';
 import { LS } from 'shared/lib/local-storage';
 import cfg from 'app/config';
 import { cloneObj } from 'shared/helpers/objects';

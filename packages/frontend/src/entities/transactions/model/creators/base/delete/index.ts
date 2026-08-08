@@ -1,4 +1,5 @@
-import { Operation, OperationArguments, OperationCommand, OperationPointer } from '../../../types';
+import type { Operation, OperationArguments, OperationPointer } from "../../../types";
+import { OperationCommand } from "../../../types";;
 import { creator } from '../creator';
 
 

@@ -4,7 +4,7 @@ import { actions as a } from '../../slice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
 import { Errors } from 'shared/lib/validators';
-import { CustomSettings, ParamsCompany, PartialCompany } from '../../../types';
+import type { CustomSettings, ParamsCompany, PartialCompany } from '../../../types';
 import { ReqGetCompany, getParamsCompany, updateCompany, DeleteSheet, deleteSheet } from 'shared/api/features/company';
 
 

@@ -1,5 +1,5 @@
 import { ViewItemId } from 'entities/dashboard-view';
-import { DashboardTemplatesEntities } from '../../slice/state-schema';
+import type { DashboardTemplatesEntities } from '../../slice/state-schema';
 import { findTemplateBySelectedId } from '../find-template-by-selected-id';
 
 

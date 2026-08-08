@@ -1,7 +1,8 @@
 import { creatorFixDate } from 'entities/base';
 import { MOCK_COMPANY_ID } from 'entities/company/lib/mocks';
 import { cloneObj } from 'shared/helpers/objects';
-import { Role, User, UserStatus } from '../../types';
+import type { User } from "../../types";
+import { Role, UserStatus } from "../../types";;
 import { MOCK_PERSON, MOCK_PERSON_EMPTY } from './person';
 
 

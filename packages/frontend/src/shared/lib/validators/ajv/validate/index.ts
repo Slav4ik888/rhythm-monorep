@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import { addKeywords, addSchemas, getValidResultByKeywords, isValidSchemaName } from '../utils';
 import { SCHEMA_NAME } from '../schemas';
-import { Validation } from '../../types';
+import type { Validation } from '../../types';
 import addFormats from 'ajv-formats';
 
 

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { StateSchema } from 'app/providers/store';
-import { DocKey, StateSchemaDocs } from '../slice';
+import type { DocKey, StateSchemaDocs } from '../slice';
 
 
 export const selectModule = createSelector([(state: StateSchema) => state.docs || {} as StateSchemaDocs],

@@ -1,4 +1,4 @@
-import { OperationArguments } from './args';
+import type { OperationArguments } from './args';
 
 
 /** v.2024-04-07 */

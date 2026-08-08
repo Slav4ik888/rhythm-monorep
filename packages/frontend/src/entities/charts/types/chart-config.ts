@@ -1,6 +1,6 @@
 // @ts-ignore
 import { InteractionMode } from 'node_modules/chart.js/dist/types/index.d.ts';
-import { ChartFontStyle, ChartType, LegendPosition, ScaleYPosition } from './chart-types';
+import type { ChartFontStyle, ChartType, LegendPosition, ScaleYPosition } from './chart-types';
 
 
 

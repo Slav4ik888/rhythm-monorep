@@ -1,5 +1,5 @@
-import { DashboardTemplatesEntities } from '../../slice/state-schema'
-import { Template } from '../../types';
+import type { DashboardTemplatesEntities } from '../../slice/state-schema'
+import type { Template } from '../../types';
 
 
 

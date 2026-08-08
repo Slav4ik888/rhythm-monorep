@@ -1,4 +1,5 @@
-import { Errors, isObj } from '../../validators';
+import type { Errors } from "../../validators";
+import { isObj } from "../../validators";;
 
 /**
  * For slices

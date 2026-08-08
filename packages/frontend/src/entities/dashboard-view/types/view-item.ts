@@ -1,8 +1,8 @@
 import { ItemBase } from 'entities/base'
 import { PartialViewItemUpdate } from 'shared/api/features/dashboard-view'
 import { Bunch, BunchId } from 'shared/lib/structures'
-import { ViewItemStyles } from './item-styles'
-import { ViewItemSettings } from './view-item-settings'
+import type { ViewItemStyles } from './item-styles'
+import type { ViewItemSettings } from './view-item-settings'
 
 
 

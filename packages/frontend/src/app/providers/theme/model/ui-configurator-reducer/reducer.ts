@@ -1,5 +1,5 @@
-import { SidebarColorName } from '../themes/light-sidebar';
-import { PaletteMode, UIConfiguratorProviderState } from '../../types';
+import type { SidebarColorName } from '../themes/light-sidebar';
+import type { PaletteMode, UIConfiguratorProviderState } from '../../types';
 import { LS } from 'shared/lib/local-storage';
 
 

@@ -1,2 +1,2 @@
 export { useLogin } from './hooks'
-export { StateSchemaLoginPage } from './types'
+export type { StateSchemaLoginPage } from './types'

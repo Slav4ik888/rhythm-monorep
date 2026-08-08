@@ -1,7 +1,8 @@
 import { creatorFixDate } from 'entities/base';
 import { cloneObj } from 'shared/helpers/objects';
 import { isNotUndefined } from 'shared/lib/validators';
-import { Role, User, UserStatus } from '../../../types';
+import type { User } from "../../../types";
+import { Role, UserStatus } from "../../../types";;
 import { creatorPerson } from '../creator-person';
 import { creatorUserSettings } from '../creator-settings';
 

@@ -19,7 +19,7 @@ Coded by www.creative-tim.com
 
 // Material Dashboard 2 React helper functions
 import { pxToRem } from './pxToRem';
-import { Offset, Radius } from '../../../app/providers/theme/types';
+import type { Offset, Radius } from '../../../app/providers/theme/types';
 import { rgbaFromHex } from './rgba-from-hex';
 
 

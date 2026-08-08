@@ -1,4 +1,5 @@
-import { FORMAT, SUB } from '../utils/consts';
+import type { FORMAT } from "../utils/consts";
+import { SUB } from "../utils/consts";;
 
 interface Item {
   ms          : number | string,

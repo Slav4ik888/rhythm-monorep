@@ -1,6 +1,6 @@
 import { customPalette as customPaletteLight } from '../../model/themes/light-custom-palette';
 import { customPalette as customPaletteDark } from '../../model/themes/dark-custom-palette';
-import { UIConfiguratorProviderState, CustomTheme } from '../../types';
+import type { UIConfiguratorProviderState, CustomTheme } from '../../types';
 import { gradients as gradientsLight } from '../../model/themes/light-gradients';
 import { gradients as gradientsDark } from '../../model/themes/dark-gradients';
 import { navbarThemes as navbarThemesLight } from '../../model/themes/light-navbar';

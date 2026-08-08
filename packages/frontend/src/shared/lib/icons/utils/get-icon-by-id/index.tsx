@@ -1,4 +1,5 @@
-import { defaultIcons, DefaultIconId } from '../../default-icons';
+import type { DefaultIconId } from "../../default-icons";
+import { defaultIcons } from "../../default-icons";;
 
 
 /**

@@ -1,6 +1,6 @@
 import { updateEntities } from 'entities/base';
 import { LS } from 'shared/lib/local-storage';
-import { StateSchemaDashboardTemplates } from '../../slice/state-schema';
+import type { StateSchemaDashboardTemplates } from '../../slice/state-schema';
 
 
 

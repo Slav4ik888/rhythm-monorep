@@ -1,9 +1,9 @@
 /* eslint-disable */
 import { StateSchema } from 'app/providers/store';
-import { DashboardTemplatesEntities, StateSchemaDashboardTemplates } from '../slice/state-schema';
+import type { DashboardTemplatesEntities, StateSchemaDashboardTemplates } from '../slice/state-schema';
 import { createSelector } from '@reduxjs/toolkit';
 import { findTemplateBySelectedId, findViewItemById } from '../utils';
-import { Template } from '../types';
+import type { Template } from '../types';
 import { ViewItem } from 'entities/dashboard-view';
 import { isChanges } from 'shared/helpers/objects';
 

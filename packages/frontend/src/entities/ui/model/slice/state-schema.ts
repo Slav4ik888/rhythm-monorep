@@ -1,6 +1,6 @@
 import { Errors } from 'shared/lib/validators';
-import { Message } from '../../types/messages';
-import { ScreenFormats } from '../../types/screen-formats';
+import type { Message } from '../../types/messages';
+import type { ScreenFormats } from '../../types/screen-formats';
 
 
 

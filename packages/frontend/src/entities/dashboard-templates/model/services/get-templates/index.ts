@@ -3,7 +3,7 @@ import { ThunkConfig, errorHandlers, CustomAxiosError } from 'app/providers/stor
 import { API_PATHS } from 'shared/api';
 import { BunchesUpdated } from 'shared/lib/structures/bunch';
 import { Errors } from 'shared/lib/validators';
-import { Template } from '../../types';
+import type { Template } from '../../types';
 
 
 

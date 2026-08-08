@@ -1,6 +1,7 @@
 import { FC, memo, useCallback, useRef, useState } from 'react';
 import { useUI } from 'entities/ui';
-import { SignupData, useSignup } from '../../model';
+import type { SignupData } from "../../model";
+import { useSignup } from "../../model";;
 import { getRefValue } from 'shared/lib/refs';
 import { validateSignupData } from '../../model/validators';
 import { SignupStartPageComponent } from './component';

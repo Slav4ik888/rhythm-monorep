@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import { Errors } from 'shared/lib/validators';
 import { getPolicy } from '../../../../features/docs/get-policy/model/services';
-import { StateSchemaDocs, DocKeys, DocKey } from './types';
+import type { StateSchemaDocs, DocKeys, DocKey } from './types';
 
 
 

@@ -3,7 +3,7 @@ import { actions as a } from '../../slice';
 // import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
 import { Errors } from 'shared/lib/validators';
-import { RequestTransactions } from '../../types';
+import type { RequestTransactions } from '../../types';
 import { sendTransactions } from 'features/transactions';
 
 

@@ -1,4 +1,4 @@
-import { BunchesViewItem, ViewItem } from '../../../types';
+import type { BunchesViewItem, ViewItem } from '../../../types';
 
 
 

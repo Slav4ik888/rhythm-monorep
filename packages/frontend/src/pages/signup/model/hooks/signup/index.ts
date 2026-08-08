@@ -2,7 +2,7 @@ import * as s from '../../selectors';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
 import { signupByEmailStart, signupByEmailEnd, signupSendCodeAgain } from '../../services';
-import { SignupData, SignupDataEnd } from '../../types';
+import type { SignupData, SignupDataEnd } from '../../types';
 import { actions } from '../../slice';
 import { Errors } from 'shared/lib/validators';
 import { useMemo } from 'react';

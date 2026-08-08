@@ -1,4 +1,4 @@
-import { AccessLevel } from './base';
+import type { AccessLevel } from './base';
 
 
 /** Права к профилю компании */

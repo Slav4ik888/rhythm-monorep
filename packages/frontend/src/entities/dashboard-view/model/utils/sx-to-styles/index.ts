@@ -1,5 +1,5 @@
 import { isNotUndefined as is, isStr } from 'shared/lib/validators';
-import { ViewItemStyles } from '../../../types';
+import type { ViewItemStyles } from '../../../types';
 
 
 

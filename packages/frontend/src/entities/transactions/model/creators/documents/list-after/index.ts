@@ -1,4 +1,5 @@
-import { DbRefName, Operation } from '../../../types';
+import type { Operation } from "../../../types";
+import { DbRefName } from "../../../types";;
 import { createListAfter } from '../../base';
 
 

@@ -2,7 +2,7 @@ import { FC, memo } from 'react';
 import Box from '@mui/material/Box';
 import { AppRoutes } from 'app/providers/routes';
 import { ActionToggleButton } from './button';
-import { LayoutInnerPageType } from '../../../layouts/layout-inner-page';
+import type { LayoutInnerPageType } from '../../../layouts/layout-inner-page';
 
 
 

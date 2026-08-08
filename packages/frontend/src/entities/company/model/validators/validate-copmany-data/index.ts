@@ -1,4 +1,4 @@
-import { PartialCompany } from '../../../types';
+import type { PartialCompany } from '../../../types';
 import { SCHEMA_NAME, validate, Validation } from 'shared/lib/validators';
 
 

@@ -1,5 +1,5 @@
-import { ChartConfigDatasets, ChartConfigTrendDatasets } from './chart-config';
-import { ChartType } from './chart-types';
+import type { ChartConfigDatasets, ChartConfigTrendDatasets } from './chart-config';
+import type { ChartType } from './chart-types';
 
 
 

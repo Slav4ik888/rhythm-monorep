@@ -1,5 +1,5 @@
 import { ViewItem } from 'entities/dashboard-view';
-import { DashboardTemplatesEntities } from '../../slice/state-schema'
+import type { DashboardTemplatesEntities } from '../../slice/state-schema'
 
 
 

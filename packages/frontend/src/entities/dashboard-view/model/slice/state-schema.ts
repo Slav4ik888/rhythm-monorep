@@ -1,5 +1,5 @@
 import { Errors } from 'shared/lib/validators';
-import { ViewItem, ViewItemId } from '../../types';
+import type { ViewItem, ViewItemId } from '../../types';
 
 
 export type ActivatedCopiedType = 'copyItemFirstOnly' | 'copyItemsAll' | 'copyStyles';

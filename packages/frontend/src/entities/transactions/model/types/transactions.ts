@@ -1,5 +1,5 @@
-import { Debug } from './debug';
-import { Operation } from './operations';
+import type { Debug } from './debug';
+import type { Operation } from './operations';
 
 
 

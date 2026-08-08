@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { UIConfiguratorProviderState } from '../../types';
+import type { UIConfiguratorProviderState } from '../../types';
 
 
 

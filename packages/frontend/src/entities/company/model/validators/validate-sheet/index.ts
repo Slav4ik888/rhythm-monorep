@@ -1,5 +1,5 @@
 import { getValidResult, isNotStr } from 'shared/lib/validators';
-import { DashboardSheet, DashboardSheets } from '../../../types';
+import type { DashboardSheet, DashboardSheets } from '../../../types';
 
 
 export const validateDashboardSheetFields = (

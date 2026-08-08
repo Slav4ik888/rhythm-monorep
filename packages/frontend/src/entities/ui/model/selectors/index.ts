@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { StateSchema } from 'app/providers/store';
-import { StateSchemaUI } from '../slice/state-schema';
+import type { StateSchemaUI } from '../slice/state-schema';
 
 
 export const selectModule = createSelector([(state: StateSchema) => state.ui || {} as StateSchemaUI],

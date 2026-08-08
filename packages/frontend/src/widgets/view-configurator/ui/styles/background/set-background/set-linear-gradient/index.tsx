@@ -1,7 +1,8 @@
 import { FC, memo, useState, useEffect, MouseEvent, useCallback } from 'react';
 import { ViewItemStylesField, RgbaString, ViewItem } from 'entities/dashboard-view';
 import { ColorPicker } from 'shared/lib/colors-picker';
-import { splitGradinetRgba, SplittedLinerGradient } from '../utils';
+import type { SplittedLinerGradient } from "../utils";
+import { splitGradinetRgba } from "../utils";;
 import { linearGradient, SxCard } from 'shared/styles';
 import { InputByScheme } from '../../../../base-features-components';
 

@@ -156,6 +156,7 @@ module.exports = {
       },
     ],
     'slavchik888-plugin/path-checker': 'error',
+    '@typescript-eslint/consistent-type-exports': 'error',
   },
   globals: {
     __IS_DEV__: true,

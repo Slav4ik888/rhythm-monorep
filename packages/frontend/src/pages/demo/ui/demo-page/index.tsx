@@ -4,7 +4,7 @@ import Paper from '@mui/material/Paper';
 import { useTheme } from 'app/providers/theme';
 import { f, pxToRem } from 'shared/styles';
 import { NavLink } from 'react-router-dom';
-import { DemoPageType } from '../../model/constants';
+import type { DemoPageType } from '../../model/constants';
 import { getImgByIdAndTheme } from '../../model/utils';
 import { ProgressiveImage } from 'shared/lib/progressiv-image';
 

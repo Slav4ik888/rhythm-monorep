@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Errors } from 'shared/lib/validators';
-import { Company, CustomSettings, ParamsCompany } from '../../types';
+import type { Company, CustomSettings, ParamsCompany } from '../../types';
 import { getPayloadError as getError } from 'shared/lib/errors';
-import { StateSchemaCompany } from './state-schema';
+import type { StateSchemaCompany } from './state-schema';
 import { updateObject } from 'shared/helpers/objects';
 import { LS } from 'shared/lib/local-storage';
-import { SetCompany } from './types';
+import type { SetCompany } from './types';
 import {
   SetParamsCompany, getParamsCompany, updateCompany, deleteSheet, DeleteSheet
 } from 'shared/api/features/company';

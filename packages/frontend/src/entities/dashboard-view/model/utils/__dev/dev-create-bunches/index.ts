@@ -1,4 +1,4 @@
-import { ViewItem, ViewItemId } from '../../../../types';
+import type { ViewItem, ViewItemId } from '../../../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { Bunch } from 'shared/lib/structures/bunch';
 

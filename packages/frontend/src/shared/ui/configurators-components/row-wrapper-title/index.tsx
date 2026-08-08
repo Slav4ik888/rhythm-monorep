@@ -1,6 +1,6 @@
 import { FC, memo, ReactNode } from 'react';
 import { ConfiguratorTextTitle, RowWrapper } from '../../configurators-components';
-import { SxCard } from '../../../styles';
+import type { SxCard } from '../../../styles';
 
 
 

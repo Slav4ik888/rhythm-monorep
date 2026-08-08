@@ -1,4 +1,4 @@
-import { SidebarColorName, SidebarTheme } from './light-sidebar';
+import type { SidebarColorName, SidebarTheme } from './light-sidebar';
 
 
 

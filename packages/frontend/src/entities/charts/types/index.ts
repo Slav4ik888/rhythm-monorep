@@ -5,4 +5,4 @@ export {
 export {
   ChartType, LegendPosition, ChartFontStyle, ScaleYPosition
 } from './chart-types'
-export { ViewItemChart, ViewItemChartField } from './view-item-chart'
+export type { ViewItemChart, ViewItemChartField } from './view-item-chart'

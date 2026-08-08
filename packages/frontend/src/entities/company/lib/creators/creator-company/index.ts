@@ -1,6 +1,7 @@
 import { creatorFixDate } from 'entities/base/creators';
 import { cloneObj } from 'shared/helpers/objects';
-import { Company, CompanyStatus } from '../../../types';
+import type { Company } from "../../../types";
+import { CompanyStatus } from "../../../types";;
 
 
 /** v2025-08-28 */

@@ -1,1 +1,1 @@
-export { AccessLevel } from './hooks'
+export type { AccessLevel } from './hooks'

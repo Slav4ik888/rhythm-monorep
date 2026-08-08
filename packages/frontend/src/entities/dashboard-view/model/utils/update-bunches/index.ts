@@ -1,5 +1,5 @@
 import { updateObject } from 'shared/helpers/objects';
-import { BunchesViewItem, PartialBunchesViewItem } from '../../../types';
+import type { BunchesViewItem, PartialBunchesViewItem } from '../../../types';
 
 
 

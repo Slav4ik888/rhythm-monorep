@@ -1,4 +1,4 @@
-import { FontStyleType, TextWrapType } from '../types';
+import type { FontStyleType, TextWrapType } from '../types';
 
 
 export const arrayBorderStyles = ['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset', 'none'];

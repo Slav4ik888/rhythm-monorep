@@ -1,5 +1,5 @@
-import { DashboardViewEntities } from '../../slice/state-schema';
-import { ViewItemId } from '../../../types';
+import type { DashboardViewEntities } from '../../slice/state-schema';
+import type { ViewItemId } from '../../../types';
 
 
 /** Возвращает ветку всех существующих родителей */

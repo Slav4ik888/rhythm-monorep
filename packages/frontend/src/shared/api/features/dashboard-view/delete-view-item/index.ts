@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CustomAxiosError, errorHandlers, ThunkConfig } from 'app/providers/store';
 import { Errors } from 'shared/lib/validators';
 import { API_PATHS } from '../../../api-paths';
-import { PartialViewItemUpdate } from '../update-view-item';
+import type { PartialViewItemUpdate } from '../update-view-item';
 
 
 

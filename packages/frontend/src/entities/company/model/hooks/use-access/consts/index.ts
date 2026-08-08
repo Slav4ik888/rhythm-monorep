@@ -1,4 +1,4 @@
-import { AccessLevel } from '../types';
+import type { AccessLevel } from '../types';
 
 
 /** Приоритет уровней */

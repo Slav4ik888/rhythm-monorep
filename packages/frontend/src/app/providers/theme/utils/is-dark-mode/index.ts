@@ -1,4 +1,4 @@
-import { PaletteMode } from '../../types';
+import type { PaletteMode } from '../../types';
 
 /**
  * Тёмная ли тема (учитывает если выбрана system)

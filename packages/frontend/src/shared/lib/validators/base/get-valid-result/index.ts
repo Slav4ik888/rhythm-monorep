@@ -1,4 +1,4 @@
-import { Errors, Validation } from '../../types';
+import type { Errors, Validation } from '../../types';
 
 
 /** v.23-07-22 */

@@ -1,4 +1,4 @@
-import { ScreenFormats } from '../../../types';
+import type { ScreenFormats } from '../../../types';
 
 
 /**

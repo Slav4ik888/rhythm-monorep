@@ -1,7 +1,8 @@
 import { FC, memo, SyntheticEvent } from 'react';
 import MuiCheckbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { GridWrap, GridStyle } from '../../grid-wrap';
+import type { GridStyle } from "../../grid-wrap";
+import { GridWrap } from "../../grid-wrap";;
 import { BoxWrap } from '../../box-wrap';
 import { Tooltip } from '../../../tooltip';
 import { changeGroup, UseGroup } from 'shared/lib/hooks';

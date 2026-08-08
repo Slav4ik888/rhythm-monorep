@@ -1,4 +1,4 @@
-import { SignupData } from '../..';
+import type { SignupData } from '../..';
 import { SCHEMA_NAME, validate, Validation } from 'shared/lib/validators';
 
 

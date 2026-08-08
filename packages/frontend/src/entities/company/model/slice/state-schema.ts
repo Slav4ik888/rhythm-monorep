@@ -1,5 +1,5 @@
 import { Errors } from 'shared/lib/validators';
-import { Company, ParamsCompany } from '../../types/company';
+import type { Company, ParamsCompany } from '../../types/company';
 
 
 

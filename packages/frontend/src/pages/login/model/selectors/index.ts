@@ -1,5 +1,5 @@
 import { StateSchema } from 'app/providers/store';
-import { StateSchemaLoginPage } from '..';
+import type { StateSchemaLoginPage } from '..';
 
 export const selectModule  = (state: StateSchema) => state.loginPage || {} as StateSchemaLoginPage;
 export const selectLoading = (state: StateSchema) => selectModule(state).loading;

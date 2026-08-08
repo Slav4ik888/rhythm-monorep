@@ -1,4 +1,4 @@
-import { User } from '../../../types';
+import type { User } from '../../../types';
 import { getValueIfNotUndefined as show } from 'shared/helpers/strings';
 
 

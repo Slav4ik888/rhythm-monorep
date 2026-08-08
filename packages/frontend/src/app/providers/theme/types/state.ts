@@ -1,6 +1,6 @@
-import { NavbarColorName } from '../model/themes/light-navbar';
-import { SidebarColorName } from '../model/themes/light-sidebar';
-import { PaletteMode } from './base';
+import type { NavbarColorName } from '../model/themes/light-navbar';
+import type { SidebarColorName } from '../model/themes/light-sidebar';
+import type { PaletteMode } from './base';
 
 
 /**

@@ -1,5 +1,5 @@
-import { DashboardViewEntities } from '../../slice/state-schema';
-import { ViewItemId } from '../../../types';
+import type { DashboardViewEntities } from '../../slice/state-schema';
+import type { ViewItemId } from '../../../types';
 import { getParentBranch } from '../get-parent-branch';
 
 export function isFirstGlobalKodInBranch(

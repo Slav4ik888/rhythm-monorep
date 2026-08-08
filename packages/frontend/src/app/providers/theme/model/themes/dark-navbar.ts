@@ -1,4 +1,4 @@
-import { NavbarColorName, NavbarTheme } from './light-navbar';
+import type { NavbarColorName, NavbarTheme } from './light-navbar';
 
 
 

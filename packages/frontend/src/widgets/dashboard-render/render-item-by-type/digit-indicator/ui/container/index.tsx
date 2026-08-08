@@ -1,9 +1,8 @@
 import { FC, memo, useMemo } from 'react';
 import { getKod, useDashboardViewState, ViewItem } from 'entities/dashboard-view';
 import { DashboardStatisticItem, useDashboardData } from 'entities/dashboard-data';
-import {
-  getComparisonValues, getIncreased, getInverted, getReversedIndicators, ValueStringAndReduction
-} from '../../utils';
+import type { ValueStringAndReduction } from "../../utils";
+import { getComparisonValues, getIncreased, getInverted, getReversedIndicators } from "../../utils";;
 import { getFixedFraction, getReducedWithReduction, toNumber } from 'shared/helpers/numbers';
 import { calcGrowthChange } from '../../../growth-icon/utils';
 import { isNotUndefined, isNum } from 'shared/lib/validators';

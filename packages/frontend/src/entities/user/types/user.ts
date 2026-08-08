@@ -1,8 +1,8 @@
 import { Email, ItemBase } from 'entities/base'
-import { UserPartnerData } from './partner'
-import { Person } from './person'
+import type { UserPartnerData } from './partner'
+import type { Person } from './person'
 import { Role } from './roles'
-import { UserSettings } from './user-settings'
+import type { UserSettings } from './user-settings'
 
 
 

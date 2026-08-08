@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { StateSchema } from 'app/providers/store';
-import { StateSchemaHints} from '../slice/state-schema';
+import type { StateSchemaHints} from '../slice/state-schema';
 import { createSelector } from '@reduxjs/toolkit';
 
 

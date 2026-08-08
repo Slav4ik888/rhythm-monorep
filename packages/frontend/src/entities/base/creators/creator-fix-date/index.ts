@@ -1,6 +1,6 @@
 import { getCurrentMs } from 'shared/helpers/dates';
 import { isNum } from 'shared/lib/validators';
-import { FixDate } from '../../types';
+import type { FixDate } from '../../types';
 
 /**
  * @param date if undefined => be currentMs()

@@ -1,1 +1,2 @@
-export { getAuth, ReqGetAuth } from './get-auth'
+export type { ReqGetAuth } from "./get-auth";
+export { getAuth } from "./get-auth";

@@ -1,7 +1,8 @@
 import { FC, memo, useEffect, useRef, MouseEvent } from 'react';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Box from '@mui/material/Box';
-import { GridWrap, GridStyle } from '../../grid-wrap';
+import type { GridStyle } from "../../grid-wrap";
+import { GridWrap } from "../../grid-wrap";;
 import { BoxWrap } from '../../box-wrap';
 import { ErrorBox } from '../../error-box';
 import { useValue } from 'shared/lib/hooks';

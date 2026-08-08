@@ -1,4 +1,4 @@
-import { UserSettings } from '../../types';
+import type { UserSettings } from '../../types';
 
 
 /** v.2024-10-07 */

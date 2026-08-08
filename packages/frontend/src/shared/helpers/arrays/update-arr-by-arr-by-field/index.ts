@@ -1,4 +1,4 @@
-import { Item } from '..';
+import type { Item } from '..';
 
 /**
  * Update lastArr by newArr by field, все не обновлённые объекты остаются без изменений

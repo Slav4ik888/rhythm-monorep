@@ -1,4 +1,4 @@
-import { DashboardPeriod, DashboardPeriodDateType } from '../../types';
+import type { DashboardPeriod, DashboardPeriodDateType } from '../../types';
 
 
 

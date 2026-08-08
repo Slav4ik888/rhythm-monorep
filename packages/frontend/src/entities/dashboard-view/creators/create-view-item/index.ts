@@ -1,6 +1,6 @@
 import { creatorFixDate } from 'entities/base/creators';
 import { cloneObj } from 'shared/helpers/objects';
-import { PeriodItem, Periods, ViewItem, ViewItemStyles } from '../../types';
+import type { PeriodItem, Periods, ViewItem, ViewItemStyles } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { f } from 'shared/styles';
 import { NO_PARENT_ID, NO_SHEET_ID, ORDER_STEP } from '../../consts';

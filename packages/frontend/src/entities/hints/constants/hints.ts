@@ -1,4 +1,4 @@
-import { Hint } from '../types';
+import type { Hint } from '../types';
 
 
 export const HINTS: Hint[] = [

@@ -1,4 +1,4 @@
-import { Item } from '..';
+import type { Item } from '..';
 
 /**
  * Возвращает массив без указанного элемента по itemField

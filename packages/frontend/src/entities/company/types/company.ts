@@ -1,7 +1,7 @@
 import { Email, FixDate } from 'entities/base';
 import { BunchesUpdated } from 'shared/lib/structures/bunch';
-import { CompanyProfileMember, CompanyDashboardMember } from '../model/hooks/use-access/types';
-import { DashboardSheets } from './sheets';
+import type { CompanyProfileMember, CompanyDashboardMember } from '../model/hooks/use-access/types';
+import type { DashboardSheets } from './sheets';
 
 
 

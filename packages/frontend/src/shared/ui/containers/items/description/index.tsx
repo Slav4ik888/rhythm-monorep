@@ -3,7 +3,7 @@ import { Textarea } from '../../elements/textarea';
 import { UseGroup, setChanges, changeGroup } from 'shared/lib/hooks';
 import { getValueByScheme } from 'shared/helpers/objects';
 import { Errors } from 'shared/lib/validators';
-import { GridStyle } from '../../grid-wrap';
+import type { GridStyle } from '../../grid-wrap';
 
 
 

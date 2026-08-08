@@ -1,10 +1,11 @@
 import { getValueByScheme } from 'shared/helpers/objects';
 import { __devLog } from 'shared/lib/tests/__dev-log';
-import { ParamsCompany } from '../../../../../types';
+import type { ParamsCompany } from '../../../../../types';
 import { getUserDashboardAccess } from '../get-user-dashboard-access';
 import { canAccess } from '../can-access';
 import { isOwner } from '../is-owner';
-import { AccessLevel, CompanyDashboardAccessScheme } from '../../types';
+import type { AccessLevel } from "../../types";
+import { CompanyDashboardAccessScheme } from "../../types";;
 import { ACCESS_PRIORITY } from '../../consts';
 import { NO_SHEET_ID } from 'entities/dashboard-view';
 

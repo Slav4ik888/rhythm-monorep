@@ -1,4 +1,4 @@
-import { AccessLevel } from './base';
+import type { AccessLevel } from './base';
 
 
 /** Перечень возможных прав доступа к Дашборду компании  */

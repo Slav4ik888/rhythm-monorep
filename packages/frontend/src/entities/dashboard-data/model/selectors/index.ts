@@ -1,7 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { StateSchema } from 'app/providers/store';
 import { sortingArr } from 'shared/helpers/sorting';
-import { StateSchemaDashboardData as SSDD, DashboardDataEntities } from '../slice/state-schema';
+import type { DashboardDataEntities } from "../slice/state-schema";
+import { StateSchemaDashboardData as SSDD } from "../slice/state-schema";;
 
 
 

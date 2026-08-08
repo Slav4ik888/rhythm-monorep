@@ -1,4 +1,4 @@
-import { ViewItem, ViewItemId } from '../../../types';
+import type { ViewItem, ViewItemId } from '../../../types';
 
 
 /**

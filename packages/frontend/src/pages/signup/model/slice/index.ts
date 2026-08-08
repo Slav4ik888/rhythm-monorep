@@ -2,8 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import { Errors } from 'shared/lib/validators';
 import { signupByEmailEnd, signupByEmailStart, signupSendCodeAgain } from '../services';
-import { SignupData } from '../types';
-import { StateSchemaSignupPage } from './state-schema';
+import type { SignupData } from '../types';
+import type { StateSchemaSignupPage } from './state-schema';
 
 
 

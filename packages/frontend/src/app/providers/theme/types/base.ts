@@ -2,9 +2,9 @@ import { Theme } from '@mui/material/styles';
 import { borders } from '../model/themes/base/borders';
 import { breakpoints } from '../model/themes/base/breakpoints';
 import { customPalette } from '../model/themes/light-custom-palette';
-import { NavbarTheme } from '../model/themes/light-navbar';
-import { SidebarTheme } from '../model/themes/light-sidebar';
-import { Gradients } from './gradients';
+import type { NavbarTheme } from '../model/themes/light-navbar';
+import type { SidebarTheme } from '../model/themes/light-sidebar';
+import type { Gradients } from './gradients';
 
 
 export type PaletteMode = 'light' | 'dark' | 'system';

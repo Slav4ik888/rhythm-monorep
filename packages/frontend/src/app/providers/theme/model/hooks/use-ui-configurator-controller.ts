@@ -1,5 +1,6 @@
 import { useContext } from 'react';
-import { UIConfiguratorContext, UIConfiguratorContextType } from '../ui-configurator-reducer/ui-configurator-context';
+import type { UIConfiguratorContextType } from "../ui-configurator-reducer/ui-configurator-context";
+import { UIConfiguratorContext } from "../ui-configurator-reducer/ui-configurator-context";;
 
 
 

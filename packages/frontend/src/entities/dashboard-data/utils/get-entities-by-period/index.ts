@@ -1,7 +1,7 @@
-import { DashboardPeriodDates, DashboardStatisticItem } from '../../types';
+import type { DashboardPeriodDates, DashboardStatisticItem } from '../../types';
 import { getStartIdx } from './get-start-idx';
 import { getEndIdx } from './get-end-idx';
-import { DashboardDataDates, DashboardDataEntities } from '../../model/slice/state-schema';
+import type { DashboardDataDates, DashboardDataEntities } from '../../model/slice/state-schema';
 
 
 

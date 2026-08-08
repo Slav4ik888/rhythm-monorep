@@ -1,6 +1,8 @@
-export { validateBoolean } from './boolean'
-export { validateEmail } from './email'
-export { validateString } from './string'
-export { validateNumber } from './number'
-export { validateOneOfSeveral } from './one-of-several'
-export { ContainsField } from './types'
+// packages/frontend/src/shared/lib/validators/object-fields/index.ts
+
+export { validateBoolean } from './boolean';
+export { validateEmail } from './email';
+export { validateString } from './string';
+export { validateNumber } from './number';
+export { validateOneOfSeveral } from './one-of-several';
+export type { ContainsField } from './types';

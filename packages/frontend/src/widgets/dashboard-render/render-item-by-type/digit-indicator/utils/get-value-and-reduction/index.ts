@@ -1,6 +1,6 @@
 import { addSpaceBetweenNumbers, getFixedFraction, getReducedWithReduction } from 'shared/helpers/numbers';
 import { isNum } from 'shared/lib/validators';
-import { ValueStringAndReduction } from '../get-comparison-values';
+import type { ValueStringAndReduction } from '../get-comparison-values';
 
 
 

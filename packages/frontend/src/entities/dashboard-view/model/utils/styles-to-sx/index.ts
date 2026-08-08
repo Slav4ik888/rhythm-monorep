@@ -1,5 +1,5 @@
 import { isNum } from 'shared/lib/validators';
-import { ViewItemStyles } from '../../../types';
+import type { ViewItemStyles } from '../../../types';
 import { is } from './is';
 
 

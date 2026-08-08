@@ -1,4 +1,4 @@
-import { FIO } from '../../types';
+import type { FIO } from '../../types';
 
 export const MOCK_FIO_EMPTY: FIO = {
   firstName  : '',

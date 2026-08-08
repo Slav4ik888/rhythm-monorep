@@ -1,5 +1,6 @@
 import { FC, memo, useCallback, useRef } from 'react';
-import { SignupDataEnd, useSignup } from '../../model';
+import type { SignupDataEnd } from "../../model";
+import { useSignup } from "../../model";;
 import { getRefValue } from 'shared/lib/refs';
 import { validateSignupDataEnd } from '../../model/validators';
 import { SignupEndPageComponent } from './component';

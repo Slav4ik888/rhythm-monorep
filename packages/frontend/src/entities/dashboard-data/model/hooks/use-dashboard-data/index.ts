@@ -3,8 +3,8 @@ import { actions as a } from '../../slice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
 import { Errors } from 'shared/lib/validators';
-import { StateSchemaDashboardData } from '../../slice/state-schema';
-import { SetActivePeriod, SetSelectedPeriod } from '../../slice/types';
+import type { StateSchemaDashboardData } from '../../slice/state-schema';
+import type { SetActivePeriod, SetSelectedPeriod } from '../../slice/types';
 import { useMemo } from 'react';
 
 

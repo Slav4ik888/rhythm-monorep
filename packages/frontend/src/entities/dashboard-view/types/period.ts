@@ -1,5 +1,5 @@
 import { PeriodType } from 'entities/dashboard-data';
-import { ViewItemStyles } from './item-styles';
+import type { ViewItemStyles } from './item-styles';
 
 
 export interface PeriodItem {

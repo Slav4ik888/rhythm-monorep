@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import { Errors, isNotUndefined } from 'shared/lib/validators';
 import { authByLogin, resetEmailPassword } from '../services';
-import { StateSchemaLoginPage } from '../types';
+import type { StateSchemaLoginPage } from '../types';
 
 
 

@@ -1,5 +1,5 @@
 import { StatisticPeriodType } from 'entities/statistic-type';
-import { DashboardPeriodType } from '../constants/period';
+import type { DashboardPeriodType } from '../constants/period';
 
 
 export type DashboardPeriodDateType = 'start' | 'end'

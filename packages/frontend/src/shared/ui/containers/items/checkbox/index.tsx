@@ -1,7 +1,7 @@
 import { FC, memo } from 'react';
 import { Checkbox } from '../../elements/checkbox';
 import { UseGroup } from 'shared/lib/hooks';
-import { GridStyle } from '../../grid-wrap';
+import type { GridStyle } from '../../grid-wrap';
 
 
 

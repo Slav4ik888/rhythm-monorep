@@ -1,4 +1,4 @@
-import { DashboardViewEntities } from '../../slice/state-schema';
+import type { DashboardViewEntities } from '../../slice/state-schema';
 import { getParentBranch } from '../get-parent-branch';
 
 

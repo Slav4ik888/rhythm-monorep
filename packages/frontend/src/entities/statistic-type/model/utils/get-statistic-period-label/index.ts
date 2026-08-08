@@ -1,7 +1,7 @@
 import { CustomSettings } from 'entities/company';
 import { setValue } from 'shared/helpers/objects';
 import { STATISTIC_PERIOD_TYPE } from '../../config';
-import { StatisticPeriodType } from '../../types';
+import type { StatisticPeriodType } from '../../types';
 
 
 

@@ -1,6 +1,6 @@
 import { FC, memo } from 'react';
 import Chip from '@mui/material/Chip';
-import { StatisticPeriodType } from '../../model/types';
+import type { StatisticPeriodType } from '../../model/types';
 import { CustomTheme } from 'app/providers/theme';
 import { pxToRem, SxCard } from 'shared/styles';
 import { CustomSettings } from 'entities/company';

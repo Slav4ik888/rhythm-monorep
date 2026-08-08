@@ -1,4 +1,4 @@
-import { StateSchemaLoginPage } from '../types';
+import type { StateSchemaLoginPage } from '../types';
 
 
 export const MOCK_INITIAL_STATE: StateSchemaLoginPage = {

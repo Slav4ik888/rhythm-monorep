@@ -1,4 +1,4 @@
-import { DashboardPeriodDates } from '../../../types';
+import type { DashboardPeriodDates } from '../../../types';
 
 
 /** Возвращает индекс в массиве с датами, где начинается подходящий нам период */

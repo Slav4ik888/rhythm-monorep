@@ -2,9 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import cfg from 'app/config';
 import { LS } from 'shared/lib/local-storage';
 import { Errors } from 'shared/lib/validators';
-import { Message, MessageType } from '../../types';
+import type { Message } from "../../types";
+import { MessageType } from "../../types";;
 import { getScreenFormats, getScreenSize, isAcceptCookie } from '../utils';
-import { PageLoading, PageLoadingType, StateSchemaUI } from './state-schema';
+import type { PageLoading, PageLoadingType, StateSchemaUI } from './state-schema';
 
 
 

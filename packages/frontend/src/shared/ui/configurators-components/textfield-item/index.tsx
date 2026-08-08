@@ -1,5 +1,5 @@
 import { FC, memo, MouseEvent } from 'react';
-import { SxCard } from '../../../styles';
+import type { SxCard } from '../../../styles';
 import { TextField } from '../../containers';
 import { Tooltip } from '../../tooltip';
 

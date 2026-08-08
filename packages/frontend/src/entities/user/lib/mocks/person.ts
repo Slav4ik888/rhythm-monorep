@@ -1,4 +1,4 @@
-import { Person } from '../../types';
+import type { Person } from '../../types';
 import { MOCK_FIO, MOCK_FIO_EMPTY } from './fio';
 
 

@@ -2,7 +2,8 @@ import * as s from '../../selectors';
 import { actions as a } from '../../slice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
-import { AuthByLogin, authByLogin, resetEmailPassword } from '../../services';
+import type { AuthByLogin } from "../../services";
+import { authByLogin, resetEmailPassword } from "../../services";;
 import { Errors } from 'shared/lib/validators';
 
 

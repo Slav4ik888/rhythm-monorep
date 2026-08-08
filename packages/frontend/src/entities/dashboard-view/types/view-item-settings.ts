@@ -1,9 +1,9 @@
 import { ChartConfigOptions, ViewItemChart } from 'entities/charts'
 import { DefaultIconId } from 'shared/lib/icons'
-import { ViewItemId } from '.'
-import { GaugeColumnItem } from './gauge-column-item'
-import { IndicatorsConfig } from './indicators-config'
-import { Periods, PeriodStyles } from './period'
+import type { ViewItemId } from '.'
+import type { GaugeColumnItem } from './gauge-column-item'
+import type { IndicatorsConfig } from './indicators-config'
+import type { Periods, PeriodStyles } from './period'
 
 
 

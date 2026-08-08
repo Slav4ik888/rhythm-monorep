@@ -1,5 +1,5 @@
-import { ParamsCompany } from '../../../../../types';
-import { CompanyDashboardMember } from '../../types';
+import type { ParamsCompany } from '../../../../../types';
+import type { CompanyDashboardMember } from '../../types';
 
 /**
  * Get user`s access to dashboard from companyProfile

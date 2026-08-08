@@ -1,4 +1,4 @@
-import { FIO } from '../../types';
+import type { FIO } from '../../types';
 
 
 /** v.2023-09-22 */

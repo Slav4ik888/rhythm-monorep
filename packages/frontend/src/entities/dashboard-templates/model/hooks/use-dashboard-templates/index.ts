@@ -4,13 +4,13 @@ import { actions as a } from '../../slice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from 'shared/lib/hooks';
 import { Errors } from 'shared/lib/validators';
-import { StateSchemaDashboardTemplates } from '../../slice/state-schema';
+import type { StateSchemaDashboardTemplates } from '../../slice/state-schema';
 import { ViewItemId } from 'entities/dashboard-view';
 import { getBunchesUpdated, getTemplates } from '../../services';
 import {
   deleteTemplate, DeleteTemplate, updateTemplate, UpdateTemplate
  } from 'shared/api/features/dashboard-templates';
-import { ReqGetTemplates } from '../../services/get-templates';
+import type { ReqGetTemplates } from '../../services/get-templates';
 
 
 

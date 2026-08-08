@@ -1,4 +1,4 @@
-import { DashboardSheets } from '../../types';
+import type { DashboardSheets } from '../../types';
 
 export const getSheetById = (
   paramsSheets : DashboardSheets,

@@ -1,7 +1,7 @@
 import { updateEntities } from 'entities/base';
 import { LS } from 'shared/lib/local-storage';
 import { getViewitemsFromBunches } from '../get-viewitems-from-bunches';
-import { StateSchemaDashboardView } from '../../slice/state-schema';
+import type { StateSchemaDashboardView } from '../../slice/state-schema';
 
 
 

@@ -1,7 +1,7 @@
 import { FC, memo, useCallback, useEffect, useRef } from 'react';
 import { useLogin } from '../model';
 import { getRefValue } from 'shared/lib/refs';
-import { AuthByLogin } from '../model/services';
+import type { AuthByLogin } from '../model/services';
 import { validateAuthByLogin } from '../model/validators';
 import { LoginPageComponent } from './component';
 import { useUI } from 'entities/ui';

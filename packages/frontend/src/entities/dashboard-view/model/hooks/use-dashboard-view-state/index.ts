@@ -1,6 +1,6 @@
 import * as s from '../../selectors';
 import { useSelector } from 'react-redux';
-import { ViewItemId } from '../../../types';
+import type { ViewItemId } from '../../../types';
 
 
 

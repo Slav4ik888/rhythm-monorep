@@ -1,4 +1,5 @@
-import { DbRefName, Operation, OperationArguments } from '../../../types';
+import type { Operation, OperationArguments } from "../../../types";
+import { DbRefName } from "../../../types";;
 import { createDeleteList } from '../../base';
 
 

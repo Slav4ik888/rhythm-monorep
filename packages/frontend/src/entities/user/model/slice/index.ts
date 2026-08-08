@@ -5,9 +5,9 @@ import { LS } from 'shared/lib/local-storage';
 import { Errors } from 'shared/lib/validators';
 import { creatorUser } from '../../lib/creators';
 import { getAuth } from '../services';
-import { PartialUser, User } from '../../types';
-import { StateSchemaUser } from './state-schema';
-import { SetUser } from './types';
+import type { PartialUser, User } from '../../types';
+import type { StateSchemaUser } from './state-schema';
+import type { SetUser } from './types';
 
 
 

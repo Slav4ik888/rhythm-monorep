@@ -1,7 +1,7 @@
 import { FC, memo, ReactNode } from 'react';
 import Box from '@mui/material/Box';
 import { ActionToggle } from './action-toggle';
-import { LayoutInnerPageType } from '../../layouts/layout-inner-page';
+import type { LayoutInnerPageType } from '../../layouts/layout-inner-page';
 
 
 

@@ -1,5 +1,5 @@
 import { reducer, actions } from '.';
-import { StateSchemaLoginPage } from '../types/state-schema';
+import type { StateSchemaLoginPage } from '../types/state-schema';
 
 
 describe('loginSlice', () => {

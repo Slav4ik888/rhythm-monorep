@@ -1,4 +1,4 @@
-import { Gradients } from '../../types';
+import type { Gradients } from '../../types';
 
 export const gradients: Gradients = {
   primary: {

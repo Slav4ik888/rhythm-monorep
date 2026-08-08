@@ -1,5 +1,5 @@
 import { StateSchema } from 'app/providers/store';
-import { StateSchemaTransactions } from '../slice/state-schema';
+import type { StateSchemaTransactions } from '../slice/state-schema';
 
 
 

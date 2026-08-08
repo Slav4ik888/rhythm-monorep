@@ -1,6 +1,6 @@
 import { configureStore, ReducersMapObject } from '@reduxjs/toolkit'
 import { reducerUI } from 'entities/ui';
-import { StateSchema } from './state';
+import type { StateSchema } from './state';
 import { createReducerManager } from './reducer-manager';
 import { api } from 'shared/api';
 import { reducerCompany } from 'entities/company';

@@ -1,4 +1,4 @@
-import { UseBase } from '../types';
+import type { UseBase } from '../types';
 
 /** setChanges true */
 export function setChanges(G: UseBase) {

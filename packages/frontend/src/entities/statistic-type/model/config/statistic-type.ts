@@ -1,5 +1,5 @@
 import { DashboardItemType } from 'entities/dashboard-data';
-import { StatisticPeriodType } from '../types';
+import type { StatisticPeriodType } from '../types';
 
 
 

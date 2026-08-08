@@ -1,4 +1,4 @@
-import { GradientsItem } from '../../types';
+import type { GradientsItem } from '../../types';
 
 
 export type SidebarColorName = 'sidebar_black' | 'sidebar_blue' | 'sidebar_grey'

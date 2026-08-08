@@ -1,4 +1,4 @@
-import { ViewItem } from '../../../types';
+import type { ViewItem } from '../../../types';
 
 
 

@@ -1,4 +1,4 @@
-import { Item } from '../types';
+import type { Item } from '../types';
 
 function isValid(item: Item, field: string, values: string[]): boolean {
   let result = true;

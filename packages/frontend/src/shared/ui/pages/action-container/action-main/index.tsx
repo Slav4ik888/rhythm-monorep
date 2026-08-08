@@ -1,6 +1,6 @@
 import { FC, memo } from 'react';
 import { ActionMainComponent } from './component';
-import { LayoutInnerPageType } from '../../layouts/layout-inner-page';
+import type { LayoutInnerPageType } from '../../layouts/layout-inner-page';
 import { Errors } from 'shared/lib/validators';
 
 

@@ -1,7 +1,7 @@
 import { CustomTheme } from 'app/providers/theme';
 import { CustomSettings } from 'entities/company';
 import { setValue } from 'shared/helpers/objects';
-import { StatisticPeriodType } from '../../types';
+import type { StatisticPeriodType } from '../../types';
 
 
 

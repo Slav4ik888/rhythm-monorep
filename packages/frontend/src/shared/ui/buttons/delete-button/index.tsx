@@ -4,7 +4,7 @@ import { ConfirmType, DialogConfirm } from '../../dialogs';
 import { MDButton } from '../../mui-design-components';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Tooltip } from '../../tooltip';
-import { SxCard } from '../../../styles';
+import type { SxCard } from '../../../styles';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { getIconStyle } from '../../configurators-components';
 import { CustomTheme, useTheme } from 'app/providers/theme';

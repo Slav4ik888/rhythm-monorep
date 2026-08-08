@@ -8,7 +8,8 @@ export { RowWrapper } from './row-wrapper'
 export { RowWrapperTitle } from './row-wrapper-title'
 export { ConfiguratorSubBoxWrapper } from './sub-box-wrapper'
 export { ConfiguratorTitle } from './sub-title'
-export { Toward, TowardType } from './toward'
+export type { TowardType } from "./toward";
+export { Toward } from "./toward";
 export { UnsavedChangesComponent } from './unsaved'
 export { getIconStyle } from './utils'
 export { ConfiguratorSubHeaderActive } from './sub-header-active'

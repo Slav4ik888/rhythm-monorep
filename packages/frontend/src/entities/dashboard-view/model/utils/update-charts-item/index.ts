@@ -1,5 +1,5 @@
 import { ViewItemChartField, ViewItemChart } from 'entities/charts';
-import { ViewItem } from '../../../types';
+import type { ViewItem } from '../../../types';
 
 
 export const updateChartsItem = (

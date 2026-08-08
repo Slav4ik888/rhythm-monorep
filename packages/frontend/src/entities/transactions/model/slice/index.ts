@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { sendTransactions } from 'features/transactions';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import { Errors } from 'shared/lib/validators';
-import { StateSchemaTransactions } from './state-schema';
+import type { StateSchemaTransactions } from './state-schema';
 
 
 

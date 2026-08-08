@@ -1,6 +1,6 @@
 import { actionsUI } from 'entities/ui';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { StateSchema, ThunkExtraArg } from './state';
+import type { StateSchema, ThunkExtraArg } from './state';
 import { Errors } from 'shared/lib/validators';
 import { actionsUser } from 'entities/user';
 import { __devLog } from 'shared/lib/tests/__dev-log';

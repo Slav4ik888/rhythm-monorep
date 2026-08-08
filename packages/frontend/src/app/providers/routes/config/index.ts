@@ -1,3 +1,4 @@
-export { routeConfig, AppRouteProps } from './route-config'
+export type { AppRouteProps } from "./route-config";
+export { routeConfig } from "./route-config";
 export { AppRoutes, RoutePath, RouteName } from './routes'
-export { LinkType } from './links'
+export type { LinkType } from './links'

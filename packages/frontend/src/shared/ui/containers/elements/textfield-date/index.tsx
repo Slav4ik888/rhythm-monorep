@@ -1,10 +1,11 @@
 import { FC, memo, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
-import { GridWrap, GridStyle } from '../../grid-wrap';
+import type { GridStyle } from "../../grid-wrap";
+import { GridWrap } from "../../grid-wrap";;
 import { BoxWrap } from '../../box-wrap';
 import { Tooltip } from '../../../tooltip';
 import { useValue } from '../../../../lib/hooks';
-import { Errors } from '../../../../lib/validators';
+import type { Errors } from '../../../../lib/validators';
 import { formatDate } from '../../../../helpers/dates';
 
 

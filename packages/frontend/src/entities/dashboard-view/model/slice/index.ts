@@ -2,13 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LS } from 'shared/lib/local-storage';
 import { Errors } from 'shared/lib/validators';
 import { getPayloadError as getError } from 'shared/lib/errors';
-import { ActivatedCopied, StateSchemaDashboardView } from './state-schema';
-import {
+import type { ActivatedCopied, StateSchemaDashboardView } from './state-schema';
+import type {
   SetDashboardViewItems, ChangeSelectedStyle, ChangeOneSettingsField, ChangeOneDatasetsItem,
   ChangeOneChartsItem, SetEditMode, SetDashboardBunchesFromCache, SetDashboardBunches
 } from './types';
 import { updateEntities } from 'entities/base';
-import {
+import type {
   ViewItemId, ViewItemSettings, ViewItemStyles, PartialViewItem, ViewItem, ViewItemStylesField
 } from '../../types';
 import { cloneObj, isNotEmpty, updateObject } from 'shared/helpers/objects';

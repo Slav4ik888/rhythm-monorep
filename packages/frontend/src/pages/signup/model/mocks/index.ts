@@ -1,5 +1,5 @@
 import { MOCK_EMAIL, MOCK_PASSWORD } from 'entities/base/mocks';
-import { SignupData, SignupDataEnd } from '../types';
+import type { SignupData, SignupDataEnd } from '../types';
 
 
 export const MOCK_SIGNUP_DATA_SMALL: SignupData = {

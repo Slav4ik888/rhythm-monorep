@@ -1,5 +1,5 @@
 import { MOCK_USER_ID } from '../../user/lib/mocks';
-import { FixDate } from '../types';
+import type { FixDate } from '../types';
 
 
 

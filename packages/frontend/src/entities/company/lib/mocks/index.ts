@@ -1,7 +1,8 @@
 import { creatorFixDate } from 'entities/base';
 import { MOCK_DATE_13_03_2023 } from 'entities/base/mocks';
 import { creatorCompany } from '../creators';
-import { Company, CompanyStatus } from '../../types';
+import type { Company } from "../../types";
+import { CompanyStatus } from "../../types";;
 
 
 export const MOCK_OWNER_ID   = '7mNs77rglRfvjuuIEf57ZvMFVr82';

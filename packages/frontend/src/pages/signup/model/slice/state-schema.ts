@@ -1,5 +1,5 @@
 import { Errors } from 'shared/lib/validators';
-import { SignupData } from '../types';
+import type { SignupData } from '../types';
 
 
 

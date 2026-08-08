@@ -3,7 +3,8 @@ import MuiButton from '@mui/material/Button';
 import { CircularProgress } from '../../circular-progress';
 import { useTheme } from 'app/providers/theme';
 import { Tooltip } from '../../tooltip';
-import { ButtonType, Variant } from './types';
+import type { Variant } from "./types";
+import { ButtonType } from "./types";;
 import { useStyles } from './use-styles';
 import { SxCard } from 'shared/styles';
 

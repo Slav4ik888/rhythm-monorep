@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { logout, updateUser } from 'shared/api/features/user';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import { Errors } from 'shared/lib/validators';
-import { StateSchemaUserFeatures } from './state-schema';
+import type { StateSchemaUserFeatures } from './state-schema';
 
 
 

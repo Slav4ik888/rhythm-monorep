@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CustomAxiosError, errorHandlers, ThunkConfig } from 'app/providers/store';
-import { SignupData } from '../../types';
+import type { SignupData } from '../../types';
 import { actionsUI } from 'entities/ui';
 import { Errors } from 'shared/lib/validators';
 import { API_PATHS } from 'shared/api';

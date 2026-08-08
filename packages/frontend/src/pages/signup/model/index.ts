@@ -1,4 +1,4 @@
-export { SignupData, SignupDataEnd } from './types'
+export type { SignupData, SignupDataEnd } from './types'
 export { reducer as reducerSignupPage } from './slice'
 export { useSignup } from './hooks'
-export { StateSchemaSignupPage } from './slice/state-schema'
+export type { StateSchemaSignupPage } from './slice/state-schema'

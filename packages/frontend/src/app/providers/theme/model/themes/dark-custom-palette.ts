@@ -1,6 +1,6 @@
 import { brown, orange } from '@mui/material/colors';
 import { Color, PaletteMode } from '@mui/material/styles';
-import { CustomPalette } from '../../types';
+import type { CustomPalette } from '../../types';
 
 
 export const customPalette: CustomPalette = {

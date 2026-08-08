@@ -1,11 +1,12 @@
 import { FC, memo, useEffect, useRef } from 'react';
 import TextField from '@mui/material/TextField';
-import { GridWrap, GridStyle } from '../../grid-wrap';
+import type { GridStyle } from "../../grid-wrap";
+import { GridWrap } from "../../grid-wrap";;
 import { BoxWrap } from '../../box-wrap';
 import { Tooltip } from '../../../tooltip';
 import { getStrNumber, toNumber } from '../../../../helpers/numbers';
 import { useValue } from '../../../../lib/hooks';
-import { Errors } from '../../../../lib/validators';
+import type { Errors } from '../../../../lib/validators';
 
 
 
