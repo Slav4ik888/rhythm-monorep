@@ -6,81 +6,70 @@
 
 ## Контекст: что сделано в этой сессии
 
-### Миграция Redux → Zustand: entities/ui (первый стор)
+### Исправление таймаута загрузки данных из Google Sheets
 
-**Создан Zustand-стор** `packages/frontend/src/entities/ui/model/store.ts`:
+- `packages/backend/rhy.thm.su` — `proxy_read_timeout 300s`, `proxy_connect_timeout 10s`, `proxy_send_timeout 10s`
+- `packages/backend/src/models/google/services/get-data/index.ts` — `timeout: 4 мин` на `axios.get(url)`
+- `_for-me-not-for-ai/optimized-google-apps-script.js` — оптимизированный Apps Script (getDataRange + CacheService)
 
-- `useUIStore` — полноценная замена Redux slice для UI-состояния
-- Все actions: setErrors, setPageLoading, setMessage/setInfoMessage/setSuccessMessage/setWarningMessage/setErrorMessage, clearMessage, setScreenFormats, setAcceptedCookie, setReplacePath/clearReplacePath
-- setPageLoading сделан опциональным (`payload?: PageLoading`) — вызов без аргументов сбрасывает pageLoading в `{}`
+### Исправление ошибки валидации при обновлении компании ("subscribes"/"viewUpdated")
 
-**Обновлён хук** `use-ui/index.ts`:
+- **Обе** AJV-валидации (бэкенд + фронтенд) блокировали поля `subscribes`/`viewUpdated`
+- `packages/backend/src/libs/validators/ajv/validate/index.ts` — `removeAdditional: true`
+- `packages/frontend/src/shared/lib/validators/ajv/validate/index.ts` — `removeAdditional: true`
+- Обновлены оба теста схемы компании
 
-- Убраны useSelector/useDispatch, заменены на селекторы useUIStore
-- Публичный API хука не изменился — все потребители работают без изменений
+### PATCH-запрос не доходил до бэкенда (3 проблемы)
 
-**Заменены все прямые импорты actionsUI → useUIStore.getState()** в 12 файлах:
+1. **CORS preflight**: браузер шлёт OPTIONS перед PATCH, Koa возвращал 404 → `packages/backend/src/middleware/cors/index.ts` (ручной CORS middleware)
+2. **Vite dev-прокси не работает с PATCH** (известный баг) → `update-company/index.ts`: `api.patch()` → `api.post()`, бэкенд `router.post()` добавлен
+3. **Redis не был установлен/запущен** → зависание в `checkUserSession` → `redisGetSession`:
+   - Redis установлен через `brew install redis`
+   - `packages/backend/src/libs/redis/init.ts` — добавлен `connectTimeout: 5000`, отключён `reconnectStrategy`
+   - `docker-compose.yml` — добавлен контейнер Redis (для будущего использования)
 
-- `app/providers/store/config/error-handlers.ts`
-- `shared/api/features/company/get-params-company/index.ts`
-- `shared/api/features/company/update-company/index.ts`
-- `shared/api/features/user/update-user/index.ts`
-- `features/dashboard-data/get-data/model/services/get-data/index.ts`
-- `entities/user/model/services/get-auth/index.ts`
-- `pages/login/model/services/reset-email-password/index.ts`
-- `pages/signup/model/services/signup-send-code-again/index.ts`
-- `pages/signup/model/services/signup-by-email-start/index.ts`
-- `pages/signup/model/services/signup-by-email-end/index.ts`
+### Затронутые файлы (все сессии)
 
-**Экспорт** `entities/ui/index.ts` дополнен: `useUIStore`, `UIStore`. Старые `actionsUI`/`reducerUI` сохранены с пометкой «устаревшие» — нужны пока остальные сторы на Redux.
+| Файл                                                                        | Изменение                                               |
+| --------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `packages/backend/rhy.thm.su`                                               | proxy_read_timeout 300s, proxy_connect/send_timeout 10s |
+| `packages/backend/src/models/google/services/get-data/index.ts`             | timeout: 4 мин                                          |
+| `_for-me-not-for-ai/optimized-google-apps-script.js`                        | Новый: getDataRange + CacheService                      |
+| `packages/backend/src/libs/validators/ajv/validate/index.ts`                | removeAdditional: true                                  |
+| `packages/frontend/src/shared/lib/validators/ajv/validate/index.ts`         | removeAdditional: true                                  |
+| `packages/backend/src/middleware/cors/index.ts`                             | **Новый**: ручной CORS middleware                       |
+| `packages/backend/src/middleware/index.ts`                                  | Добавлен corsMiddleware                                 |
+| `packages/backend/src/middleware/router/index.ts`                           | router.post() для company/update                        |
+| `packages/frontend/src/shared/api/features/company/update-company/index.ts` | api.patch() → api.post()                                |
+| `packages/backend/src/libs/redis/init.ts`                                   | connectTimeout 5000, reconnectStrategy: false           |
+| `docker-compose.yml`                                                        | Добавлен контейнер Redis                                |
+| Тесты схемы компании (backend + frontend)                                   | Обновлён expected                                       |
+| `packages/frontend/vite.config.ts`                                          | Возвращён PWA (devOptions.enabled: true)                |
 
 ### Результаты проверок
 
-- `npx tsc --noEmit -p packages/frontend`: **0 ошибок**
-- `npm run lint`: 36 предсуществующих ошибок (max-len, no-loss-of-precision, path-checker), **ни одной в изменённых файлах**
+- `npm run lint`: 37 предсуществующих ошибок, **ни одной в изменённых файлах**
+- Backend: `validate-company-schema.test.ts` — **2/2 passed**
+- Frontend: `npm run test -w packages/frontend` — 169 passed, 16 failed (предсуществующие)
+
+### Что нужно сделать вручную (ничего срочного)
+
+1. **Применить nginx-конфиг на сервере:** `sudo nginx -t && sudo nginx -s reload`
+2. **Заменить скрипт в Google Apps Script** на `_for-me-not-for-ai/optimized-google-apps-script.js`
 
 ## Следующие шаги
 
-Продолжить миграцию Redux → Zustand по плану в PLAN.md (3.3.1 → 3.3.10):
-
-1. **entities/user** — стор с thunk'ами (getAuth). Нужно:
-   - Перенести состояние в Zustand
-   - Thunk'и переделать на прямые API-вызовы (async функции, вызываемые из хука)
-   - Заменить все `useSelector`/`useAppDispatch` в хуке `useUser`
-   - Заменить `actionsUser` в thunk-файлах других сторов (signup, update-user, error-handlers)
-
-2. **entities/company** — аналогично user
-
-3. **entities/docs** — простой стор, похож на ui
-
-4. **entities/hints** — простой стор
-
-5. **entities/dashboard-data** — сложный стор с thunk'ами и createAsyncThunk
-
-6. **entities/dashboard-templates** — сложный стор
-
-7. **entities/dashboard-view** — самый сложный стор
-
-8. **entities/transactions** — простой стор
-
-9. **Страничные сторы** (login, signup)
-
-10. **Финал**: убрать Redux Provider, удалить @reduxjs/toolkit и react-redux из зависимостей
-
-**Рекомендуемый порядок:** идти от простых к сложным: docs → hints → transactions → user → company → страничные → dashboard-data → dashboard-templates → dashboard-view.
+Продолжить миграцию Redux → Zustand: **docs → hints → transactions → user → company → страничные → dashboard-data → dashboard-templates → dashboard-view.**
 
 ## Коммит
 
-`refactor: миграция Redux → Zustand — entities/ui (стор + хук + замена 12 файлов)`
+`fix: CORS middleware, PATCH→POST, Redis — обновление компании работает локально`
 
 ## Предупреждения/заметки
 
-- **useUIStore.getState()** используется в thunk'ах (вне React-компонентов) для вызова actions UI-стора. Это безопасно, т.к. Zustand позволяет читать/писать стор вне React.
-- **Старые экспорты** `actionsUI`/`reducerUI` из `entities/ui` сохранены — они нужны, пока Redux Provider ещё не удалён (другие сторы всё ещё на Redux).
-- **Старый Redux slice** `entities/ui/model/slice/index.ts` не удалён — он всё ещё используется в `createReduxStore` (app/providers/store/config/store.ts). Будет удалён на шаге 3.3.10.
-- **Линтер:** 36 ошибок — все предсуществующие, не связаны с миграцией.
-- **TSC:** 0 ошибок во фронтенде, 2 предсуществующие в node_modules/ — игнорируются.
-
-### Попутный фикс: рантайм-ошибка на /login
-
-- `shared/ui/mui-components/textfield/styled.ts`: `ownerState` сделан опциональным (`ownerState || {}`), т.к. MUI 9 больше не передаёт его в колбэк `styled`.
+- **Redis**: установлен через brew и запущен. При перезагрузке macOS нужно `brew services start redis`
+- **Docker**: Redis добавлен в docker-compose.yml, но Docker не установлен. Используется локальный Redis.
+- **PATCH → POST**: только для dev-режима (Vite-прокси). В продакшене nginx проксирует PATCH нормально.
+- **`removeAdditional: true`** — глобальная настройка AJV. Безопасно, т.к. все схемы с `additionalProperties: false`.
+- **Линтер:** 37 ошибок — все предсуществующие.
+- **Тесты:** backend 13 фейлов, frontend 16 фейлов — все предсуществующие.

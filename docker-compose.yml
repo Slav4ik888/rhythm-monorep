@@ -25,6 +25,16 @@ services:
     volumes:
       - firestore-data:/data
 
+  # Redis — кэш сессий и signup-данных
+  redis:
+    image: redis:7-alpine
+    container_name: rhythm-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
   # Firebase Storage эмулятор (опционально)
   firebase-storage:
     image: oittaa/gcp-storage-emulator:latest

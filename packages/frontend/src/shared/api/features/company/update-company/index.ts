@@ -16,7 +16,8 @@ export const updateCompany = createAsyncThunk<PartialCompany, PartialCompany, Th
     const { extra, dispatch, rejectWithValue } = thunkApi;
 
     try {
-      const { data } = await extra.api.patch<PartialCompany>(API_PATHS.company.update, { companyData });
+      // PATCH не работает через Vite dev-прокси (известный баг), используем POST
+      const { data } = await extra.api.post<PartialCompany>(API_PATHS.company.update, { companyData });
 
       useUIStore.getState().setSuccessMessage('Сохранено');
 

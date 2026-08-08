@@ -2,7 +2,14 @@
 
 import { createClient } from 'redis';
 
-export const client = createClient();
+export const client = createClient({
+  socket: {
+    // Таймаут подключения — чтобы запрос не зависал при недоступном Redis
+    connectTimeout: 5000,
+    // Не блокировать выполнение, если Redis недоступен
+    reconnectStrategy: false,
+  },
+});
 
 client.on('error', (err) => {
   // Redis недоступен — не фатально для dev-режима

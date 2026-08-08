@@ -1,30 +1,29 @@
+// packages/backend/src/libs/validators/ajv/validate/index.ts
+
 import Ajv from 'ajv';
 import { addKeywords, addSchemas, getValidResultByKeywords, isValidSchemaName } from '../utils';
 import { SCHEMA_NAME } from '../schemas/schema-names';
 import { Validation } from '../../types';
 import addFormats from 'ajv-formats';
 
-
-
-const ajv = new Ajv({ allErrors: true, $data: true });
+const ajv = new Ajv({ allErrors: true, $data: true, removeAdditional: true });
 
 addKeywords(ajv);
 addSchemas(ajv);
 addFormats(ajv);
 
-
 export const validate = (
-  schemaName : SCHEMA_NAME,
-  data       : unknown,
-  T?         : string   // Titles // Translate schema  styles.document.structure.dialogTitle
+  schemaName: SCHEMA_NAME,
+  data: unknown,
+  T?: string, // Titles // Translate schema  styles.document.structure.dialogTitle
 ): Validation => {
   const resValidSchema = isValidSchemaName(schemaName, T);
-  if (! resValidSchema.valid) return resValidSchema;
+  if (!resValidSchema.valid) return resValidSchema;
 
   const validate = ajv.getSchema(schemaName);
 
-  if (! validate || ! validate(data)) return getValidResultByKeywords(validate, T)
-  else return getValidResultByKeywords()
+  if (!validate || !validate(data)) return getValidResultByKeywords(validate, T);
+  else return getValidResultByKeywords();
 };
 
 //

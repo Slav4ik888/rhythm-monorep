@@ -1,3 +1,5 @@
+// packages/backend/src/middleware/router/index.ts
+
 import Router from 'koa-router';
 import controllers from '../../controllers';
 import { fbAuth } from '../../libs/firebase';
@@ -25,7 +27,9 @@ router.post(API_PATHS.user.update, logging, cv, checkUserSession, user.update);
 router.post(API_PATHS.user.logout, logging, cv, user.logout);
 
 // COMPANY
+// PATCH не работает через Vite dev-прокси (баг), дублируем POST
 router.patch(API_PATHS.company.update, logging, cv, checkUserSession, company.update);
+router.post(API_PATHS.company.update, logging, cv, checkUserSession, company.update);
 router.patch(API_PATHS.company.deleteSheet, logging, cv, checkUserSession, company.deleteSheet);
 
 // PARAMS-COMPANY
