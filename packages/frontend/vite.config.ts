@@ -1,6 +1,7 @@
 // packages/frontend/vite.config.ts
 
 import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
@@ -9,7 +10,7 @@ export default defineConfig(({ mode }) => {
   const apiUrl = process.env.VITE_API_URL || 'http://localhost:7575';
 
   return {
-    plugins: [react()],
+    plugins: [react(), svgr()],
 
     resolve: {
       alias: {

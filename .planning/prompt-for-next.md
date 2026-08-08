@@ -4,18 +4,22 @@
 08.08.2026
 
 ## Контекст: что сделано в этой сессии
-**Полностью исправлены ошибки type-only экспортов/импортов для Vite/esbuild**
 
-1. **Проблема:** `isolatedModules: true` → esbuild стирает TS-интерфейсы/типы. Barrel-файлы реэкспортируют типы через value-синтаксис → несуществующие экспорты в браузере.
+### Исправлены ошибки на странице `/demoPecarColor_JlY5D/dashboard`
 
-2. **Решение:** Создан скрипт `.planning/scripts/fix-type-exports.js` с двумя проходами:
-   - **Проход 1 (экспорты):** Разделяет `export { Value, Type }` → `export { Value }` + `export type { Type }`. Рекурсивно раскрывает цепочки `export *`. Учитывает уже исправленные `export type { }`.
-   - **Проход 2 (импорты):** Заменяет `import { Type }` → `import type { Type }` для всех type-only сущностей.
+**Ошибка 1: `does not provide an export named 'Template'`**
+- Проблема: интерфейс `Template` (type-only) экспортировался через value-синтаксис → esbuild стирал его
+- Решение (4 файла): заменены `export { Template }` → `export type { Template }` и `import { Template }` → `import type { Template }`
 
-3. **Результат:**
-   - `npm run dev -w packages/frontend` — HTTP 200 ✅
-   - `npm test -w packages/frontend` — 184/185 suites, 1332/1333 tests ✅
-   - Скрипт сохранён: `node .planning/scripts/fix-type-exports.js`
+**Ошибка 2: `InvalidCharacterError: '...triangle-growth.svg' is not a valid name`**
+- Проблема: SVG импортировался как React-компонент, но `vite-plugin-svgr` был установлен, но не подключён в `vite.config.ts`
+- Решение (3 файла):
+  - `vite.config.ts`: добавлен `import svgr` + `svgr()` в plugins
+  - `growth-icon/ui/component.tsx`: импорт с суффиксом `?react`
+  - `app/types/global.d.ts`: добавлена декларация `*.svg?react`
+
+### Результат
+- `npm run test -w packages/frontend` — 184/185 suites, 1332/1333 tests ✅ (1 предсуществующая `config.test.ts: ASSEMBLY_DATE`)
 
 ## Следующие шаги: Этап 3 — Технологические улучшения
 
@@ -31,11 +35,13 @@
 10. Обновление MUI до актуальной версии
 
 ## Коммит
-`fix: исправлены type-only экспорты/импорты для совместимости с Vite/esbuild`
+`fix: исправлен type-only экспорт Template и добавлена поддержка SVG-компонентов`
 
 ## Предупреждения/заметки
+
 - **Скрипт `.planning/scripts/fix-type-exports.js`** — запускать при добавлении новых barrel-файлов или типов.
 - **`vite build` всё ещё падает** из-за циклических зависимостей чанков Rollup.
 - **ESLint (~1405 ошибок)** — предсуществующие.
 - **1 упавший тест** — `config.test.ts` (ASSEMBLY_DATE), предсуществующая.
-- **ESLint-правило `@typescript-eslint/consistent-type-exports`** добавлено в `.eslintrc.js`.
+- **Важно:** при добавлении новых интерфейсов/типов в barrel-файлы всегда использовать `export type`.
+- **SVG как React-компонент:** использовать `import Foo from './foo.svg?react'` (не забывать `?react`).
