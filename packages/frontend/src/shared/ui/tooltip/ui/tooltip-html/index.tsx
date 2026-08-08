@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import { isEmpty } from 'shared/helpers/objects';
 import { styled } from '@mui/material/styles';
 
-
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <MuiTooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -17,94 +16,82 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-
 interface AbsoluteType {
-  top?    : number
-  right?  : number
-  bottom? : number
-  left?   : number
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
 }
 
 const useStyles = (cfg?: AbsoluteType) => {
-  if (isEmpty(cfg)) return {}
+  if (isEmpty(cfg)) return {};
 
   const wrap: React.CSSProperties = {
-    position: 'absolute'
+    position: 'absolute',
   };
 
-  if (cfg?.top)    wrap.top    = `${cfg?.top}px`;
-  if (cfg?.right)  wrap.right  = `${cfg?.right}px`;
+  if (cfg?.top) wrap.top = `${cfg?.top}px`;
+  if (cfg?.right) wrap.right = `${cfg?.right}px`;
   if (cfg?.bottom) wrap.bottom = `${cfg?.bottom}px`;
-  if (cfg?.left)   wrap.left   = `${cfg?.left}px`;
+  if (cfg?.left) wrap.left = `${cfg?.left}px`;
 
   return {
     wrap: {
-      ...wrap
+      ...wrap,
     },
     content: {
-      position: 'relative'
-    }
-  }
+      position: 'relative',
+    },
+  };
 };
-
 
 type Props = {
-  title?          : React.ReactNode
-  arrow?          : boolean
-  enterDelay?     : number
-  enterNextDelay? : number
-  absolute?       : AbsoluteType // If tooltip in component with absolute position
-  placement?      : TooltipProps['placement']
+  title?: React.ReactNode;
+  arrow?: boolean;
+  enterDelay?: number;
+  enterNextDelay?: number;
+  absolute?: AbsoluteType; // If tooltip in component with absolute position
+  placement?: TooltipProps['placement'];
   /** Style for span */
-  sxSpan?         : React.CSSProperties
-  sxRoot?         : object
-  children        : JSX.Element | JSX.Element[]
+  sxSpan?: React.CSSProperties;
+  sxRoot?: object;
+  children: React.ReactElement | React.ReactElement[];
 };
 
-
 /** v.2025-06-01 */
-export const TooltipHTML: React.FC<Props> = React.memo(({
-  sxRoot,
-  sxSpan,
-  children,
-  arrow          = false,
-  title          = '',
-  placement      = 'bottom',
-  enterDelay     = 1000,
-  enterNextDelay = 1000,
-  absolute
-}) => {
-  const sx = useStyles(absolute);
+export const TooltipHTML: React.FC<Props> = React.memo(
+  ({
+    sxRoot,
+    sxSpan,
+    children,
+    arrow = false,
+    title = '',
+    placement = 'bottom',
+    enterDelay = 1000,
+    enterNextDelay = 1000,
+    absolute,
+  }) => {
+    const sx = useStyles(absolute);
 
-  const component = (
-    <HtmlTooltip
-      arrow          = {arrow}
-      title          = {title}
-      placement      = {placement}
-      enterDelay     = {enterDelay}
-      enterNextDelay = {enterNextDelay}
-      sx             = {{ ...sxRoot, fontSize: '1rem', cursor: 'default' }}
-    >
-      <span style={{ ...sxSpan, cursor: 'default' }}>
-        {children}
-      </span>
-    </HtmlTooltip>
-  );
+    const component = (
+      <HtmlTooltip
+        arrow={arrow}
+        title={title}
+        placement={placement}
+        enterDelay={enterDelay}
+        enterNextDelay={enterNextDelay}
+        sx={{ ...sxRoot, fontSize: '1rem', cursor: 'default' }}
+      >
+        <span style={{ ...sxSpan, cursor: 'default' }}>{children}</span>
+      </HtmlTooltip>
+    );
 
-
-  const wrapped = (
-    <Box sx={{ ...sx.wrap, ...sxRoot }}>
-      <Box sx={sx.content}>
-        {component}
+    const wrapped = (
+      <Box sx={{ ...sx.wrap, ...sxRoot }}>
+        <Box sx={sx.content}>{component}</Box>
       </Box>
-    </Box>
-  );
+    );
 
-  return (
-    <>
-      {
-        absolute ? wrapped : component
-      }
-    </>
-  )
-});
+    return <>{absolute ? wrapped : component}</>;
+  },
+);

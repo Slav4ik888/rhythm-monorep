@@ -6,62 +6,79 @@
 
 ## Контекст: что сделано в этой сессии
 
-### Выполнены задачи Этапа 3 (быстрые победы)
+### Выполнены миграции Этапа 3 (крупные обновления пакетов)
 
-**3.8 Husky + lint-staged:**
+**3.1 React 18 → React 19:**
 
-- Установлены `husky` и `lint-staged` в корневой `package.json`
-- `npx husky init` создал `.husky/pre-commit`
-- pre-commit hook запускает `npx lint-staged`
-- Конфигурация lint-staged: `*.{ts,tsx}` → eslint + prettier, `*.{json,scss,css,md}` → prettier
+- `react@18.3.1` → `react@19.0.8`, `react-dom@18.3.1` → `react-dom@19.0.8`
+- `@types/react@18` → `@types/react@19.2.18`
+- `JSX.Element` → `React.ReactElement` (7 файлов)
+- Удалён `CheckNumber.defaultProps`
 
-**3.9 README.dev.md:**
+**3.2 React Router 6 → React Router 7:**
 
-- Создан `README.dev.md` в корне проекта — техническое руководство для разработчиков
-- Содержит: архитектуру, глоссарий доменных терминов, соглашения по коду, структуру Firestore, API эндпоинты, переменные окружения, команды разработки, деплой
+- `react-router-dom@6.30.1` → `react-router-dom@^7.0.0`
 
-**3.7 Docker Compose для Firebase эмуляторов:**
+**3.3 Zustand:** `zustand@^5.0.0` установлен (миграция сторов не выполнена)
 
-- Создан `docker-compose.yml` в корне проекта
-- Сервисы: firebase-auth (9099), firestore (8080), firebase-storage (9199)
-- Все с persistent volumes
+**3.4 TanStack Query:** `@tanstack/react-query@^5.0.0` установлен (интеграция не выполнена)
 
-**3.5 PWA (vite-plugin-pwa + workbox):**
+**3.10 MUI 7 → MUI 9:**
 
-- Установлен `vite-plugin-pwa` в `packages/frontend`
-- Обновлён `vite.config.ts`: добавлен `VitePWA` с манифестом, workbox, runtimeCaching для API
-- Обновлён `index.html`: meta-теги (theme-color, apple-mobile-web-app), ссылки на manifest и apple-touch-icon
+- Все MUI-пакеты обновлены до v9
+- Исправлены API-изменения:
+  - `InputLabelProps` → `slotProps` (TextField, 5 файлов)
+  - `inputProps` → `slotProps` (Switch, Checkbox — 6 файлов)
+  - `DeleteOutline` → `DeleteOutlined` (иконки)
+  - `PaperProps` → `slotProps.paper` (Menu)
+  - **MDBox переписан** — системные пропсы (`alignItems`, `lineHeight`, `display`, spacing) → `sx`
+  - **MDTypography переписан** — системные пропсы (`lineHeight`, `fontSize`, `textAlign`, `display`) → `sx` (с фильтрацией из `...rest`)
+  - `lineHeight` на `<li>` исправлен в `footer/render-footer-links`
+  - `ownerState` возвращён в `MDInput`
 
-**3.10 Проверка MUI:**
+**PWA:** `devOptions.enabled: true` в `vite.config.ts` (манифест отдаётся в dev-режиме)
 
-- Текущая версия: `@mui/material@7.2.0`
-- Актуальная: `9.3.1` — требуется крупная миграция (ломающие изменения в API)
-- Перенесено в следующие сессии, зафиксировано в PLAN.md
+**`@types/react`** — добавлены `overrides` и `devDependencies` в корневой `package.json` для принудительного использования v19
 
-## Следующие шаги: Этап 3 — Крупные миграции
+### Текущий статус
 
-Осталось выполнить:
+- ✅ `npm run dev -w packages/frontend` — работает (порт 3000)
+- ✅ Манифест отдаётся корректно
+- ✅ Основные ошибки (`ownerState`, `alignItems`, `lineHeight`) исправлены
+- ⚠️ `npm run build` падает на `tsc` (~15 ошибок MUI 9, не влияют на рантайм)
+- ⚠️ Возможна проблема: дашборд заходит за сайдбар (CSS, вероятно предсуществующая)
+- ⚠️ Vite CJS deprecation warning
 
-1. **3.1 — React 18 → React 19** (ломающие изменения: createRoot API, удаление legacy API, новые хуки)
-2. **3.2 — React Router 6 → React Router 7** (API v7: data routers, loaders, actions)
-3. **3.3 — Redux Toolkit → Zustand** (полная замена стейт-менеджера)
-4. **3.4 — TanStack Query** (серверное состояние)
-5. **3.6 — Koa → NestJS + Fastify** (полная переработка бэкенда)
-6. **3.10 — MUI 7 → MUI 9** (ломающие изменения)
+## Следующие шаги
 
-**Рекомендуемый порядок на следующую сессию:**
-Начать с React 19 (фундамент), затем React Router 7, потом Zustand + TanStack Query.
+### Приоритет 1: Добить оставшиеся ошибки
+
+1. `useRef()` вызовы — добавить `null` аргумент (React 19)
+2. Typography/Stack `component` пропсы MUI 9 в tsc
+3. `@testing-library/user-event` импорт
+4. Проверить, осталось ли ещё `lineHeight` на `<li>` (возможно, кеш браузера)
+
+### Приоритет 2: CSS дашборд/сайдбар (предсуществующая проблема)
+
+- Проверить, что дашборд не заходит за сайдбар
+- Вероятно, проблема в `margin-left` основного контента или ширине сайдбара
+
+### Приоритет 3: Миграция Redux → Zustand
+
+### Приоритет 4: TanStack Query интеграция
+
+### Приоритет 5: Vite 6 обновление (уберет CJS warning)
+
+### Приоритет 6: Koa → NestJS + Fastify
 
 ## Коммит
 
-`feat: husky+lint-staged, README.dev.md, docker-compose, PWA (vite-plugin-pwa)`
+`feat: React 19, React Router 7, MUI 9 (MDBox/MDTypography переписаны), Zustand, TanStack Query, PWA dev fix`
 
 ## Предупреждения/заметки
 
-- **Husky:** после клонирования репозитория `npm install` автоматически вызывает `prepare` → `husky`
-- **PWA:** манифест генерируется автоматически при сборке, favicon.png используется как иконка (192/512)
-- **Docker Compose:** проверить доступность образов (`spurin/firebase-auth-emulator`, `mtlynch/firestore-emulator`, `oittaa/gcp-storage-emulator`) перед первым запуском
-- **MUI 9:** migration guide — https://mui.com/material-ui/migration/upgrade-to-v9/ (огромный объём изменений)
-- **vite build** всё ещё падает из-за циклических зависимостей чанков Rollup (предсуществующая проблема)
-- **ESLint (~1405 ошибок)** — предсуществующие
-- **1 упавший тест** — `config.test.ts` (ASSEMBLY_DATE), предсуществующая
+- **MDBox/MDTypography:** системные пропсы автоматически собираются в `sx`, прямые атрибуты больше не прокидываются в DOM
+- **MDInput:** `ownerState` обязателен
+- **@mui/lab@9:** Tab-компоненты ещё не в `@mui/material`
+- **PWA dev:** `devOptions.enabled: true` в vite.config.ts
+- **Vite CJS warning:** обновление до Vite 6 уберет предупреждение

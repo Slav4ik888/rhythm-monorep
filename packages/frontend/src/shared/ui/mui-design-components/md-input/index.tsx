@@ -1,3 +1,5 @@
+// packages/frontend/src/shared/ui/mui-design-components/md-input/index.tsx
+
 /**
 =========================================================
 * Material Dashboard 2 React - v2.1.0
@@ -16,14 +18,12 @@ Coded by www.creative-tim.com
 import { forwardRef, FC } from 'react';
 import MDInputRoot from './md-input-root';
 
-
-
 interface Props {
-  id?       : string
-  error?    : boolean
-  success?  : boolean
-  disabled? : boolean
-  label?    : string
+  id?: string;
+  error?: boolean;
+  success?: boolean;
+  disabled?: boolean;
+  label?: string;
 }
 
 const MDInput: FC<Props> = forwardRef(({ error, success, disabled, ...rest }, ref) => (
@@ -32,10 +32,9 @@ const MDInput: FC<Props> = forwardRef(({ error, success, disabled, ...rest }, re
     {...rest}
     // @ts-ignore
     inputRef={ref}
-    InputLabelProps={{ shrink: true }}
+    slotProps={{ inputLabel: { shrink: true } }}
     ownerState={{ error, success, disabled }}
   />
 ));
-
 
 export default MDInput;

@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => {
       svgr(),
       VitePWA({
         registerType: 'autoUpdate',
+        devOptions: {
+          enabled: true,
+        },
         includeAssets: ['favicon.png'],
         manifest: {
           name: 'Информационная панель руководителя «Ритм»',

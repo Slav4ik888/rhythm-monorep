@@ -16,14 +16,11 @@ import { UserProfilePage } from 'pages/user-profile';
 import { PolicyPage } from 'pages/policy';
 import { DemoPage } from 'pages/demo';
 
-
-
 export const AppRouter = memo(() => {
-  const withFallback = useCallback((element: JSX.Element) => (
-    <Suspense fallback={<PageLoader loading />}>
-      {element}
-    </Suspense>
-  ), []);
+  const withFallback = useCallback(
+    (element: React.ReactElement) => <Suspense fallback={<PageLoader loading />}>{element}</Suspense>,
+    [],
+  );
 
   // const renderWithWrapper = useCallback(({ path, element, authOnly }: AppRouteProps) => {
   //   const component = (
@@ -43,7 +40,6 @@ export const AppRouter = memo(() => {
   //     />
   //   )
   // }, []);
-
 
   return (
     <Routes>
@@ -66,7 +62,6 @@ export const AppRouter = memo(() => {
           {/* <Route index element={<CompanyPage />} /> */}
           <Route path={RoutePath[AppRoutes.DASHBOARD]} element={withFallback(<DashboardPage />)} />
           <Route path={RoutePath[AppRoutes.DASHBOARD_SHEET]} element={withFallback(<DashboardPage />)} />
-
         </Route>
         {/* Перехват неправильных путей */}
         <Route path='dashboard/*' element={<Navigate to={RoutePath[AppRoutes.ROOT]} replace />} />
@@ -78,7 +73,6 @@ export const AppRouter = memo(() => {
             .map(renderWithWrapper)
         } */}
       </Route>
-
     </Routes>
   );
 });

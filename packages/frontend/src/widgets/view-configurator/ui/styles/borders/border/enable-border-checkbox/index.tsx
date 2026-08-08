@@ -3,13 +3,11 @@ import Checkbox from '@mui/material/Checkbox';
 import { ViewItemStylesField } from 'entities/dashboard-view';
 import { Tooltip } from 'shared/ui/tooltip';
 
-
-
 interface Props {
-  fieldWidth   : ViewItemStylesField
-  enabled      : boolean
-  setEnabled   : (flag: boolean) => void
-  onChange     : (field: ViewItemStylesField, value: number | string, funcName: string) => void
+  fieldWidth: ViewItemStylesField;
+  enabled: boolean;
+  setEnabled: (flag: boolean) => void;
+  onChange: (field: ViewItemStylesField, value: number | string, funcName: string) => void;
 }
 
 export const EnableBorderCheckbox: FC<Props> = memo(({ fieldWidth, enabled, setEnabled, onChange }) => {
@@ -17,24 +15,20 @@ export const EnableBorderCheckbox: FC<Props> = memo(({ fieldWidth, enabled, setE
     if (enabled) {
       onChange(fieldWidth, 0, 'EnableBorderCheckbox');
       setEnabled(false);
-    }
-    else {
+    } else {
       onChange(fieldWidth, 1, 'EnableBorderCheckbox');
       setEnabled(true);
     }
-  },
-    [fieldWidth, enabled, setEnabled, onChange]
-  );
-
+  }, [fieldWidth, enabled, setEnabled, onChange]);
 
   return (
     <Tooltip title={`${enabled ? 'Отключить' : 'Включить'} рамку`}>
       <Checkbox
-        size       = 'small'
-        checked    = {enabled}
-        inputProps = {{ 'aria-label': 'box-shadow' }}
-        onChange   = {handleToggle}
+        size='small'
+        checked={enabled}
+        slotProps={{ input: { 'aria-label': 'box-shadow' } }}
+        onChange={handleToggle}
       />
     </Tooltip>
-  )
+  );
 });

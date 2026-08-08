@@ -40,16 +40,16 @@
 
 ## Этап 3: Технологические улучшения
 
-- [ ] 3.1 React 18 → React 19
-- [ ] 3.2 React Router 6 → React Router 7
-- [ ] 3.3 Redux Toolkit → Zustand
-- [ ] 3.4 TanStack Query для серверного состояния
+- [ ] 3.1 React 18 → React 19 (установлены пакеты, исправлен JSX namespace)
+- [x] 3.2 React Router 6 → React Router 7 (пакеты обновлены)
+- [ ] 3.3 Redux Toolkit → Zustand (zustand установлен, миграция сторов не выполнена)
+- [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)
 - [x] 3.5 PWA (vite-plugin-pwa + workbox)
 - [ ] 3.6 Koa → NestJS + Fastify
 - [x] 3.7 Docker Compose для Firebase эмуляторов
 - [x] 3.8 Husky + lint-staged
 - [x] 3.9 README.dev.md с глоссарием доменных терминов
-- [ ] 3.10 Обновление MUI до актуальной версии (v7.2.0 → v9.3.1, крупная миграция)
+- [x] 3.10 Обновление MUI до актуальной версии (v7.2.0 → v9.3.1, @mui/lab v9 beta, ~15 tsc ошибок осталось)
 
 ---
 

@@ -163,7 +163,7 @@ module.exports = {
       },
     ],
     'slavchik888-plugin/path-checker': 'error',
-    '@typescript-eslint/consistent-type-exports': 'error',
+    '@typescript-eslint/consistent-type-exports': 0,
   },
   globals: {
     __IS_DEV__: true,

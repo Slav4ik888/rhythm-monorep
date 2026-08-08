@@ -1,14 +1,14 @@
+// packages/frontend/src/shared/ui/containers/elements/textfield-date/index.tsx
+
 import { FC, memo, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
-import type { GridStyle } from "../../grid-wrap";
-import { GridWrap } from "../../grid-wrap";;
+import type { GridStyle } from '../../grid-wrap';
+import { GridWrap } from '../../grid-wrap';
 import { BoxWrap } from '../../box-wrap';
 import { Tooltip } from '../../../tooltip';
 import { useValue } from '../../../../lib/hooks';
 import type { Errors } from '../../../../lib/validators';
 import { formatDate } from '../../../../helpers/dates';
-
-
 
 const useStyles = (sx: any | undefined) => ({
   textField: {
@@ -17,50 +17,57 @@ const useStyles = (sx: any | undefined) => ({
 
     '& .MuiInputBase-root': {
       backgroundColor: '#ffffff',
-      ...sx?.field
+      ...sx?.field,
     },
     '& .MuiInputLabel-root': {
-      top: '7px'
-    }
-  }
+      top: '7px',
+    },
+  },
 });
 
-
 type Props = {
-  grid?         : GridStyle
-  box?          : boolean
-  toolTitle?    : string
-  label         : string
-  type?         : 'datetime-local' | 'date'
-  fullWidth?    : boolean
-  defaultValue? : string | number
-  changesValue? : string | number // If value can be changes in any place, but not here
-  disabled?     : boolean
-  sx?           : any
-  errorField?   : string
-  errors?       : Errors
-  onClick?      : () => void
-  onBlur        : (v: string | number) => void
-  onCallback?   : () => void
-  onSubmit?     : (v: string | number) => void
-}
+  grid?: GridStyle;
+  box?: boolean;
+  toolTitle?: string;
+  label: string;
+  type?: 'datetime-local' | 'date';
+  fullWidth?: boolean;
+  defaultValue?: string | number;
+  changesValue?: string | number; // If value can be changes in any place, but not here
+  disabled?: boolean;
+  sx?: any;
+  errorField?: string;
+  errors?: Errors;
+  onClick?: () => void;
+  onBlur: (v: string | number) => void;
+  onCallback?: () => void;
+  onSubmit?: (v: string | number) => void;
+};
 
 /**
  * v.2023-06-03
  */
 export const TextFieldDate: FC<Props> = memo((props) => {
-  const
-    {
-      box, toolTitle, label, defaultValue, changesValue, errors, disabled, fullWidth,
+  const {
+      box,
+      toolTitle,
+      label,
+      defaultValue,
+      changesValue,
+      errors,
+      disabled,
+      fullWidth,
       sx: styles,
       type = 'date',
       errorField = '',
-      onClick, onCallback, onBlur, onSubmit
+      onClick,
+      onCallback,
+      onBlur,
+      onSubmit,
     } = props,
-    sx   = useStyles(styles),
+    sx = useStyles(styles),
     Wrap = box ? BoxWrap : GridWrap,
-    S    = useValue(defaultValue || '');
-
+    S = useValue(defaultValue || '');
 
   useEffect(() => {
     const date = defaultValue ? formatDate(defaultValue, 'YYYY-MM-DD') : '';
@@ -68,11 +75,9 @@ export const TextFieldDate: FC<Props> = memo((props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
   useEffect(() => {
     changesValue !== undefined && S.setValue(changesValue);
   }, [S, changesValue]);
-
 
   const handlerChange = (e: any) => {
     if (disabled) return undefined;
@@ -83,10 +88,10 @@ export const TextFieldDate: FC<Props> = memo((props) => {
     if (e.keyCode === 13 || e.keyCode === 27) {
       onSubmit && onSubmit(S.value as number | string);
       onBlur && onBlur(S.value as number | string);
-      return undefined
+      return undefined;
     }
     onBlur && onBlur(S.value as number | string);
-    return undefined
+    return undefined;
   };
 
   const handlerBlur = () => {
@@ -94,32 +99,31 @@ export const TextFieldDate: FC<Props> = memo((props) => {
     onBlur && onBlur(S.value as number | string);
   };
 
-
   return (
     <Wrap {...props}>
       <Tooltip title={toolTitle || ''}>
         <TextField
-          label           = {label}
-          type            = {type}
-          fullWidth       = {fullWidth}
-          sx              = {sx.textField}
-          disabled        = {disabled}
-          value           = {S.value}
-          onChange        = {handlerChange}
-          onKeyUp         = {(event: any) => {
-                              if (event.key === 'Enter') {
-                                // Prevent's default 'Enter' behavior.
-                                event.defaultMuiPrevented = true;
-                                handlerChange(event)
-                              }
-                            }}
-          onClick         = {onClick}
-          onBlur          = {handlerBlur}
-          InputLabelProps = {{ shrink: true }}
-          error           = {errors?.[errorField] ? true : false}
-          helperText      = {errors?.[errorField]}
+          label={label}
+          type={type}
+          fullWidth={fullWidth}
+          sx={sx.textField}
+          disabled={disabled}
+          value={S.value}
+          onChange={handlerChange}
+          onKeyUp={(event: any) => {
+            if (event.key === 'Enter') {
+              // Prevent's default 'Enter' behavior.
+              event.defaultMuiPrevented = true;
+              handlerChange(event);
+            }
+          }}
+          onClick={onClick}
+          onBlur={handlerBlur}
+          slotProps={{ inputLabel: { shrink: true } }}
+          error={errors?.[errorField] ? true : false}
+          helperText={errors?.[errorField]}
         />
       </Tooltip>
     </Wrap>
-  )
+  );
 });

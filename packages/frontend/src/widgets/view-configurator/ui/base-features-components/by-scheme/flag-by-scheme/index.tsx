@@ -6,13 +6,11 @@ import Checkbox from '@mui/material/Checkbox';
 import { SxCard } from 'shared/styles';
 import { updater } from '../utils';
 
-
-
 interface Props {
-  scheme       : string // начиная с 1го уровня
-  title        : string
-  toolTitle    : string
-  sx?          : SxCard
+  scheme: string; // начиная с 1го уровня
+  title: string;
+  toolTitle: string;
+  sx?: SxCard;
 }
 
 /**
@@ -22,9 +20,7 @@ interface Props {
 export const FlagByScheme: FC<Props> = memo(({ scheme, title, toolTitle, sx }) => {
   const { selectedItem, updateViewItems } = useDashboardViewActions();
 
-  const isChecked = useMemo(() => Boolean(getValueByScheme(selectedItem, scheme)),
-    [selectedItem, scheme]
-  );
+  const isChecked = useMemo(() => Boolean(getValueByScheme(selectedItem, scheme)), [selectedItem, scheme]);
 
   const [checked, setChecked] = useState(() => isChecked);
 
@@ -33,19 +29,18 @@ export const FlagByScheme: FC<Props> = memo(({ scheme, title, toolTitle, sx }) =
   }, [isChecked]);
 
   const handleToggle = useCallback(() => {
-    updater(! isChecked, selectedItem, scheme, updateViewItems);
+    updater(!isChecked, selectedItem, scheme, updateViewItems);
   }, [scheme, selectedItem, isChecked, updateViewItems]);
 
-
   return (
-    <Tooltip title = {toolTitle}>
+    <Tooltip title={toolTitle}>
       <Checkbox
-        size       = 'small'
-        checked    = {checked}
-        inputProps = {{ 'aria-label': title }}
-        sx         = {sx?.root}
-        onChange   = {handleToggle}
+        size='small'
+        checked={checked}
+        slotProps={{ input: { 'aria-label': title } }}
+        sx={sx?.root}
+        onChange={handleToggle}
       />
     </Tooltip>
-  )
+  );
 });

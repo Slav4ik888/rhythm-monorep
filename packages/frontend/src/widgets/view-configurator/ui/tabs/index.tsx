@@ -1,3 +1,5 @@
+// packages/frontend/src/widgets/view-configurator/ui/tabs/index.tsx
+
 import { FC, memo, useEffect, SyntheticEvent, useMemo, useCallback } from 'react';
 import { ViewItem, ViewItemType } from 'entities/dashboard-view';
 import Tab from '@mui/material/Tab';
@@ -9,8 +11,6 @@ import { ViewItemConfiguratorSettings } from '../settings';
 import { ViewItemControlConfigurator } from '../control';
 import { CustomTheme } from 'app/providers/theme';
 
-
-
 const sxTabPanel = {
   overflowY: 'auto',
   p: 0,
@@ -18,65 +18,71 @@ const sxTabPanel = {
 
 // Типы у которых есть вкладка settings
 const settingTypes: ViewItemType[] = [
-  'box', 'text', 'chart', 'icon', 'period', 'chip', 'growthIcon', 'digitIndicator', 'gaugeColumn', 'list'
+  'box',
+  'text',
+  'chart',
+  'icon',
+  'period',
+  'chip',
+  'growthIcon',
+  'digitIndicator',
+  'gaugeColumn',
+  'list',
 ];
 
-
 interface Props {
-  value        : string
-  selectedItem : ViewItem
-  onSetValue   : (value: string) => void
+  value: string;
+  selectedItem: ViewItem;
+  onSetValue: (value: string) => void;
 }
 
 export const ViewItemConfiguratorTabs: FC<Props> = memo(({ value, selectedItem, onSetValue }) => {
   const isSettings = useMemo(() => settingTypes.includes(selectedItem?.type), [selectedItem]);
 
   useEffect(() => {
-    if (value === '3' && ! isSettings) onSetValue('1');
+    if (value === '3' && !isSettings) onSetValue('1');
   }, [value, isSettings, onSetValue]);
 
-  const handleChange = useCallback((event: SyntheticEvent, newValue: string) => onSetValue(newValue),
-    [onSetValue]);
-
+  const handleChange = useCallback((event: SyntheticEvent, newValue: string) => onSetValue(newValue), [onSetValue]);
 
   return (
     <TabContext value={value}>
       <TabList
-        aria-label = 'lab API tabs example'
-        onChange   = {handleChange}
-        sx         = {{
+        aria-label='lab API tabs example'
+        onChange={handleChange}
+        sx={{
           borderBottom: 1,
           borderColor: 'divider',
           mt: 2,
         }}
       >
         <Tab
-          label = 'Control'
-          value = '1'
-          sx    = {(theme) => ({
+          label='Control'
+          value='1'
+          sx={(theme) => ({
             // '&.Mui-selected': { color: 'red' },
             '&:not(.Mui-selected)': {
-              color: (theme as CustomTheme).palette.configurator.tabs.notSelected
+              color: (theme as CustomTheme).palette.configurator.tabs.notSelected,
             },
           })}
         />
         <Tab
-          label = 'Styles'
-          value = '2'
-          sx    = {(theme) => ({
+          label='Styles'
+          value='2'
+          sx={(theme) => ({
             // '&.Mui-selected': { color: 'red' },
             '&:not(.Mui-selected)': {
-              color: (theme as CustomTheme).palette.configurator.tabs.notSelected
+              color: (theme as CustomTheme).palette.configurator.tabs.notSelected,
             },
           })}
         />
         <Tab
-          label = {isSettings ? 'Settings' : null}
-          value = '3'
-          sx    = {(theme) => ({
+          label={isSettings ? 'Settings' : null}
+          value='3'
+          sx={(theme) => ({
             // '&.Mui-selected': { color: 'red' },
             '&:not(.Mui-selected)': {
-              color: (theme as CustomTheme).palette.configurator.tabs.notSelected
+              color: (theme as CustomTheme).palette.configurator.tabs.notSelected,
             },
           })}
         />
@@ -92,5 +98,5 @@ export const ViewItemConfiguratorTabs: FC<Props> = memo(({ value, selectedItem, 
         <ViewItemConfiguratorSettings selectedItem={selectedItem} />
       </TabPanel>
     </TabContext>
-  )
+  );
 });

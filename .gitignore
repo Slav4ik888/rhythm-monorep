@@ -49,6 +49,7 @@ Thumbs.db
 # Монорепозиторий (сборка)
 packages/frontend/build/
 packages/frontend/dist/
+packages/frontend/dev-dist/
 packages/backend/server/
 packages/backend/dist/
 packages/shared/dist/
