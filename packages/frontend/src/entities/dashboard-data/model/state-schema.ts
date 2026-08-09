@@ -9,7 +9,7 @@ export interface DashboardDataEntities {
 }
 
 export interface DashboardDataDates {
-  [entityId: string]: string[];
+  [entityId: string]: number[];
 }
 
 export interface StateSchemaDashboardData {
@@ -34,6 +34,6 @@ export interface SetActivePeriod {
 
 export interface SetSelectedPeriod {
   companyId: string;
-  dateType: 'start' | 'end';
+  dateType?: 'start' | 'end';
   period: Partial<DashboardPeriod>;
 }

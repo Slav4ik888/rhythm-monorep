@@ -4,6 +4,9 @@ import { api } from 'shared/api';
 
 export interface ReqDontShowAgain {
   hintId: string;
+  id?: string;
+  companyId?: string;
+  settings?: Record<string, any>;
 }
 
 /** Отправить запрос на скрытие подсказки */

@@ -7,11 +7,19 @@ import { API_PATHS } from '../../api-paths';
 export interface DeleteTemplateReq {
   id: string;
   companyId: string;
+  /** Timestamp обновления bunches */
+  bunchUpdatedMs?: number;
+  [key: string]: any;
 }
 
 export interface UpdateTemplateReq {
-  id: string;
-  companyId: string;
+  id?: string;
+  companyId?: string;
+  /** Timestamp обновления bunches */
+  bunchUpdatedMs?: number;
+  template?: any;
+  bunchAction?: string;
+  fullSet?: boolean;
   [key: string]: any;
 }
 

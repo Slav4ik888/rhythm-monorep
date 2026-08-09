@@ -43,6 +43,8 @@ export {
   arrayGaugeValueType,
 } from './consts';
 export type { DashboardViewEntities, StateSchemaDashboardView, ActivatedCopiedType } from './model/state-schema';
+/** @deprecated используйте ActivatedCopiedType */
+export type { ActivatedCopiedType as ActivatedCopied } from './model/state-schema';
 export type {
   SetDashboardViewItems,
   SetEditMode,

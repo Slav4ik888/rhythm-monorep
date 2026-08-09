@@ -3,6 +3,7 @@
 
 export interface ReqGetBunches {
   companyId: string;
+  dashboardSheetId?: string;
   bunchIds?: string[];
   bunchesUpdated?: Record<string, number>;
 }

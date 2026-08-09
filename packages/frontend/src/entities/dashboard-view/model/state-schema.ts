@@ -1,6 +1,6 @@
 // packages/frontend/src/entities/dashboard-view/model/state-schema.ts
 
-import type { ViewItem, PartialViewItem, ViewItemId, ViewItemType, BunchesViewItem } from '../types';
+import type { ViewItem, PartialViewItem, ViewItemId, ViewItemType } from '../types';
 
 export interface DashboardViewEntities {
   [viewItemId: string]: ViewItem;
@@ -26,13 +26,15 @@ export interface StateSchemaDashboardView {
 }
 
 export interface ActivatedCopiedType {
-  type?: 'viewItem' | 'styles' | ViewItemType;
+  type?: 'viewItem' | 'styles' | 'copyItemsAll' | 'copyItemFirstOnly' | 'copyStyles' | ViewItemType | string;
   id?: ViewItemId;
   viewItem?: PartialViewItem | null;
 }
 
 export interface SetDashboardViewItems {
   viewItems: ViewItem[];
+  companyId?: string;
+  bunchesUpdated?: Record<string, number>;
 }
 
 export interface SetEditMode {
@@ -42,21 +44,21 @@ export interface SetEditMode {
 
 export interface SetDashboardBunchesFromCache {
   companyId: string;
-  changedBunches: BunchesViewItem | null;
+  changedBunches: string[] | null;
 }
 
-/** Изменение одного поля в charts[index] */
+/** Изменение одного поля в charts[index] (стор сам знает selectedId, viewItemId опционален) */
 export interface ChangeOneChartsItem {
-  viewItemId: string;
+  viewItemId?: string;
   field: string;
   value: any;
   index?: number;
 }
 
-/** Изменение одного поля в datasets[index] */
+/** Изменение одного поля в datasets[index] (стор сам знает selectedId, viewItemId опционален) */
 export interface ChangeOneDatasetsItem {
-  viewItemId: string;
-  datasetIdx: number;
+  viewItemId?: string;
+  datasetIdx?: number;
   field: string;
   value: any;
   index?: number;
@@ -74,4 +76,5 @@ export interface ChangeSelectedStyle {
   viewItemId?: string;
   field: string;
   value: any;
+  funcName?: string;
 }

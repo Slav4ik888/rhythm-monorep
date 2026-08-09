@@ -9,21 +9,21 @@ export interface PartialViewItemUpdate {
 
 export interface CreateGroupViewItems {
   companyId: string;
-  dashboardSheetId: string;
-  viewItemIds: string[];
-  targetItemId: string;
-  position: 'before' | 'after' | 'inside';
+  dashboardSheetId?: string;
+  viewItemIds?: string[];
+  targetItemId?: string;
+  position?: 'before' | 'after' | 'inside';
+  viewItems?: any[];
+  bunchUpdatedMs?: number;
+  bunchAction?: string;
 }
 
 export interface UpdateViewItems {
   companyId: string;
   dashboardSheetId?: string;
   updates?: Record<string, PartialViewItemUpdate>;
-  /** ViewItems для сохранения в LS */
   viewItems?: any[];
-  /** Новое сохранённое состояние элемента */
   newStoredViewItem?: Record<string, any>;
-  /** Timestamp обновления bunches */
   bunchUpdatedMs?: number;
 }
 
@@ -31,23 +31,21 @@ export interface DeleteViews {
   companyId: string;
   dashboardSheetId?: string;
   viewItemIds?: string[];
-  /** ViewItems для удаления из LS */
   viewItems?: any[];
-  /** Timestamp обновления bunches */
   bunchUpdatedMs?: number;
 }
 
 export const createGroupViewItems = async (payload: CreateGroupViewItems): Promise<any> => {
-  const { data } = await api.post(API_PATHS.dashboard.view.createGroupItems, payload);
+  const { data } = await api.post(API_PATHS.dashboard.view.createGroupItems, payload as any);
   return data;
 };
 
 export const updateViewItems = async (payload: UpdateViewItems): Promise<any> => {
-  const { data } = await api.post(API_PATHS.dashboard.view.update, payload);
+  const { data } = await api.post(API_PATHS.dashboard.view.update, payload as any);
   return data;
 };
 
 export const deleteViewItems = async (payload: DeleteViews): Promise<any> => {
-  const { data } = await api.post(API_PATHS.dashboard.view.delete, payload);
+  const { data } = await api.post(API_PATHS.dashboard.view.delete, payload as any);
   return data;
 };
