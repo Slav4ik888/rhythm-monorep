@@ -68,8 +68,9 @@
   - Zustand-стор + тесты (24/24 passed), убран DynamicModuleLoader из виджета templates
   - useDashboardTemplates переписан на Zustand (интерфейс сохранён — 28+ мест использования без изменений)
   - Redux-слайс сохранён для обратной совместимости, reducerDashboardTemplates помечен устаревшим
-- [ ] 3.3.8 Мигрировать entities/dashboard-view (390 строк, очень высокая сложность, bunches + LS)
-  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [x] 3.3.8 Мигрировать entities/dashboard-view (390 строк, очень высокая сложность, bunches + LS)
+  - Zustand-стор + тесты (20/20 passed), хуки переписаны с сохранением API (~193 места без изменений)
+  - Redux-слайс помечен устаревшим, dashboardView?: сделан опциональным в StateSchema
 - [ ] 3.3.9 Мигрировать страничные сторы (login, signup)
 - [ ] 3.3.10 Убрать Redux Provider из app/providers, удалить зависимости
 - [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)

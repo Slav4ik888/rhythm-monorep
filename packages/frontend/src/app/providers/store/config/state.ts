@@ -27,7 +27,7 @@ export interface StateSchema {
   signupPage?: StateSchemaSignupPage;
   loginPage?: StateSchemaLoginPage;
   userFeatures?: StateSchemaUserFeatures;
-  dashboardView?: StateSchemaDashboardView;
+  dashboardView?: StateSchemaDashboardView; // DashboardView переведён на Zustand, Redux-слайс в процессе миграции
   dashboardTemplates?: StateSchemaDashboardTemplates; // DashboardTemplates переведён на Zustand, Redux-слайс в процессе миграции
   dashboardData?: StateSchemaDashboardData; // DashboardData переведён на Zustand, Redux-слайс удалён
 }

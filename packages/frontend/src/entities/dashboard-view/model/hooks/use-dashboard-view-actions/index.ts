@@ -1,71 +1,79 @@
+// packages/frontend/src/entities/dashboard-view/model/hooks/use-dashboard-view-actions/index.ts
+// Zustand-версия хука (заменяет Redux dispatch)
+// Публичный интерфейс сохранён для обратной совместимости
+
+import { useMemo } from 'react';
+import { useDashboardViewStore } from '../../store';
 import type { ActivatedCopied, StateSchemaDashboardView } from '../../slice/state-schema';
 import type {
-  SetDashboardViewItems, SetEditMode,
-  ChangeOneChartsItem, ChangeOneDatasetsItem, ChangeOneSettingsField, ChangeSelectedStyle, SetDashboardBunchesFromCache
+  SetDashboardViewItems,
+  SetEditMode,
+  ChangeOneChartsItem,
+  ChangeOneDatasetsItem,
+  ChangeOneSettingsField,
+  ChangeSelectedStyle,
+  SetDashboardBunchesFromCache,
 } from '../../slice/types';
-import { useMemo } from 'react';
-import { useAppDispatch } from 'shared/lib/hooks';
-import { Errors } from 'shared/lib/validators';
+import type { Errors } from 'shared/lib/validators';
 import type { PartialViewItem, ViewItemId, ViewItemStyles } from '../../../types';
 import { useDashboardViewState } from '../use-dashboard-view-state';
-import { actions } from '../../slice';
-
-
 
 interface Config {
-  parentId? : ViewItemId
+  parentId?: ViewItemId;
 }
 
 export const useDashboardViewActions = (config: Config = {}) => {
   const { parentId } = config;
-  const dispatch = useAppDispatch();
-
   const state = useDashboardViewState({ parentId });
 
-  const api = useMemo(() => ({
-    // Методы работы с состоянием
-    setErrors                    : (errors: Errors) => dispatch(actions.setErrors(errors)),
-    clearErrors                  : () => dispatch(actions.setErrors({})),
-    setInitial                   : (state: StateSchemaDashboardView) => dispatch(actions.setInitial(state)),
-    setIsMounted                 : () => dispatch(actions.setIsMounted()),
-    setDashboardViewItems        : (data: SetDashboardViewItems) => dispatch(actions.setDashboardViewItems(data)),
-    setEditMode                  : (data: SetEditMode) => dispatch(actions.setEditMode(data)),
-    updateViewItems              : (data: PartialViewItem[]) => dispatch(actions.updateViewItems(data)),
-    cancelUpdateViewItem         : () => dispatch(actions.cancelUpdateViewItem()),
+  const api = useMemo(
+    () => ({
+      // Методы работы с состоянием (через Zustand getState())
+      setErrors: (errors: Errors) => useDashboardViewStore.getState().setErrors(errors),
+      clearErrors: () => useDashboardViewStore.getState().clearErrors(),
+      setInitial: (payload: StateSchemaDashboardView) => useDashboardViewStore.getState().setInitial(payload),
+      setIsMounted: () => useDashboardViewStore.getState().setIsMounted(),
+      setDashboardViewItems: (data: SetDashboardViewItems) =>
+        useDashboardViewStore.getState().setDashboardViewItems(data),
+      setEditMode: (data: SetEditMode) => useDashboardViewStore.getState().setEditMode(data),
+      updateViewItems: (data: PartialViewItem[]) => useDashboardViewStore.getState().updateViewItems(data),
+      cancelUpdateViewItem: () => useDashboardViewStore.getState().cancelUpdateViewItem(),
 
-    // Movement
-    setActiveMovementId          : () => dispatch(actions.setActiveMovementId()),
-    clearActivatedMovementId     : () => dispatch(actions.clearActivatedMovementId()),
+      // Movement
+      setActiveMovementId: () => useDashboardViewStore.getState().setActiveMovementId(),
+      clearActivatedMovementId: () => useDashboardViewStore.getState().clearActivatedMovementId(),
 
-    // Copying
-    setActiveCopied              : (data: ActivatedCopied) => dispatch(actions.setActiveCopied(data)),
-    clearActivatedCopied         : () => dispatch(actions.clearActivatedCopied()),
-    // View
-    setNewSelectedId             : (id: ViewItemId) => dispatch(actions.setNewSelectedId(id)),
-    setSelectedId                : (id: ViewItemId) => dispatch(actions.setSelectedId(id)),
-    setBright                    : (status: boolean) => dispatch(actions.setBright(status)),
+      // Copying
+      setActiveCopied: (data: ActivatedCopied) => useDashboardViewStore.getState().setActiveCopied(data),
+      clearActivatedCopied: () => useDashboardViewStore.getState().clearActivatedCopied(),
 
-    setIsUnsaved                 : (status: boolean) => dispatch(actions.setIsUnsaved(status)),
-    // Styles
-    changeOneStyleField          : (data: ChangeSelectedStyle) => dispatch(actions.changeOneStyleField(data)),
-    setSelectedStyles            : (data: ViewItemStyles) => dispatch(actions.setSelectedStyles(data)),
+      // View
+      setNewSelectedId: (id: ViewItemId) => useDashboardViewStore.getState().setNewSelectedId(id),
+      setSelectedId: (id: ViewItemId) => useDashboardViewStore.getState().setSelectedId(id),
+      setBright: (status: boolean) => useDashboardViewStore.getState().setBright(status),
 
-    // Settings
-    changeOneSettingsField       : (data: ChangeOneSettingsField) => dispatch(actions.changeOneSettingsField(data)),
-    changeOneChartsItem          : (data: ChangeOneChartsItem)    => dispatch(actions.changeOneChartsItem(data)),
-    // Изменение 1 field в settings.charts[index].datasets
-    changeOneDatasetsItem        : (data: ChangeOneDatasetsItem)  => dispatch(actions.changeOneDatasetsItem(data)),
+      setIsUnsaved: (status: boolean) => useDashboardViewStore.getState().setIsUnsaved(status),
 
-    setDashboardBunchesFromCache: (data: SetDashboardBunchesFromCache) => dispatch(
-      actions.setDashboardBunchesFromCache(data)
-    ),
-  }),
-    [dispatch]
+      // Styles
+      changeOneStyleField: (data: ChangeSelectedStyle) => useDashboardViewStore.getState().changeOneStyleField(data),
+      setSelectedStyles: (data: ViewItemStyles) => useDashboardViewStore.getState().setSelectedStyles(data),
+
+      // Settings
+      changeOneSettingsField: (data: ChangeOneSettingsField) =>
+        useDashboardViewStore.getState().changeOneSettingsField(data),
+      changeOneChartsItem: (data: ChangeOneChartsItem) => useDashboardViewStore.getState().changeOneChartsItem(data),
+      changeOneDatasetsItem: (data: ChangeOneDatasetsItem) =>
+        useDashboardViewStore.getState().changeOneDatasetsItem(data),
+
+      // Bunches from cache
+      setDashboardBunchesFromCache: (data: SetDashboardBunchesFromCache) =>
+        useDashboardViewStore.getState().setDashboardBunchesFromCache(data),
+    }),
+    [],
   );
-
 
   return {
     ...state,
-    ...api
-  }
+    ...api,
+  };
 };

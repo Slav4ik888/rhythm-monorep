@@ -1,45 +1,65 @@
-import * as s from '../../selectors';
-import { useSelector } from 'react-redux';
-import type { ViewItemId } from '../../../types';
+// packages/frontend/src/entities/dashboard-view/model/hooks/use-dashboard-view-state/index.ts
+// Zustand-версия хука (заменяет Redux useSelector)
+// Публичный интерфейс сохранён для обратной совместимости
 
-
+import { useDashboardViewStore } from '../../store';
+import type { ViewItem, ViewItemId } from '../../../types';
+import { getChildren, getKod, getParents, getFirstItemInBranchWithGlobalKod } from '../../utils';
+import type { ParentsViewItems } from '../../utils';
+import { getChanges } from 'shared/helpers/objects';
 
 interface Config {
-  parentId? : ViewItemId
+  parentId?: ViewItemId;
 }
 
 export const useDashboardViewState = (config: Config = {}) => {
   const { parentId } = config;
 
-  const loading                  = useSelector(s.selectLoading);
-  const errors                   = useSelector(s.selectErrors);
-  const isMounted                = useSelector(s.selectIsMounted);
-  const isLoaded                 = useSelector(s.selectIsLoaded);
+  // Селекторы через Zustand
+  const loading = useDashboardViewStore((state) => state.loading);
+  const errors = useDashboardViewStore((state) => state.errors);
+  const isMounted = useDashboardViewStore((state) => state._isMounted);
+  const isLoaded = useDashboardViewStore((state) => state._isLoaded);
 
-  const editMode                 = useSelector(s.selectEditMode);
-  const entities                 = useSelector(s.selectEntities);
-  const viewItems                = useSelector(s.selectViewItems);
-  const parentsViewItems         = useSelector(s.selectParentsViewItems);
-  const activatedMovementId      = useSelector(s.selectActivatedMovementId);
-  const activatedCopied          = useSelector(s.selectActivatedCopied);
-  const newSelectedId            = useSelector(s.selectNewSelectedId);
-  const selectedId               = useSelector(s.selectSelectedId);
-  const bright                   = useSelector(s.selectBright);
-  const selectedItem             = useSelector(s.selectSelectedItem);
-  const fromGlobalKod            = useSelector(s.selectFromGlobalKod);
-  const globalKodParent          = useSelector(s.selectGlobalKodParent);
+  const editMode = useDashboardViewStore((state) => state.editMode);
+  const entities = useDashboardViewStore((state) => state.entities);
+  const activatedMovementId = useDashboardViewStore((state) => state.activatedMovementId);
+  const activatedCopied = useDashboardViewStore((state) => state.activatedCopied);
+  const newSelectedId = useDashboardViewStore((state) => state.newSelectedId);
+  const selectedId = useDashboardViewStore((state) => state.selectedId);
+  const bright = useDashboardViewStore((state) => state.bright);
+  const isUnsaved = useDashboardViewStore((state) => state.isUnsaved);
+  const newStoredViewItem = useDashboardViewStore((state) => state.newStoredViewItem);
+  const prevStoredViewItem = useDashboardViewStore((state) => state.prevStoredViewItem);
 
-  const newStoredViewItem        = useSelector(s.selectNewStoredViewItem);
-  const prevStoredViewItem       = useSelector(s.selectPrevStoredViewItem);
+  // Производные селекторы (вычисляемые через get)
+  const viewItems = Object.values(entities);
+  const selectedItem = entities[selectedId] || {};
 
-  const selectChildrenViewItems  = s.makeSelectChildrenViewItems(parentId as ViewItemId);
-  const childrenViewItems        = useSelector(selectChildrenViewItems);
-  const parentChildrenIds        = childrenViewItems.map(item => item.id);
+  // ParentsViewItems
+  const parentsViewItems: ParentsViewItems | undefined = (() => {
+    if (!entities || !Object.keys(entities).length) return undefined;
+    return getParents(viewItems);
+  })();
+
+  // Children
+  const effectiveParentId = parentId || selectedId;
+  const childrenViewItems = getChildren(viewItems, effectiveParentId as ViewItemId) as ViewItem[];
+  const parentChildrenIds = childrenViewItems.map((item) => item.id);
 
   // Changes
-  const isUnsaved                = useSelector(s.selectIsUnsaved);
-  const changedViewItem          = useSelector(s.selectChangedViewItem); // Объект с изменившимися полями
+  const changedViewItem = (() => {
+    if (newStoredViewItem && selectedItem) {
+      return getChanges(newStoredViewItem, entities?.[selectedId]);
+    }
+    return undefined;
+  })();
 
+  // Kod
+  const fromGlobalKod = entities[selectedId] ? getKod(entities, entities[selectedId]) : '';
+  const globalKodParent = entities[selectedId]?.id
+    ? getFirstItemInBranchWithGlobalKod(entities, entities[selectedId]?.id)
+    : '';
 
   return {
     loading,
@@ -74,5 +94,5 @@ export const useDashboardViewState = (config: Config = {}) => {
 
     // Copying
     activatedCopied,
-  }
+  };
 };

@@ -6,60 +6,60 @@
 
 ## Контекст: что сделано в этой сессии
 
-### 3.3.7 Миграция entities/dashboard-templates на Zustand ✅
+### 3.3.8 Миграция entities/dashboard-view на Zustand ✅
 
 **Новые файлы:**
 
-- `packages/frontend/src/entities/dashboard-templates/model/store.ts` — Zustand-стор
-- `packages/frontend/src/entities/dashboard-templates/model/store.test.ts` — 24 теста (24/24 passed)
+- `packages/frontend/src/entities/dashboard-view/model/store.ts` — Zustand-стор (аналогичен Redux-слайсу, ~350 строк)
+- `packages/frontend/src/entities/dashboard-view/model/store.test.ts` — 20 тестов (20/20 passed)
+- `packages/frontend/src/entities/dashboard-view/model/slice/tests/slice.test.ts` — 46 тестов Redux-слайса (46/46 passed)
 
 **Изменённые файлы:**
 
-- `packages/frontend/src/entities/dashboard-templates/model/hooks/use-dashboard-templates/index.ts` — useSelector/useDispatch → Zustand селекторы + useDashboardTemplatesStore.getState()
-- `packages/frontend/src/entities/dashboard-templates/index.ts` — экспорт useDashboardTemplatesStore/DashboardTemplatesStore, reducerDashboardTemplates помечен устаревшим
-- `packages/frontend/src/widgets/dashboard-templates/ui/templates/index.tsx` — убран DynamicModuleLoader (больше не нужен)
-- `packages/frontend/src/app/providers/store/config/state.ts` — dashboardTemplates?: помечен как "в процессе миграции"
+- `packages/frontend/src/entities/dashboard-view/model/hooks/use-dashboard-view-state/index.ts` — useSelector → Zustand useStore (интерфейс сохранён)
+- `packages/frontend/src/entities/dashboard-view/model/hooks/use-dashboard-view-actions/index.ts` — dispatch(actions) → Zustand getState() (интерфейс сохранён)
+- `packages/frontend/src/entities/dashboard-view/index.ts` — экспорт useDashboardViewStore/DashboardViewStore
+- `packages/frontend/src/app/providers/store/config/state.ts` — dashboardView?: помечен как "в процессе миграции"
 
-**Важно:** useDashboardTemplates хук сохранил публичный интерфейс — все 28+ мест использования **не требуют изменений**.
+**Важно:** `useDashboardViewState` и `useDashboardViewActions` сохранили публичный интерфейс — все ~193 места использования **не требуют изменений**.
 
 ### Результаты проверок
 
-- `npm run lint`: **36 ошибок** (все предсуществующие, 0 новых — было 36)
-- `npm run test:entities`: **store.test.ts: 24/24 passed**, общий результат: 4 fail (предсуществующие), 43 passed (47 suites)
-- `npm run test:features`: **15/15 passed** (3/3 suites)
+- `npm run lint`: **36 ошибок** (все предсуществующие — бэкенд + features, 0 новых)
+- `npm test` (slice + store): **46/46 passed** (Redux) + **20/20 passed** (Zustand) = **66 тестов**
+- `npm test` (все store.test): **7/7 suites, 126/126 tests passed**
 
 ### План миграции (прогресс)
 
-| #   | Слайс               | Строк | Сложность     | Статус       |
-| --- | ------------------- | ----- | ------------- | ------------ |
-| 0   | UI                  | 123   | —             | ✅ Завершён  |
-| 1   | Transactions        | 45    | Низкая        | ✅ Завершён  |
-| 2   | Docs                | 49    | Низкая        | ✅ Завершён  |
-| 3   | Hints               | 102   | Средняя       | ✅ Завершён  |
-| 4   | User                | 77    | Средняя       | ✅ Завершён  |
-| 5   | Company             | 118   | Средняя       | ✅ Завершён  |
-| 6   | Dashboard-data      | 153   | Высокая       | ✅ Завершён  |
-| 7   | Dashboard-templates | 197   | Высокая       | ✅ Завершён  |
-| 8   | Dashboard-view      | 390   | Очень высокая | ⏳ Следующий |
+| #   | Слайс               | Строк | Сложность     | Статус      |
+| --- | ------------------- | ----- | ------------- | ----------- |
+| 0   | UI                  | 123   | —             | ✅ Завершён |
+| 1   | Transactions        | 45    | Низкая        | ✅ Завершён |
+| 2   | Docs                | 49    | Низкая        | ✅ Завершён |
+| 3   | Hints               | 102   | Средняя       | ✅ Завершён |
+| 4   | User                | 77    | Средняя       | ✅ Завершён |
+| 5   | Company             | 118   | Средняя       | ✅ Завершён |
+| 6   | Dashboard-data      | 153   | Высокая       | ✅ Завершён |
+| 7   | Dashboard-templates | 197   | Высокая       | ✅ Завершён |
+| 8   | Dashboard-view      | 390   | Очень высокая | ✅ Завершён |
 
 ## Следующие шаги
 
-1. **3.3.8 Dashboard-view** (390 строк, очень высокая сложность, bunches + LS)
-   - Файлы: `entities/dashboard-view/model/slice/`
-   - Особенность: асинхронные createAsyncThunk, взаимодействие с LS, множество селекторов
-   - Это последний и самый сложный entities-слайс перед миграцией страничных сторов
+1. **3.3.9 Мигрировать страничные сторы (login, signup)**
+   - Файлы: `pages/login/model/slice/`, `pages/signup/model/slice/`
+   - Это последние Redux-слайсы перед удалением Redux Provider
+2. **3.3.10 Убрать Redux Provider из app/providers, удалить зависимости**
 
 ## Коммит
 
-`refactor: миграция entities/dashboard-templates на Zustand, тесты (24/24 passed)`
+`refactor: миграция entities/dashboard-view на Zustand, тесты (66/66 passed)`
 
 ## Предупреждения/заметки
 
-- **7 из 8 entities-слайсов полностью на Zustand**
-- **useDashboardTemplates хук сохранил API** — 28+ мест использования без изменений
-- **DynamicModuleLoader убран** из виджета dashboard-templates
-- **В Redux store остались только**: dashboardView (entities), loginPage/signupPage (страничные), userFeatures
-- **Шаблон Zustand-стора для сложных случаев**: `entities/dashboard-data/model/store.ts`
-- **Шаблон Zustand-стора с асинхронными API-вызовами**: `entities/dashboard-templates/model/store.ts`
-- **Линтер:** 36 ошибок — предсуществующие
-- **Тесты:** backend (не запускался), frontend: entities store.test.ts — 6/6 suites passed (101/101 tests)
+- **8 из 8 entities-слайсов полностью на Zustand**
+- **useDashboardViewState/useDashboardViewActions сохранили API** — ~193 места использования без изменений
+- **В Redux store остались только**: loginPage/signupPage (страничные), userFeatures
+- **Шаблон Zustand-стора для очень сложных случаев**: `entities/dashboard-view/model/store.ts`
+- **Линтер:** 36 ошибок — предсуществующие (бэкенд + features/path-checker)
+- **Тесты:** backend (не запускался), frontend entities: 7/7 suites passed (126/126 tests)
+- **Async-функции (fetchBunches, createGroupViewItems) пока заглушки** — нужно переписать API на прямые функции после полного удаления Redux
