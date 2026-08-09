@@ -1,32 +1,18 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { CustomAxiosError, errorHandlers, ThunkConfig } from 'app/providers/store';
-import { API_PATHS } from 'shared/api';
-import { Errors } from 'shared/lib/validators';
+// packages/frontend/src/features/docs/get-policy/model/services/get-policy/index.ts
 
-
+import { api, API_PATHS } from 'shared/api';
 
 export interface ResGetPolicy {
-  policy: string
+  policy: string;
 }
 
-
-export const getPolicy = createAsyncThunk<
-  string,    // Res
-  undefined, // Req
-  ThunkConfig<Errors>
->(
-  'features/docs/getPolicy',
-  async (_, thunkApi) => {
-    const { extra, rejectWithValue, dispatch } = thunkApi;
-
-    try {
-      const { data: { policy } } = await extra.api.get<ResGetPolicy>(API_PATHS.docs.getPolicy);
-
-      return policy;
-    }
-    catch (e) {
-      errorHandlers(e as CustomAxiosError, dispatch);
-      return rejectWithValue({ general: 'Error in features/docs/getPolicy' });
-    }
-  }
-);
+/**
+ * Прямой API-вызов (без Redux createAsyncThunk).
+ * Обработка ошибок — в вызывающем коде (useDocs).
+ */
+export const getPolicy = async (): Promise<string> => {
+  const {
+    data: { policy },
+  } = await api.get<ResGetPolicy>(API_PATHS.docs.getPolicy);
+  return policy;
+};

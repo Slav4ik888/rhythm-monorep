@@ -6,7 +6,6 @@ import { createReducerManager } from './reducer-manager';
 import { api } from 'shared/api';
 import { reducerCompany } from 'entities/company';
 import { reducerUser } from 'entities/user';
-import { reducerDocs } from 'entities/docs';
 import { reducerHints } from 'entities/hints';
 
 export function createReduxStore(initialState?: StateSchema, asyncReducers?: ReducersMapObject<StateSchema>) {
@@ -16,7 +15,6 @@ export function createReduxStore(initialState?: StateSchema, asyncReducers?: Red
       // Entities
       user: reducerUser,
       company: reducerCompany,
-      docs: reducerDocs,
       hints: reducerHints,
     },
     reducerManager = createReducerManager(rootReducers),

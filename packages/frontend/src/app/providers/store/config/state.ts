@@ -20,7 +20,7 @@ export interface StateSchema {
   ui?: StateSchemaUI; // UI переведён на Zustand, Redux-слайс удалён
   user: StateSchemaUser;
   company: StateSchemaCompany;
-  docs: StateSchemaDocs;
+  docs?: StateSchemaDocs; // Docs переведён на Zustand, Redux-слайс удалён
   hints: StateSchemaHints;
 
   // Async reducer

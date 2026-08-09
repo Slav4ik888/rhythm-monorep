@@ -1,26 +1,27 @@
-import * as s from '../../selectors';
-import { actions } from '../../slice';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
-import { getPolicy } from '../../../../../features/docs/get-policy/model/services';
+// packages/frontend/src/entities/docs/model/hooks/use-docs/index.ts
+
+import { useDocsStore } from '../../store';
 import { Errors } from 'shared/lib/validators';
-
-
+import { getPolicy } from '../../../../../features/docs/get-policy/model/services';
 
 export const useDocs = () => {
-  const
-    dispatch = useAppDispatch(),
-
-    loading        = useSelector(s.selectLoading),
-    errors         = useSelector(s.selectErrors),
-    setErrors      = (err: Errors) => dispatch(actions.setErrors(err)),
-    clearErrors    = () => dispatch(actions.clearErrors()),
-
-    docs           = useSelector(s.selectDocs),
-    policy         = useSelector(s.selectPolicy),
-
-    serviceGetPolicy     = () => dispatch(getPolicy());
-
+  const loading = useDocsStore((s) => s.loading),
+    errors = useDocsStore((s) => s.errors),
+    docs = useDocsStore((s) => s.docKeys),
+    policy = useDocsStore((s) => s.docKeys?.policy || ''),
+    setErrors = (err: Errors) => useDocsStore.getState().setErrors(err),
+    clearErrors = () => useDocsStore.getState().clearErrors(),
+    serviceGetPolicy = async () => {
+      useDocsStore.getState().startLoading();
+      try {
+        const result = await getPolicy();
+        useDocsStore.getState().setDocKey('policy', result);
+        useDocsStore.getState().finishLoading();
+      } catch (e) {
+        useDocsStore.getState().setErrors({ general: 'Error in features/docs/getPolicy' });
+        useDocsStore.getState().finishLoading();
+      }
+    };
 
   return {
     loading,
@@ -31,6 +32,6 @@ export const useDocs = () => {
     docs,
     policy,
 
-    serviceGetPolicy
-  }
+    serviceGetPolicy,
+  };
 };
