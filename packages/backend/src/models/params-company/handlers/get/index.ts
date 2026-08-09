@@ -10,7 +10,11 @@ interface GetCompanyModel {
 }
 
 export const getParamsCompanyModel = async (ctx: Context): Promise<Company> => {
-  const { companyId, dashboardSheetId } = ctx.request.body as GetCompanyModel;
+  // Поддержка и GET (query-параметры), и POST (body)
+  const body = (ctx.request.body || {}) as GetCompanyModel;
+  const query = (ctx.query || {}) as unknown as GetCompanyModel;
+  const companyId = body.companyId || query.companyId;
+  const dashboardSheetId = body.dashboardSheetId || query.dashboardSheetId;
 
   if (!companyId) {
     return ctx.throw(400, {

@@ -23,6 +23,7 @@ export const getParamsCompany = async ({ companyId, dashboardSheetId }: ReqGetCo
       `${API_PATHS.paramsCompany.get}?companyId=${companyId}&dashboardSheetId=${dashboardSheetId}`,
     );
     store.finishGetParamsCompany(data);
+    useUIStore.getState().setPageLoading({ 'get-params-company': { text: '', name: 'getParamsCompany' } });
     return data;
   } catch (err: any) {
     const errors = err?.response?.data?.errors || { default: err.message };

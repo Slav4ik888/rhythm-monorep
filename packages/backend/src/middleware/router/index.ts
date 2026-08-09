@@ -34,6 +34,7 @@ router.patch(API_PATHS.company.deleteSheet, logging, cv, checkUserSession, compa
 
 // PARAMS-COMPANY
 // Возможность без авторизации (если доступ к странице открыт)
+router.get(API_PATHS.paramsCompany.get, logging, cv, paramsCompany.get);
 router.post(API_PATHS.paramsCompany.get, logging, cv, paramsCompany.get);
 
 // VIEW

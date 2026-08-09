@@ -2,11 +2,24 @@
 
 ## Дата
 
-09.08.2026 (сессия 3)
+09.08.2026 (сессия 5)
 
 ## Контекст: что сделано в этой сессии
 
-### Исправление tsc-ошибок и синхронизация типов после удаления Redux
+### Исправление 404 для /api/paramsCompany/get
+
+**Проблема:** запрос `GET /api/paramsCompany/get?companyId=...&dashboardSheetId=...` возвращал 404, потому что на бэкенде был зарегистрирован только `router.post`, а фронтенд использовал `api.get`.
+
+**Исправление:**
+
+1. **`packages/backend/src/middleware/router/index.ts`** — добавлен `router.get` для `API_PATHS.paramsCompany.get` (в дополнение к существующему `router.post`)
+2. **`packages/backend/src/models/params-company/handlers/get/index.ts`** — модель адаптирована для чтения параметров и из `ctx.request.body` (POST), и из `ctx.query` (GET)
+
+### Исправление бесконечного спиннера "Загрузка данных по компании"
+
+**Проблема:** после успешного ответа от бэкенда спиннер не снимался — в API-функции `getParamsCompany` не было вызова `setPageLoading` с пустым `text`.
+
+**Исправление:** 3. **`packages/frontend/src/shared/api/features/company/index.ts`** — добавлено снятие `pageLoading` после `finishGetParamsCompany` (строка 26: `setPageLoading({ 'get-params-company': { text: '', ... } })`)
 
 **Количество tsc-ошибок:** с 516 → 236 (устранено ~280 ошибок в production-коде).
 
@@ -84,13 +97,19 @@
 
 ## Коммит
 
-`fix: синхронизация state-schema с Zustand-сторами, созданы недостающие модули, исправлены импорты — tsc 516→236, lint 0/0, тесты 170/192`
+`fix: роутер paramsCompany/get + GET, снятие спиннера после загрузки компании`
 
 ## Предупреждения/заметки
 
+- **paramsCompany/get** теперь работает и через GET, и через POST — фронтенд использует GET с query-параметрами
 - **Оставшиеся 236 tsc-ошибок** — в основном точечные несоответствия типов, не блокирующие сборку (Vite работает)
 - **`app/providers/store`** — временная заглушка, нужно будет полностью убрать импорты `errorHandlers` и `CustomAxiosError` из `get-auth` и `get-data`, заменив на прямые вызовы
 - **`features/partner`** — `increasePartnerFollower` теперь прямая async-функция, вызывается без dispatch
 - **`shared/lib/tests/store/index.tsx`** — заглушка StoreProvider, нужна только для обратной совместимости тестов
 - **`ActivatedCopiedType`** имеет опциональные поля `type` и `id` — это соответствует реальному использованию в коде, но может требовать проверок на undefined
 - **Тесты бэкенда (11 failed)** — не связаны с текущей сессией, проблемы в валидаторах (addPersonProperty)
+
+## Следующие шаги
+
+1. **Исправить оставшиеся tsc-ошибки (236)**
+2. **3.4 TanStack Query** — интеграция для серверного состояния
