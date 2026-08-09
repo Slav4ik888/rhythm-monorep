@@ -5,13 +5,11 @@ import { api } from 'shared/api';
 import { StateSchema } from 'app/providers/store';
 import { createReducerManager } from 'app/providers/store/config/reducer-manager';
 import { reducerCompany } from 'entities/company';
-import { reducerUser } from 'entities/user';
 import { reducerDashboardView } from 'entities/dashboard-view';
 
 export function createReduxStore(initialState: DeepPartial<StateSchema>) {
   const rootReducers: ReducersMapObject<StateSchema> = {
       // Entities
-      user: reducerUser,
       company: reducerCompany,
 
       // @ts-ignore

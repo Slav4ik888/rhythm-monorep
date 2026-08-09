@@ -2,7 +2,7 @@
 
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CustomAxiosError, errorHandlers, ThunkConfig } from 'app/providers/store';
-import { actionsUser, User } from 'entities/user';
+import { useUserStore, User } from 'entities/user';
 import { actionsCompany, Company } from 'entities/company';
 import type { SignupDataEnd } from '../../types';
 import { useUIStore } from 'entities/ui';
@@ -33,7 +33,7 @@ export const signupByEmailEnd = createAsyncThunk<undefined, SignupDataEnd, Thunk
 
       if (!companyId) return undefined;
 
-      dispatch(actionsUser.setUser({ companyId, user: newUserData }));
+      useUserStore.getState().setUser(companyId, newUserData);
       dispatch(actionsCompany.setCompany({ company: newCompanyData }));
       useUIStore.getState().setSuccessMessage(message);
     } catch (e) {

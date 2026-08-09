@@ -1,16 +1,16 @@
 // packages/frontend/src/entities/user/model/services/get-auth/index.ts
 
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { ThunkConfig, errorHandlers, CustomAxiosError } from 'app/providers/store';
+import { CustomAxiosError, errorHandlers } from 'app/providers/store';
 import { actionsCompany, Company } from 'entities/company';
 import { API_PATHS } from 'shared/api';
 import { Errors } from 'shared/lib/validators';
 import type { User } from '../../../types';
-import type { SetUser } from '../../slice/types';
 import { LS } from 'shared/lib/local-storage';
 import cfg from 'app/config';
 import { cloneObj } from 'shared/helpers/objects';
 import { useUIStore } from 'entities/ui';
+import { useUserStore } from '../../store';
+import { AxiosInstance } from 'axios';
 
 export interface ReqGetAuth {
   pathname: string;
@@ -23,12 +23,13 @@ interface ResGetAuth {
 }
 
 /** Проверяет, авторизован ли пользователь, и если да, то возвращает данные пользователя. */
-export const getAuth = createAsyncThunk<
-  SetUser, // ResData
-  ReqGetAuth, // ReqData
-  ThunkConfig<Errors>
->('entities/user/getAuth', async ({ pathname }, thunkApi) => {
-  const { extra, dispatch, rejectWithValue } = thunkApi;
+export const getAuth = async (
+  { pathname }: ReqGetAuth,
+  api: AxiosInstance,
+  dispatch: any, // Остаётся для dispatch(actionsCompany) и errorHandlers, пока company на Redux
+) => {
+  const store = useUserStore.getState();
+  store.startLoading();
 
   try {
     let user = {} as User,
@@ -44,7 +45,7 @@ export const getAuth = createAsyncThunk<
     } else {
       const {
         data: { userData, companyData },
-      } = await extra.api.get<ResGetAuth>(API_PATHS.user.getAuth);
+      } = await api.get<ResGetAuth>(API_PATHS.user.getAuth);
       user = cloneObj(userData);
       company = cloneObj(companyData);
       companyId = companyData.id;
@@ -57,13 +58,13 @@ export const getAuth = createAsyncThunk<
 
     useUIStore.getState().setPageLoading({ 'get-auth': { text: '', name: 'getAuth' } });
 
-    return { companyId, user };
+    useUserStore.getState().finishGetAuth(companyId, user);
   } catch (e) {
     errorHandlers(e as CustomAxiosError, dispatch, { pathname });
-    return rejectWithValue(
-      (e as CustomAxiosError).response.data || {
+    useUserStore.getState().failGetAuth(
+      (e as CustomAxiosError).response?.data || {
         general: 'Error in entities/user/getAuth',
       },
     );
   }
-});
+};

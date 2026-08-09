@@ -4,7 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CustomAxiosError, errorHandlers, ThunkConfig } from 'app/providers/store';
 import { useUIStore } from 'entities/ui';
 import { Errors } from 'shared/lib/validators';
-import { actionsUser, PartialUser } from 'entities/user';
+import { useUserStore, PartialUser } from 'entities/user';
 import { userApi } from '../api';
 
 /**
@@ -22,7 +22,7 @@ export const updateUser = createAsyncThunk<undefined, PartialUser, ThunkConfig<E
     try {
       await userApi.update(api, userData);
 
-      dispatch(actionsUser.updateUser(userData));
+      useUserStore.getState().updateUser(userData);
       useUIStore.getState().setSuccessMessage('Сохранено');
     } catch (e) {
       errorHandlers(e as CustomAxiosError, dispatch);

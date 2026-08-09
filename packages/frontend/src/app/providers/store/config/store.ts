@@ -5,14 +5,12 @@ import type { StateSchema } from './state';
 import { createReducerManager } from './reducer-manager';
 import { api } from 'shared/api';
 import { reducerCompany } from 'entities/company';
-import { reducerUser } from 'entities/user';
 
 export function createReduxStore(initialState?: StateSchema, asyncReducers?: ReducersMapObject<StateSchema>) {
   const rootReducers: ReducersMapObject<StateSchema> = {
       ...asyncReducers,
 
       // Entities
-      user: reducerUser,
       company: reducerCompany,
     },
     reducerManager = createReducerManager(rootReducers),

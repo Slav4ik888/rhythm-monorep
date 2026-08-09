@@ -4,7 +4,7 @@ import { useUIStore } from 'entities/ui';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import type { StateSchema, ThunkExtraArg } from './state';
 import { Errors } from 'shared/lib/validators';
-import { actionsUser } from 'entities/user';
+import { useUserStore } from 'entities/user';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { LS } from 'shared/lib/local-storage';
 import { isDashboardPage } from 'shared/lib/hooks/use-pages/utils';
@@ -70,7 +70,7 @@ export const errorHandlers = (
   // тк пользователь может посетить страницу без необходимости авторизации
   // а инфа об этом не приходит от сервера
   else if (status === 401) {
-    dispatch(actionsUser.clearUser());
+    useUserStore.getState().clearUser();
     // if (isDashboardPage(pathname)) dispatch(actionsUI.setWarningMessage('Необходимо авторизоваться'));
     // return dispatch(actionsUI.setErrorStatus({ status: 401, pathname }));
   } else if (status === 403) return uiStore.setErrorStatus(403, pathname);

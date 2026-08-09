@@ -1,34 +1,35 @@
+// packages/frontend/src/entities/user/model/hooks/use-user/index.ts
+
 import { useMemo } from 'react';
-import * as s from '../../selectors';
-import { actions } from '../../slice';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
+import { useUserStore } from '../../store';
+import { Errors } from 'shared/lib/validators';
 import type { ReqGetAuth } from '../../services';
 import { getAuth } from '../../services';
-import { Errors } from 'shared/lib/validators';
+import { api as axiosApi } from 'shared/api';
+import { useAppDispatch } from 'shared/lib/hooks';
 
 export const useUser = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch(); // Временно, для getAuth → errorHandlers/dispatch(actionsCompany)
 
-  const _isLoaded = useSelector(s.selectIsLoaded);
-  const loading = useSelector(s.selectLoading);
-  const errors = useSelector(s.selectErrors);
+  const _isLoaded = useUserStore((state) => state._isLoaded);
+  const loading = useUserStore((state) => state.loading);
+  const errors = useUserStore((state) => state.errors);
 
-  const auth = useSelector(s.selectAuth);
-  const user = useSelector(s.selectUser);
-  const userId = useSelector(s.selectUserId);
-  const isVerified = useSelector(s.selectIsEmailVerified);
-  const email = useSelector(s.selectUserEmail);
-  const role = useSelector(s.selectUserRole);
-  const companyId = useSelector(s.selectCompanyId);
-  const isEditAccess = useSelector(s.selectIsEditAccess);
-  const hintsDontShowAgain = useSelector(s.selectHintsDontShowAgain);
+  const auth = useUserStore((state) => state.auth);
+  const user = useUserStore((state) => state.user);
+  const userId = user?.id;
+  const isVerified = user?.emailVerified;
+  const email = user?.email;
+  const role = user?.role;
+  const companyId = user?.companyId;
+  const isEditAccess = Boolean(user?.isEditAccess);
+  const hintsDontShowAgain = user?.settings?.hintsDontShowAgain || [];
 
-  const api = useMemo(
+  const actions = useMemo(
     () => ({
-      setErrors: (err: Errors) => dispatch(actions.setErrors(err)),
-      clearErrors: () => dispatch(actions.clearErrors()),
-      serviceGetAuth: (data: ReqGetAuth) => dispatch(getAuth(data)),
+      setErrors: (err: Errors) => useUserStore.getState().setErrors(err),
+      clearErrors: () => useUserStore.getState().clearErrors(),
+      serviceGetAuth: (data: ReqGetAuth) => getAuth(data, axiosApi, dispatch),
     }),
     [dispatch],
   );
@@ -48,6 +49,6 @@ export const useUser = () => {
     isEditAccess,
     hintsDontShowAgain,
 
-    ...api,
+    ...actions,
   };
 };
