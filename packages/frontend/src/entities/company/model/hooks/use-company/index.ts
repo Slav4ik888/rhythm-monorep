@@ -24,7 +24,7 @@ export const useCompany = (config: Config = {}) => {
   const paramsCompanyId = paramsCompany?.id;
   const paramsBunchesUpdated = paramsCompany?.bunchesUpdated;
   const paramsCustomSettings = paramsCompany?.customSettings || {};
-  const paramsChangedCompany = getChanges(storedCompany, paramsCompany); // Объект с изменившимися полями
+  const paramsChangedCompany = useMemo(() => getChanges(storedCompany, paramsCompany), [storedCompany, paramsCompany]); // Объект с изменившимися полями (мемоизирован, чтобы не создавать новый объект на каждом рендере)
   const paramsSheets = paramsCompany?.sheets || {};
   const usersAccessDashboard = paramsCompany?.dashboardMembers || [];
   const dashboardPublicAccess = paramsCompany?.dashboardPublicAccess?.[dashboardSheetId];

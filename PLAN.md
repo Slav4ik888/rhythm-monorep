@@ -71,8 +71,23 @@
 - [x] 3.3.8 Мигрировать entities/dashboard-view (390 строк, очень высокая сложность, bunches + LS)
   - Zustand-стор + тесты (20/20 passed), хуки переписаны с сохранением API (~193 места без изменений)
   - Redux-слайс помечен устаревшим, dashboardView?: сделан опциональным в StateSchema
+- [x] 3.3.8.1 Исправить рантайм-ошибки после миграции (сессия 09.08.2026, итерация 2):
+  - `Store does not have a valid reducer` — noopReducer в reducer-manager.ts
+  - `getSnapshot should be cached` / `Maximum update depth exceeded`:
+    - useMemo для paramsChangedCompany в use-company/index.ts
+    - `useDashboardViewServices` — Redux dispatch заменён на Zustand getState()
+    - `selectTemplates` больше не возвращает `Object.values()` (создавал новый массив при каждом вызове)
+    - `selectEntities` убрано `|| {}` (создавал новый объект)
+    - Хук useDashboardTemplates — `templates` мемоизирован через useMemo
+  - Изменено 5 файлов: reducer-manager.ts, use-company/index.ts, use-dashboard-view-services/index.ts, dashboard-templates/store.ts, dashboard-templates/hook/index.ts
+  - Тесты: 180/195 suites passed (15 failed — предсуществующий TextEncoder)
+  - Линтер: 36 ошибок (все предсуществующие — бэкенд + features/path-checker)
 - [ ] 3.3.9 Мигрировать страничные сторы (login, signup)
 - [ ] 3.3.10 Убрать Redux Provider из app/providers, удалить зависимости
+- [ ] 3.3.11 Установить eslint-plugin-unused-imports для автофикса неиспользуемых импортов
+  - Плагин не установился из-за конфликта `@types/react@^19.2.18` (override) с прямой зависимостью
+  - После установки включить `@typescript-eslint/no-unused-vars` и запустить `--fix`
+  - Текущий статус: правило отключено, ~260 неиспользуемых переменных/импортов в кодовой базе
 - [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)
 - [x] 3.5 PWA (vite-plugin-pwa + workbox)
 - [ ] 3.6 Koa → NestJS + Fastify

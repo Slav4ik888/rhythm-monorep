@@ -1,42 +1,37 @@
-import { ViewItemId, useDashboardViewActions, getBunches, ReqGetBunches } from 'entities/dashboard-view';
+// packages/frontend/src/features/dashboard-view/model/hooks/use-dashboard-view-services/index.ts
+
+import { ViewItemId, useDashboardViewActions, ReqGetBunches } from 'entities/dashboard-view';
 import { useMemo } from 'react';
-import {
-  createGroupViewItems, CreateGroupViewItems, deleteViewItem, DeleteViews,
-  UpdateViewItems, updateViewItems
-} from 'shared/api/features/dashboard-view';
-import { useAppDispatch } from 'shared/lib/hooks';
-
-
+import { useDashboardViewStore } from 'entities/dashboard-view/model/store';
+import type { CreateGroupViewItems, UpdateViewItems, DeleteViews } from 'shared/api/features/dashboard-view';
 
 interface Config {
-  parentId? : ViewItemId
+  parentId?: ViewItemId;
 }
 
 export const useDashboardViewServices = (config: Config = {}) => {
   const { parentId } = config;
-  const dispatch = useAppDispatch();
 
   const actions = useDashboardViewActions({ parentId });
 
-  const api = useMemo(() => ({
-    // Сервисные методы (features)
-    // serviceGetViewItems         : (data: ReqGetViewItems) => dispatch(getViewItems(data)),
-    serviceGetBunches           : (data: ReqGetBunches) => dispatch(getBunches(data)),
-    serviceCreateGroupViewItems : (data: CreateGroupViewItems) => dispatch(createGroupViewItems(data)),
-    serviceUpdateViewItems      : (data: UpdateViewItems) => dispatch(updateViewItems(data)),
-    serviceDeleteViews          : (data: DeleteViews) => dispatch(deleteViewItem(data)),
+  const api = useMemo(
+    () => ({
+      // Сервисные методы (features) — все через Zustand store, не через Redux dispatch
+      serviceGetBunches: (data: ReqGetBunches) => useDashboardViewStore.getState().fetchBunches(data),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      serviceCreateGroupViewItems: (data: CreateGroupViewItems) =>
+        useDashboardViewStore.getState().createGroupViewItems(data as any),
+      serviceUpdateViewItems: (data: UpdateViewItems) => useDashboardViewStore.getState().saveUpdateViewItems(data),
+      serviceDeleteViews: (data: DeleteViews) => useDashboardViewStore.getState().saveDeleteViewItem(data),
 
-    // Dev-методы
-    dev: {
-      // devSeriviceCreateBunches: (companyId: string) => dispatch(createBunches({ companyId })),
-    }
-  }),
-    [dispatch]
+      // Dev-методы
+      dev: {},
+    }),
+    [],
   );
-
 
   return {
     ...actions,
-    ...api
-  }
+    ...api,
+  };
 };

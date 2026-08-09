@@ -54,8 +54,12 @@ export const selectLoading = (state: DashboardTemplatesStore) => state.loading;
 export const selectErrors = (state: DashboardTemplatesStore) => state.errors;
 export const selectIsMounted = (state: DashboardTemplatesStore) => state._isMounted;
 export const selectBunchesUpdated = (state: DashboardTemplatesStore) => state.bunchesUpdated;
-export const selectEntities = (state: DashboardTemplatesStore) => state.entities || {};
-export const selectTemplates = (state: DashboardTemplatesStore) => Object.values(state.entities) || [];
+export const selectEntities = (state: DashboardTemplatesStore) => state.entities;
+// ВАЖНО: Object.values() создаёт новый массив при каждом вызове.
+// Zustand сравнивает снапшоты через Object.is — новый массив → бесконечный цикл.
+// Поэтому используем стабильные селекторы, которые возвращают ссылку на entities,
+// а хуки должны мемоизировать производные значения.
+export const selectTemplates = (state: DashboardTemplatesStore) => state.entities;
 export const selectOpened = (state: DashboardTemplatesStore) => state.opened;
 export const selectSelectedId = (state: DashboardTemplatesStore) => state.selectedId;
 export const selectStoredSelected = (state: DashboardTemplatesStore) => state.storedSelected;

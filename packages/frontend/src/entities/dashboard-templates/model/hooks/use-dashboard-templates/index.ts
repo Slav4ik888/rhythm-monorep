@@ -31,7 +31,9 @@ export const useDashboardTemplates = () => {
   const isMounted = useDashboardTemplatesStore(selectIsMounted);
   const bunchesUpdated = useDashboardTemplatesStore(selectBunchesUpdated);
   const entities = useDashboardTemplatesStore(selectEntities);
-  const templates = useDashboardTemplatesStore(selectTemplates);
+  const rawTemplates = useDashboardTemplatesStore(selectTemplates); // entities (объект), стабильная ссылка
+  // Преобразуем entities в массив через useMemo — чтобы не создавать новый массив на каждом рендере
+  const templates = useMemo(() => Object.values(rawTemplates || {}), [rawTemplates]);
   const opened = useDashboardTemplatesStore(selectOpened);
   const selectedId = useDashboardTemplatesStore(selectSelectedId);
   const selectedTemplate = useDashboardTemplatesStore(selectSelectedTemplate);

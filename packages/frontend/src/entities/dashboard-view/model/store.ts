@@ -8,6 +8,7 @@ import { LS } from 'shared/lib/local-storage';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import { updateObject, cloneObj, isNotEmpty } from 'shared/helpers/objects';
 import { __devLog } from 'shared/lib/tests/__dev-log';
+import { api, API_PATHS } from 'shared/api';
 import cfg from 'app/config';
 import type { BunchesUpdated } from 'shared/lib/structures/bunch';
 import type {
@@ -97,8 +98,8 @@ interface DashboardViewActions {
   // Асинхронные действия
   fetchBunches: (data: ReqGetBunches) => Promise<void>;
   createGroupViewItems: (data: { parentId: string; companyId: string; viewItem: Partial<ViewItem> }) => Promise<void>;
-  saveUpdateViewItems: (data: { viewItems: PartialViewItem[]; companyId: string }) => Promise<void>;
-  saveDeleteViewItem: (data: { viewItemId: ViewItemId; companyId: string }) => Promise<void>;
+  saveUpdateViewItems: (data: UpdateViewItems) => Promise<void>;
+  saveDeleteViewItem: (data: DeleteViews) => Promise<void>;
 }
 
 export type DashboardViewStore = StateSchemaDashboardView & DashboardViewActions;
@@ -386,9 +387,39 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
     set({ loading: true, errors: {} });
 
     try {
-      // TODO: переписать API на прямые функции
-      set({ loading: false });
+      // Реальный API-вызов: PATCH /dashboard/view/update
+      await api.patch(API_PATHS.dashboard.view.update, data);
+
+      // Восстанавливаем логику Redux extraReducer fulfilled
+      const { viewItems, companyId, newStoredViewItem, bunchUpdatedMs } = data as UpdateViewItems;
+
+      set((state) => {
+        // Сохраняем в LS
+        LS.setBunches(
+          companyId,
+          updateBunches(LS.getBunches(companyId), getBunchesFromViewItems(viewItems as ViewItem[])),
+        );
+        LS.setViewBunchesUpdated(companyId, {
+          ...LS.getViewBunchesUpdated(companyId),
+          ...getBunchesTimestamps(viewItems, bunchUpdatedMs),
+        });
+
+        return {
+          entities: updateEntities(state.entities, viewItems),
+          newStoredViewItem:
+            newStoredViewItem && state.newStoredViewItem
+              ? (updateObject(state.newStoredViewItem as any, newStoredViewItem) as ViewItem)
+              : state.newStoredViewItem,
+          activatedMovementId: '',
+          activatedCopied: undefined,
+          bright: false,
+          isUnsaved: false, // ← скрывает кнопку "Сохранить"
+          loading: false,
+          errors: {},
+        };
+      });
     } catch (e: any) {
+      // rejected логика
       set({
         prevStoredViewItem: get().newStoredViewItem,
         newStoredViewItem: undefined,
@@ -402,8 +433,37 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
     set({ loading: true, errors: {} });
 
     try {
-      // TODO: переписать API на прямые функции
-      set({ loading: false });
+      // Реальный API-вызов: POST /dashboard/view/delete
+      await api.post(API_PATHS.dashboard.view.delete, data);
+
+      // Восстанавливаем логику Redux extraReducer fulfilled
+      const { companyId, viewItems, bunchUpdatedMs } = data as DeleteViews;
+
+      set((state) => {
+        // Удаляем сущности
+        const newEntities = { ...state.entities };
+        viewItems.forEach((item) => delete newEntities[item.id]);
+
+        // Сохраняем в LS
+        LS.setBunches(companyId, getBunchesFromViewItems(Object.values(newEntities)));
+        LS.setViewBunchesUpdated(companyId, {
+          ...LS.getViewBunchesUpdated(companyId),
+          ...getBunchesTimestamps(viewItems, bunchUpdatedMs),
+        });
+
+        return {
+          entities: newEntities,
+          selectedId: '',
+          newStoredViewItem: undefined,
+          prevStoredViewItem: undefined,
+          activatedMovementId: '',
+          activatedCopied: undefined,
+          bright: false,
+          isUnsaved: false, // ← скрывает кнопку "Сохранить"
+          loading: false,
+          errors: {},
+        };
+      });
     } catch (e: any) {
       set({
         prevStoredViewItem: get().newStoredViewItem,
