@@ -17,14 +17,24 @@ export interface CreateGroupViewItems {
 
 export interface UpdateViewItems {
   companyId: string;
-  dashboardSheetId: string;
-  updates: Record<string, PartialViewItemUpdate>;
+  dashboardSheetId?: string;
+  updates?: Record<string, PartialViewItemUpdate>;
+  /** ViewItems для сохранения в LS */
+  viewItems?: any[];
+  /** Новое сохранённое состояние элемента */
+  newStoredViewItem?: Record<string, any>;
+  /** Timestamp обновления bunches */
+  bunchUpdatedMs?: number;
 }
 
 export interface DeleteViews {
   companyId: string;
-  dashboardSheetId: string;
-  viewItemIds: string[];
+  dashboardSheetId?: string;
+  viewItemIds?: string[];
+  /** ViewItems для удаления из LS */
+  viewItems?: any[];
+  /** Timestamp обновления bunches */
+  bunchUpdatedMs?: number;
 }
 
 export const createGroupViewItems = async (payload: CreateGroupViewItems): Promise<any> => {

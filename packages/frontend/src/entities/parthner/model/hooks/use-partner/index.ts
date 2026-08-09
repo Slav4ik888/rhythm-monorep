@@ -1,5 +1,7 @@
+// packages/frontend/src/entities/parthner/model/hooks/use-partner/index.ts
+
 import { useCallback, useState } from 'react';
-import { useAppDispatch, useInitialEffect } from 'shared/lib/hooks';
+import { useInitialEffect } from 'shared/lib/hooks';
 import { useSearchParams } from 'react-router-dom';
 import { LS } from 'shared/lib/local-storage';
 import { isValidPartnerId } from '../../../lib/utils';
@@ -8,7 +10,6 @@ import { increasePartnerFollower } from 'features/partner';
 // https://rhy.thm.su/demo/?ref=slav4ik888
 
 export const usePartner = () => {
-  const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
   const [hasIncreasedFollowers, setHasIncreasedFollowers] = useState(false);
   const partnerIdParams = searchParams.get('ref');
@@ -22,9 +23,9 @@ export const usePartner = () => {
     if (partnerIdLS || !isValidPartnerId(partnerIdParams)) return;
 
     LS.setPartnerId(partnerIdParams);
-    dispatch(increasePartnerFollower({ partnerId: partnerIdParams })); // Увеличиваем счётчик партнёра
+    increasePartnerFollower({ partnerId: partnerIdParams }); // Увеличиваем счётчик партнёра
     setHasIncreasedFollowers(true);
-  }, [partnerIdLS, partnerIdParams, hasIncreasedFollowers, dispatch]);
+  }, [partnerIdLS, partnerIdParams, hasIncreasedFollowers]);
 
   useInitialEffect(() => {
     increaseFollowers();

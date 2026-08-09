@@ -1,10 +1,11 @@
 // packages/frontend/src/entities/dashboard-data/model/state-schema.ts
 
-import type { DashboardPeriod } from '../types';
+import type { DashboardPeriod, DashboardStatisticItem } from '../types';
 import type { Errors } from 'shared/lib/validators';
 
+/** Нормализованные сущности данных: { [entityId: string]: DashboardStatisticItem } */
 export interface DashboardDataEntities {
-  [entityId: string]: any[];
+  [entityId: string]: DashboardStatisticItem;
 }
 
 export interface DashboardDataDates {

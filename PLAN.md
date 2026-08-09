@@ -99,8 +99,11 @@
   - [x] Исправлены экспорты в entities/*/index.ts (убраны slice-экспорты)
   - [x] README обновлён (React 19, Zustand, React Router 7, MUI 9)
   - [x] lint: 0 errors, 0 warnings ✅
-  - [ ] tsc: ~500+ ошибок (часть предсуществующие, часть из-за несоответствия типов в новых state-schema)
-  - [ ] test: 28 failed suites (часть предсуществующие TextEncoder, часть new state-schema conflicts)
+  - [x] tsc: с 516 → 236 ошибок (state-schema синхронизированы, импорты исправлены, созданы недостающие модули)
+  - [x] test: frontend 170/192 (22 failed), backend 41/52 (11 failed — предсуществующие валидаторы)
+  - [x] Созданы недостающие модули: app/providers/store, features/partner/model/services, shared/api/features/transactions, shared/api/features/hints/dont-show-again, shared/api/features/user/*
+  - [x] Типы синхронизированы: ActivatedCopiedType (+type, id), PageLoadingItem (+name), UpdateViewItems/DeleteViews (+viewItems, bunchUpdatedMs)
+  - [x] Созданы state-schema для docs, hints, transactions, ui (соответствуют реальным Zustand-сторам)
 
 - [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)
 - [x] 3.5 PWA (vite-plugin-pwa + workbox)

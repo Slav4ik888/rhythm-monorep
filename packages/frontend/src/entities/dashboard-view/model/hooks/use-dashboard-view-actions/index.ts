@@ -5,7 +5,7 @@
 import { useMemo } from 'react';
 import { useDashboardViewStore } from '../../store';
 import type {
-  ActivatedCopied,
+  ActivatedCopiedType,
   StateSchemaDashboardView,
   SetDashboardViewItems,
   SetEditMode,
@@ -45,7 +45,7 @@ export const useDashboardViewActions = (config: Config = {}) => {
       clearActivatedMovementId: () => useDashboardViewStore.getState().clearActivatedMovementId(),
 
       // Copying
-      setActiveCopied: (data: ActivatedCopied) => useDashboardViewStore.getState().setActiveCopied(data),
+      setActiveCopied: (data: ActivatedCopiedType) => useDashboardViewStore.getState().setActiveCopied(data),
       clearActivatedCopied: () => useDashboardViewStore.getState().clearActivatedCopied(),
 
       // View

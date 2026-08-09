@@ -26,7 +26,7 @@ import { updateBunches } from './utils/update-bunches';
 import { updateChartsItem } from './utils/update-charts-item';
 import type {
   StateSchemaDashboardView,
-  ActivatedCopied,
+  ActivatedCopiedType,
   SetEditMode,
   SetDashboardViewItems,
   ChangeSelectedStyle,
@@ -78,7 +78,7 @@ interface DashboardViewActions {
   setIsUnsaved: (status: boolean) => void;
   setActiveMovementId: () => void;
   clearActivatedMovementId: () => void;
-  setActiveCopied: (data: ActivatedCopied) => void;
+  setActiveCopied: (data: ActivatedCopiedType) => void;
   clearActivatedCopied: () => void;
   updateViewItems: (data: PartialViewItem[]) => void;
   cancelUpdateViewItem: () => void;

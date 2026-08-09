@@ -42,15 +42,11 @@ export {
   arraySettingsDirection,
   arrayGaugeValueType,
 } from './consts';
-export type {
-  DashboardViewEntities,
-  StateSchemaDashboardView,
-  ActivatedCopiedType,
-  ActivatedCopied,
-} from './model/state-schema';
+export type { DashboardViewEntities, StateSchemaDashboardView, ActivatedCopiedType } from './model/state-schema';
 export type {
   SetDashboardViewItems,
   SetEditMode,
+  SetDashboardBunchesFromCache,
   ChangeOneChartsItem,
   ChangeOneDatasetsItem,
   ChangeOneSettingsField,
@@ -72,6 +68,7 @@ export type { ParentsViewItems } from './model/utils';
 export { useDashboardViewState, useDashboardViewActions } from './model/hooks';
 export { useDashboardViewStore } from './model/store';
 export type { DashboardViewStore } from './model/store';
+export type { ReqGetBunches } from './model/services';
 export { createViewItem } from './creators';
 export { NO_SHEET_ID, NO_PARENT_ID, ORDER_STEP, MAX_COUNT_BUNCH_VIEWITEMS } from './consts';
 export { ChipContainer } from './ui';

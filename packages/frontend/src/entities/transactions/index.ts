@@ -11,7 +11,7 @@ export { DbRefName } from './model/types';
 
 export { useTransactions } from './model/hooks';
 export { useTransactionsStore, type TransactionsStore } from './model/store';
-export type { StateSchemaTransactions } from './model/slice/state-schema';
+export type { StateSchemaTransactions } from './model/state-schema';
 
 export {
   createDocumentSet,
