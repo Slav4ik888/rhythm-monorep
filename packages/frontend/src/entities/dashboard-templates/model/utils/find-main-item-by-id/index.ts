@@ -1,7 +1,6 @@
 import { ViewItem } from 'entities/dashboard-view';
-import type { DashboardTemplatesEntities } from '../../slice/state-schema'
+import type { DashboardTemplatesEntities } from '../../state-schema';
 import { findTemplateBySelectedId } from '../find-template-by-selected-id';
-
 
 /**
  * Находит корневой элемент текущего шаблона, по id выбранного элемента
@@ -10,14 +9,14 @@ import { findTemplateBySelectedId } from '../find-template-by-selected-id';
  * @returns Template
  */
 export const findMainViewItemById = (
-  entities   : DashboardTemplatesEntities,
-  selectedId : string | undefined
+  entities: DashboardTemplatesEntities,
+  selectedId: string | undefined,
 ): ViewItem | undefined => {
-  if (! selectedId || ! entities) return undefined
+  if (!selectedId || !entities) return undefined;
 
   const template = findTemplateBySelectedId(entities, selectedId);
 
-  if (! template) return undefined
+  if (!template) return undefined;
 
-  return Object.values(template.viewItems).find(item => item.parentId === template.id);
-}
+  return Object.values(template.viewItems).find((item) => item.parentId === template.id);
+};

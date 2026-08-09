@@ -9,8 +9,7 @@ import { getPayloadError as getError } from 'shared/lib/errors';
 import type { DashboardPeriod } from '../types';
 import { PeriodType } from '../constants';
 import { getEntitiesByPeriod, calculateStartDate } from '../utils';
-import type { StateSchemaDashboardData } from './slice/state-schema';
-import type { SetActivePeriod, SetSelectedPeriod } from './slice/types';
+import type { StateSchemaDashboardData, SetActivePeriod, SetSelectedPeriod } from './state-schema';
 
 const emptyPeriod: DashboardPeriod = {
   type: PeriodType.NINE_MONTHS,

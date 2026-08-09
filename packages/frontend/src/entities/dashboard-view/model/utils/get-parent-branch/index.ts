@@ -1,6 +1,5 @@
-import type { DashboardViewEntities } from '../../slice/state-schema';
+import type { DashboardViewEntities } from '../../state-schema';
 import type { ViewItemId } from '../../../types';
-
 
 /** Возвращает ветку всех существующих родителей */
 export function getParentBranch(entities: DashboardViewEntities, targetId: ViewItemId | undefined) {
@@ -10,7 +9,8 @@ export function getParentBranch(entities: DashboardViewEntities, targetId: ViewI
 
   // Идем вверх по parentId, пока не достигнем корня (parentId === null)
   while (currentId && entities[currentId]) {
-    if (visitedIds.has(currentId)) { // Обнаружен цикл, прерываем выполнение
+    if (visitedIds.has(currentId)) {
+      // Обнаружен цикл, прерываем выполнение
       // console.warn(`Обнаружена циклическая зависимость: ${currentId} уже был посещён.`);
       break;
     }
@@ -18,7 +18,8 @@ export function getParentBranch(entities: DashboardViewEntities, targetId: ViewI
 
     const currentItem = entities[currentId];
     if (currentItem?.parentId) {
-      if (entities[currentItem.parentId]) { // Проверяем существует ли такой parentId
+      if (entities[currentItem.parentId]) {
+        // Проверяем существует ли такой parentId
         branch.push(currentItem.parentId);
       }
     }

@@ -1,29 +1,28 @@
-import { DashboardViewEntities } from '../../../slice/state-schema';
+import { DashboardViewEntities } from '../../../state-schema';
 import { ViewItem, ViewItemType } from '../../../../types';
 import { ViewItemChart } from 'entities/charts';
 import { getKod } from '..';
 
-
-
 describe('getKod', () => {
   // Хелперы для создания моковых данных
   const createItem = (
-    id       : string,
-    type     : ViewItemType,
-    settings : {
-      kod?           : string,
-      fromGlobalKod? : boolean,
-      isGlobalKod?   : boolean,
-      charts?        : ViewItemChart[]
+    id: string,
+    type: ViewItemType,
+    settings: {
+      kod?: string;
+      fromGlobalKod?: boolean;
+      isGlobalKod?: boolean;
+      charts?: ViewItemChart[];
     } = {},
-    parentId : string = ''
-  ): ViewItem => ({
-    id,
-    type,
-    settings,
-    parentId,
-    // другие необходимые поля...
-  } as ViewItem);
+    parentId: string = '',
+  ): ViewItem =>
+    ({
+      id,
+      type,
+      settings,
+      parentId,
+      // другие необходимые поля...
+    }) as ViewItem;
 
   const createChart = (kod?: string, fromGlobalKod?: boolean): ViewItemChart => ({
     kod,
@@ -101,17 +100,23 @@ describe('getKod', () => {
     it('should return item kod when fromGlobalKod is true but global kod is not set', () => {
       const entities: DashboardViewEntities = {
         1: createItem('1', 'box', { isGlobalKod: true, kod: '' }),
-        2: createItem('2', 'chart', {
-          charts: [{
-            fromGlobalKod: false,
-            kod: 'item-kod-1'
-          } as unknown as ViewItemChart,
+        2: createItem(
+          '2',
+          'chart',
           {
-            fromGlobalKod: true,
-            kod: 'item-kod-2'
-          }
-          ]
-        }, '1'),
+            charts: [
+              {
+                fromGlobalKod: false,
+                kod: 'item-kod-1',
+              } as unknown as ViewItemChart,
+              {
+                fromGlobalKod: true,
+                kod: 'item-kod-2',
+              },
+            ],
+          },
+          '1',
+        ),
       };
       const chart = createChart('item-kod-2', true);
 
@@ -121,17 +126,23 @@ describe('getKod', () => {
     it('should return item kod when fromGlobalKod is false but global kod is set', () => {
       const entities: DashboardViewEntities = {
         1: createItem('1', 'box', { isGlobalKod: true, kod: 'global-kod' }),
-        2: createItem('2', 'chart', {
-          charts: [{
-            fromGlobalKod: true,
-            kod: 'item-kod-1'
-          } as unknown as ViewItemChart,
+        2: createItem(
+          '2',
+          'chart',
           {
-            fromGlobalKod: false,
-            kod: 'item-kod-2'
-          }
-          ]
-        }, '1'),
+            charts: [
+              {
+                fromGlobalKod: true,
+                kod: 'item-kod-1',
+              } as unknown as ViewItemChart,
+              {
+                fromGlobalKod: false,
+                kod: 'item-kod-2',
+              },
+            ],
+          },
+          '1',
+        ),
       };
       const chart = createChart('item-kod-2', false);
 

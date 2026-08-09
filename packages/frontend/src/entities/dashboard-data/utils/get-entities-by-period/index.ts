@@ -1,32 +1,28 @@
 import type { DashboardPeriodDates, DashboardStatisticItem } from '../../types';
 import { getStartIdx } from './get-start-idx';
 import { getEndIdx } from './get-end-idx';
-import type { DashboardDataDates, DashboardDataEntities } from '../../model/slice/state-schema';
-
-
+import type { DashboardDataDates, DashboardDataEntities } from '../../model/state-schema';
 
 export interface PayloadGetEntitiesByPeriod {
-  activeEntities : DashboardDataEntities
-  activeDates    : DashboardDataDates
+  activeEntities: DashboardDataEntities;
+  activeDates: DashboardDataDates;
 }
-
 
 /** Returns startEntities & startDates by period  */
 export function getEntitiesByPeriod(
-  startEntities : DashboardDataEntities,
-  startDates    : DashboardDataDates,
-  period        : DashboardPeriodDates
+  startEntities: DashboardDataEntities,
+  startDates: DashboardDataDates,
+  period: DashboardPeriodDates,
 ): PayloadGetEntitiesByPeriod {
   const activeEntities: DashboardDataEntities = {};
   const activeDates: DashboardDataDates = {};
-
 
   // Обрабатываем каждую вкладку
   /* eslint-disable no-restricted-syntax */
   for (const periodType in startDates) {
     if (Object.prototype.hasOwnProperty.call(startDates, periodType)) {
       const startIdx = getStartIdx(startDates[periodType], period);
-      const endIdx   = getEndIdx(startDates[periodType], period);
+      const endIdx = getEndIdx(startDates[periodType], period);
       activeDates[periodType] = [...startDates[periodType].slice(startIdx, endIdx + 1)];
 
       // Перебрать все startEntities и для текущего periodType обрезать нужный период дат
@@ -45,6 +41,6 @@ export function getEntitiesByPeriod(
 
   return {
     activeEntities,
-    activeDates
-  }
+    activeDates,
+  };
 }

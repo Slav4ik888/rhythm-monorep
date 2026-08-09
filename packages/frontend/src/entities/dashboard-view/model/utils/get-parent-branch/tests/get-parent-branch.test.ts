@@ -1,7 +1,5 @@
-import { DashboardViewEntities } from '../../../slice/state-schema';
+import { DashboardViewEntities } from '../../../state-schema';
 import { getParentBranch } from '..';
-
-
 
 describe('getParentBranch', () => {
   // Мок данных (хэш-таблица entities)
@@ -42,7 +40,7 @@ describe('getParentBranch', () => {
       A: { id: 'A', parentId: 'B' },
       B: { id: 'B', parentId: 'A' }, // A → B → A → ...
     } as unknown as DashboardViewEntities;
-    expect(getParentBranch(cyclicEntities, 'A')).toEqual(['B',  'A']);
+    expect(getParentBranch(cyclicEntities, 'A')).toEqual(['B', 'A']);
     // Или можно ожидать, что функция остановится после первого цикла
   });
 

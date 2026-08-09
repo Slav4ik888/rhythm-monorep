@@ -1,14 +1,14 @@
-import type { DashboardViewEntities } from '../../slice/state-schema';
+import type { DashboardViewEntities } from '../../state-schema';
 import type { ViewItemId } from '../../../types';
 import { getParentBranch } from '../get-parent-branch';
 
 export function isFirstGlobalKodInBranch(
-  entities   : DashboardViewEntities,
-  selectedId : ViewItemId,
-  targetId   : ViewItemId,
+  entities: DashboardViewEntities,
+  selectedId: ViewItemId,
+  targetId: ViewItemId,
 ): boolean {
   const branch = getParentBranch(entities, selectedId);
-  if (! branch || ! branch.length) return false;
+  if (!branch || !branch.length) return false;
 
   // Ищем первого родителя с isGlobalKod === true в ветке
   /* eslint-disable-next-line */

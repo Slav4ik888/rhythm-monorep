@@ -24,8 +24,9 @@ import { getBunchesFromViewItems } from './utils/get-bunches-from-viewitems';
 import { getBunchesTimestamps } from './utils/get-bunches-timestamps';
 import { updateBunches } from './utils/update-bunches';
 import { updateChartsItem } from './utils/update-charts-item';
-import type { StateSchemaDashboardView, ActivatedCopied } from './slice/state-schema';
 import type {
+  StateSchemaDashboardView,
+  ActivatedCopied,
   SetEditMode,
   SetDashboardViewItems,
   ChangeSelectedStyle,
@@ -33,7 +34,7 @@ import type {
   ChangeOneChartsItem,
   ChangeOneDatasetsItem,
   SetDashboardBunchesFromCache,
-} from './slice/types';
+} from './state-schema';
 import type { UpdateViewItems, DeleteViews } from 'shared/api/features/dashboard-view';
 import { createGroupViewItems as createGroupViewItemsApi } from 'shared/api/features/dashboard-view';
 import type { Errors } from 'shared/lib/validators';

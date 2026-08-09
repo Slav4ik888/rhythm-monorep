@@ -1,5 +1,6 @@
+// packages/frontend/src/shared/lib/hooks/index.ts
+
 export * from './set-is-change';
-export * from './use-app-dispatch';
 export * from './use-array';
 export * from './use-bool';
 export * from './use-click-outside';

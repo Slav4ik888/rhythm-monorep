@@ -1,6 +1,6 @@
 /* eslint-disable quote-props */
 import { isClickInsideViewItem } from '..';
-import { DashboardViewEntities } from '../../../slice/state-schema';
+import { DashboardViewEntities } from '../../../state-schema';
 
 describe('isClickInsideViewItem', () => {
   const mockEntities = {

@@ -6,7 +6,7 @@ import { LS } from 'shared/lib/local-storage';
 import { PeriodType } from '../constants';
 import * as utils from '../utils';
 import type { DashboardPeriod } from '../types';
-import type { StateSchemaDashboardData } from './slice/state-schema';
+import type { StateSchemaDashboardData } from './state-schema';
 
 // Мокаем LS
 jest.mock('shared/lib/local-storage', () => ({

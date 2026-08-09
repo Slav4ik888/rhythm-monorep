@@ -1,17 +1,16 @@
-import { DashboardViewEntities } from '../../../slice/state-schema';
+import { DashboardViewEntities } from '../../../state-schema';
 import { ViewItem, ViewItemId } from '../../../../types';
 import { getFirstItemInBranchWithGlobalKod } from '..';
 
-
-
 describe('getFirstItemInBranchWithGlobalKod', () => {
   // Мок данных для entities
-  const createEntity = (id: ViewItemId, isGlobalKod: boolean, parentId: ViewItemId = ''): ViewItem => ({
-    id,
-    settings: { isGlobalKod },
-    parentId,
-    // другие необходимые поля...
-  } as ViewItem);
+  const createEntity = (id: ViewItemId, isGlobalKod: boolean, parentId: ViewItemId = ''): ViewItem =>
+    ({
+      id,
+      settings: { isGlobalKod },
+      parentId,
+      // другие необходимые поля...
+    }) as ViewItem;
 
   it('should return undefined for empty branch', () => {
     const entities: DashboardViewEntities = {};

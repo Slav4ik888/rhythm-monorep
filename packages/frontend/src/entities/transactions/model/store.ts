@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { Errors } from 'shared/lib/validators';
 import { getPayloadError as getError } from 'shared/lib/errors';
-import type { StateSchemaTransactions } from './slice/state-schema';
+import type { StateSchemaTransactions } from './state-schema';
 
 const initialState: StateSchemaTransactions = {
   loading: false,

@@ -1,11 +1,9 @@
 import { DashboardPeriodDates } from '../../../../types';
 import { getStartIdx } from '..';
-import { DashboardDataDates } from '../../../../model/slice/state-schema';
-
-
+import { DashboardDataDates } from '../../../../model/state-schema';
 
 const startDates: DashboardDataDates = {
-  мес : [
+  мес: [
     1674669600000, // 1
     1677088800000, // 2
     1680112800000, // 3
@@ -25,7 +23,7 @@ const startDates: DashboardDataDates = {
     1717005600000, // 17
     1719424800000, // 18
     1721844000000, // 19
-    1724868000000  // 20
+    1724868000000, // 20
   ],
   нед: [
     1682532000000, // 1
@@ -47,18 +45,18 @@ const startDates: DashboardDataDates = {
     1724868000000, // 17
     1724868000000, // 18
     1724868000000, // 19
-    1724868000000  // 20
-  ]
+    1724868000000, // 20
+  ],
 };
-
-
 
 describe('getStartIdx', () => {
   test('valid data', () => {
-    expect(getStartIdx(startDates['мес'], {
-      start : 1690491600001, // "2023-07-27T21:00:00.001Z"
-      end   : 1714165200001  // "2024-04-26T21:00:00.001Z"
-    })).toEqual(7);
+    expect(
+      getStartIdx(startDates['мес'], {
+        start: 1690491600001, // "2023-07-27T21:00:00.001Z"
+        end: 1714165200001, // "2024-04-26T21:00:00.001Z"
+      }),
+    ).toEqual(7);
   });
 
   test('period is undefined', () => {
@@ -66,16 +64,20 @@ describe('getStartIdx', () => {
   });
 
   test('period start -1690491600001', () => {
-    expect(getStartIdx(startDates['мес'], {
-      start : -1690491600001,
-      end   : 1714165200001  // "2024-04-26T21:00:00.001Z"
-    })).toEqual(0);
+    expect(
+      getStartIdx(startDates['мес'], {
+        start: -1690491600001,
+        end: 1714165200001, // "2024-04-26T21:00:00.001Z"
+      }),
+    ).toEqual(0);
   });
   test('period start is undefined', () => {
-    expect(getStartIdx(startDates['мес'], {
-      start : undefined,
-      end   : 1714165200001  // "2024-04-26T21:00:00.001Z"
-    })).toEqual(0);
+    expect(
+      getStartIdx(startDates['мес'], {
+        start: undefined,
+        end: 1714165200001, // "2024-04-26T21:00:00.001Z"
+      }),
+    ).toEqual(0);
   });
 });
 

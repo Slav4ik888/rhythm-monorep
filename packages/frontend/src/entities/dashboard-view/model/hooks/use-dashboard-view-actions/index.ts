@@ -4,8 +4,9 @@
 
 import { useMemo } from 'react';
 import { useDashboardViewStore } from '../../store';
-import type { ActivatedCopied, StateSchemaDashboardView } from '../../slice/state-schema';
 import type {
+  ActivatedCopied,
+  StateSchemaDashboardView,
   SetDashboardViewItems,
   SetEditMode,
   ChangeOneChartsItem,
@@ -13,7 +14,7 @@ import type {
   ChangeOneSettingsField,
   ChangeSelectedStyle,
   SetDashboardBunchesFromCache,
-} from '../../slice/types';
+} from '../../state-schema';
 import type { Errors } from 'shared/lib/validators';
 import type { PartialViewItem, ViewItemId, ViewItemStyles } from '../../../types';
 import { useDashboardViewState } from '../use-dashboard-view-state';

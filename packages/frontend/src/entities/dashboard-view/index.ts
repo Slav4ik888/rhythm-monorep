@@ -42,13 +42,12 @@ export {
   arraySettingsDirection,
   arrayGaugeValueType,
 } from './consts';
-export { actions as actionsDashboardView, reducer as reducerDashboardView } from './model/slice';
 export type {
   DashboardViewEntities,
   StateSchemaDashboardView,
   ActivatedCopiedType,
   ActivatedCopied,
-} from './model/slice/state-schema';
+} from './model/state-schema';
 export type {
   SetDashboardViewItems,
   SetEditMode,
@@ -56,7 +55,7 @@ export type {
   ChangeOneDatasetsItem,
   ChangeOneSettingsField,
   ChangeSelectedStyle,
-} from './model/slice/types';
+} from './model/state-schema';
 export {
   getInitialState,
   stylesToSx,
@@ -77,5 +76,3 @@ export { createViewItem } from './creators';
 export { NO_SHEET_ID, NO_PARENT_ID, ORDER_STEP, MAX_COUNT_BUNCH_VIEWITEMS } from './consts';
 export { ChipContainer } from './ui';
 export type { SxChipContainer } from './ui';
-export { getBunches } from './model/services';
-export type { ReqGetBunches } from './model/services';

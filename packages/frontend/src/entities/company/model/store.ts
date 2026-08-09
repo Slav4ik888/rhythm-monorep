@@ -6,7 +6,15 @@ import { getPayloadError as getError } from 'shared/lib/errors';
 import { LS } from 'shared/lib/local-storage';
 import { updateObject } from 'shared/helpers/objects';
 import type { Company, CustomSettings, ParamsCompany } from '../types';
-import type { StateSchemaCompany } from './slice/state-schema';
+
+export interface StateSchemaCompany {
+  loading: boolean;
+  errors: Errors;
+  company: Company;
+  paramsCompany: ParamsCompany;
+  storedCompany: ParamsCompany;
+  _isParamsCompanyIdLoaded: boolean;
+}
 
 const initialState: StateSchemaCompany = {
   loading: false,

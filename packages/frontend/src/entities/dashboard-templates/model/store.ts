@@ -5,11 +5,16 @@
 import { create } from 'zustand';
 import { Errors } from 'shared/lib/validators';
 import { getPayloadError as getError } from 'shared/lib/errors';
-import type { StateSchemaDashboardTemplates } from './slice/state-schema';
+import type { StateSchemaDashboardTemplates } from './state-schema';
 import type { ViewItem, ViewItemId } from 'entities/dashboard-view';
 import type { Template } from './types';
 import { updateEntities } from 'entities/base';
-import type { DeleteTemplate, UpdateTemplate } from 'shared/api/features/dashboard-templates';
+import type {
+  DeleteTemplateReq,
+  DeleteTemplateRes,
+  UpdateTemplateReq,
+  UpdateTemplateRes,
+} from 'shared/api/features/dashboard-templates';
 import { LS } from 'shared/lib/local-storage';
 import type { BunchesUpdated } from 'shared/lib/structures/bunch';
 import { findMainViewItemById, findTemplateBySelectedId, isThisTemplate as isThisTemplateFunc } from './utils';
@@ -42,8 +47,8 @@ interface DashboardTemplatesActions {
   cancelUpdateTemplate: () => void;
   serviceGetBunchesUpdated: () => Promise<void>;
   serviceGetTemplates: (data: { bunchIds: string[] }) => Promise<void>;
-  serviceUpdateTemplate: (data: UpdateTemplate) => Promise<void>;
-  serviceDeleteTemplate: (data: DeleteTemplate) => Promise<void>;
+  serviceUpdateTemplate: (data: UpdateTemplateReq) => Promise<void>;
+  serviceDeleteTemplate: (data: DeleteTemplateReq) => Promise<void>;
 }
 
 export type DashboardTemplatesStore = StateSchemaDashboardTemplates & DashboardTemplatesActions;
@@ -210,7 +215,7 @@ export const useDashboardTemplatesStore = create<DashboardTemplatesStore>((set, 
   serviceUpdateTemplate: async (payload) => {
     set({ loading: true, errors: {} });
     try {
-      const { data } = await api.post<UpdateTemplate>(API_PATHS.templates.update, payload);
+      const { data } = await api.post<UpdateTemplateRes>(API_PATHS.templates.update, payload);
       const { template, bunchUpdatedMs, fullSet } = data;
 
       const currentState = get();
@@ -245,7 +250,7 @@ export const useDashboardTemplatesStore = create<DashboardTemplatesStore>((set, 
   serviceDeleteTemplate: async (payload) => {
     set({ loading: true, errors: {} });
     try {
-      const { data } = await api.post<DeleteTemplate>(API_PATHS.templates.delete, payload);
+      const { data } = await api.post<DeleteTemplateRes>(API_PATHS.templates.delete, payload);
       const { templateId, bunchUpdatedMs, bunchId } = data;
 
       const currentState = get();

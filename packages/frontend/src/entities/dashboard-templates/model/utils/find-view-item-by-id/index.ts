@@ -1,7 +1,5 @@
 import { ViewItem } from 'entities/dashboard-view';
-import type { DashboardTemplatesEntities } from '../../slice/state-schema'
-
-
+import type { DashboardTemplatesEntities } from '../../state-schema';
 
 /**
  * По id выбранного элемента находит этот элемент среди шаблонов
@@ -11,19 +9,19 @@ import type { DashboardTemplatesEntities } from '../../slice/state-schema'
  */
 export const findViewItemById = (
   entities: DashboardTemplatesEntities,
-  selectedId: string | undefined
+  selectedId: string | undefined,
 ): ViewItem | undefined => {
-  if (! selectedId || ! entities) return undefined
+  if (!selectedId || !entities) return undefined;
 
   let result: ViewItem | undefined;
 
   Object.entries(entities).forEach(([key, entity]) => {
-    const viewItem = Object.values(entity.viewItems).find(item => item.id === selectedId);
+    const viewItem = Object.values(entity.viewItems).find((item) => item.id === selectedId);
 
     if (result === undefined && viewItem) {
       result = viewItem;
     }
-  })
+  });
 
   return result;
-}
+};

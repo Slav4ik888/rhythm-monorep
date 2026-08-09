@@ -2,10 +2,9 @@
 
 import { FC, memo, useEffect } from 'react';
 import { Sidebar } from 'widgets/sidebar';
-import { DynamicModuleLoader, ReducersList } from 'shared/lib/components';
 import { DashboardBody } from './body';
 import { SidebarRegulatorWrapper } from 'shared/ui/wrappers';
-import { reducerDashboardView, getBunchesToUpdate, NO_SHEET_ID } from 'entities/dashboard-view';
+import { getBunchesToUpdate, NO_SHEET_ID } from 'entities/dashboard-view';
 import { useLocation } from 'react-router-dom';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { useAccess, useCompany } from 'entities/company';
@@ -16,10 +15,6 @@ import { useDashboardGetData } from 'features/dashboard-data';
 import { useUI } from 'entities/ui';
 import { useUser } from 'entities/user';
 import { removeJivoSite } from 'shared/lib/remove-jivo';
-
-const initialReducers: ReducersList = {
-  dashboardView: reducerDashboardView,
-};
 
 export const DashboardPageContainer: FC = memo(() => {
   const { auth } = useUser();
@@ -79,12 +74,12 @@ export const DashboardPageContainer: FC = memo(() => {
   );
 
   return (
-    <DynamicModuleLoader reducers={initialReducers}>
+    <>
       <Sidebar />
 
       <SidebarRegulatorWrapper body>
         <DashboardBody />
       </SidebarRegulatorWrapper>
-    </DynamicModuleLoader>
+    </>
   );
 });

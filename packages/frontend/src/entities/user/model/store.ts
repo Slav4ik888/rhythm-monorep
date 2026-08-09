@@ -7,7 +7,14 @@ import { LS } from 'shared/lib/local-storage';
 import { Errors } from 'shared/lib/validators';
 import { creatorUser } from '../lib/creators';
 import type { PartialUser, User } from '../types';
-import type { StateSchemaUser } from './slice/state-schema';
+
+export interface StateSchemaUser {
+  _isLoaded: boolean;
+  loading: boolean;
+  errors: Errors;
+  auth: boolean;
+  user: User;
+}
 
 const initialState: StateSchemaUser = {
   _isLoaded: false,

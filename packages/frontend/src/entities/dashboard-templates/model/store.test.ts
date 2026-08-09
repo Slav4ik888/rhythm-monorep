@@ -16,7 +16,7 @@ import {
   selectIsUnsaved,
 } from './store';
 import { LS } from 'shared/lib/local-storage';
-import type { StateSchemaDashboardTemplates } from './slice/state-schema';
+import type { StateSchemaDashboardTemplates } from './state-schema';
 import type { ViewItem } from 'entities/dashboard-view';
 import type { Template } from './types';
 

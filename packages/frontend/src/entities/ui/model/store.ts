@@ -7,7 +7,7 @@ import { Errors } from 'shared/lib/validators';
 import type { Message } from '../types/messages';
 import { MessageType } from '../types/messages';
 import { getScreenFormats, getScreenSize, isAcceptCookie } from './utils';
-import type { PageLoading, PageLoadingType, StateSchemaUI } from './slice/state-schema';
+import type { PageLoading, PageLoadingType, StateSchemaUI } from './state-schema';
 
 const initialState: StateSchemaUI = {
   loading: false,

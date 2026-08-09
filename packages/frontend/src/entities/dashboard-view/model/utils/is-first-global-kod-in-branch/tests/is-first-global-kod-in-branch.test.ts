@@ -1,6 +1,5 @@
-import { DashboardViewEntities } from '../../../slice/state-schema';
+import { DashboardViewEntities } from '../../../state-schema';
 import { isFirstGlobalKodInBranch } from '..';
-
 
 describe('isFirstGlobalKodInBranch', () => {
   const entities = {

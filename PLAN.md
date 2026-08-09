@@ -40,7 +40,7 @@
 
 ## Этап 3: Технологические улучшения
 
-- [ ] 3.1 React 18 → React 19 (установлены пакеты, исправлен JSX namespace)
+- [x] 3.1 React 18 → React 19 (установлены пакеты, исправлен JSX namespace)
 - [x] 3.2 React Router 6 → React Router 7 (пакеты обновлены)
 - [x] 3.3 Redux Toolkit → Zustand — миграция entities/ui выполнена (zustand стор + хук + замена 12 файлов с actionsUI → useUIStore.getState())
 - [x] 3.3.0 Удалить Redux-слайс UI из store (Zustand уже работает, reducerUI — мёртвый груз)
@@ -88,6 +88,20 @@
   - Плагин не установился из-за конфликта `@types/react@^19.2.18` (override) с прямой зависимостью
   - После установки включить `@typescript-eslint/no-unused-vars` и запустить `--fix`
   - Текущий статус: правило отключено, ~260 неиспользуемых переменных/импортов в кодовой базе
+- [x] 3.3.12 Полное удаление Redux из production-кода:
+  - [x] StoreProvider удалён из index.tsx
+  - [x] DynamicModuleLoader удалён из pages/dashboard и pages/user-profile
+  - [x] Удалены все папки: Redux-слайсы, селекторы, сервисы, app/providers/store, shared/lib/components, shared/lib/tests/store, shared/lib/hooks/use-app-dispatch
+  - [x] Удалены пакеты @reduxjs/toolkit, react-redux, @types/react-redux из package.json
+  - [x] Восстановлены API-функции (company, dashboard-templates, dashboard-view) как чистые async-функции
+  - [x] Восстановлены state-schema.ts для dashboard-data, dashboard-templates, dashboard-view
+  - [x] Массовая замена импортов `slice/state-schema` → `state-schema`, `slice/types` → `state-schema`
+  - [x] Исправлены экспорты в entities/*/index.ts (убраны slice-экспорты)
+  - [x] README обновлён (React 19, Zustand, React Router 7, MUI 9)
+  - [x] lint: 0 errors, 0 warnings ✅
+  - [ ] tsc: ~500+ ошибок (часть предсуществующие, часть из-за несоответствия типов в новых state-schema)
+  - [ ] test: 28 failed suites (часть предсуществующие TextEncoder, часть new state-schema conflicts)
+
 - [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)
 - [x] 3.5 PWA (vite-plugin-pwa + workbox)
 - [ ] 3.6 Koa → NestJS + Fastify

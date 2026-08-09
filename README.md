@@ -17,7 +17,7 @@ PWA-приложение для визуализации бизнес-данны
 ## Требования
 
 | Инструмент | Версия |
-|------------|--------|
+| ---------- | ------ |
 | Node.js    | 20+    |
 | npm        | 10+    |
 
@@ -43,6 +43,7 @@ npm run dev -w packages/backend    # Бэкенд (Koa, порт 7575)
 ```
 
 После запуска:
+
 - **Фронтенд:** http://localhost:3000
 - **Бэкенд API:** http://localhost:7575
 
@@ -156,7 +157,7 @@ npm run lint:fix
 
 ## Стек технологий
 
-- **Фронтенд:** React 18, TypeScript, Vite, MUI 7, Redux Toolkit, React Router 6, Chart.js, Highcharts
+- **Фронтенд:** React 19, TypeScript, Vite, MUI 9, Zustand, React Router 7, Chart.js, Highcharts
 - **Бэкенд:** Koa, TypeScript, Firebase Admin SDK, Redis, Winston
 - **База данных:** Firebase Firestore
 - **Аутентификация:** Firebase Auth (email/пароль)

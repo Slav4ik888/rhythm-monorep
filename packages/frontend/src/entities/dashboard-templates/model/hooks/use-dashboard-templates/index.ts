@@ -20,7 +20,7 @@ import {
   selectIsUnsaved,
 } from '../../store';
 import { Errors } from 'shared/lib/validators';
-import type { StateSchemaDashboardTemplates } from '../../slice/state-schema';
+import type { StateSchemaDashboardTemplates } from '../../state-schema';
 import { ViewItemId } from 'entities/dashboard-view';
 import type { DeleteTemplate, UpdateTemplate } from 'shared/api/features/dashboard-templates';
 

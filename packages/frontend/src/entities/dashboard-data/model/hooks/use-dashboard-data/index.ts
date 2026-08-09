@@ -4,8 +4,7 @@
 
 import { useDashboardDataStore } from '../../store';
 import { Errors } from 'shared/lib/validators';
-import type { StateSchemaDashboardData } from '../../slice/state-schema';
-import type { SetActivePeriod, SetSelectedPeriod } from '../../slice/types';
+import type { StateSchemaDashboardData, SetActivePeriod, SetSelectedPeriod } from '../../state-schema';
 import { useMemo } from 'react';
 import { sortingArr } from 'shared/helpers/sorting';
 

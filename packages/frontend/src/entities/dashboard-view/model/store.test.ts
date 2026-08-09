@@ -3,7 +3,7 @@
 // Основаны на тестах Redux-слайса (slice/tests/slice.test.ts)
 
 import { useDashboardViewStore } from './store';
-import type { StateSchemaDashboardView } from './slice/state-schema';
+import type { StateSchemaDashboardView } from './state-schema';
 import type { ViewItem } from '../types';
 import { LS } from 'shared/lib/local-storage';
 

@@ -1,7 +1,5 @@
-import type { DashboardViewEntities } from '../../slice/state-schema';
+import type { DashboardViewEntities } from '../../state-schema';
 import { getParentBranch } from '../get-parent-branch';
-
-
 
 /**
  * Проверяет, нажали внутрь элемента (на его потомка) или нет.
@@ -12,7 +10,7 @@ import { getParentBranch } from '../get-parent-branch';
  * нужно будет поменять parentId на parentId перемещаемого элемента.
  */
 export const isClickInsideViewItem = (
-  entities            : DashboardViewEntities,
-  activatedMovementId : string, // Id элемента который хотим переместить
-  id                  : string  // Id куда хотим поместить
-) => Boolean(getParentBranch(entities, id).find(parentId => parentId === activatedMovementId));
+  entities: DashboardViewEntities,
+  activatedMovementId: string, // Id элемента который хотим переместить
+  id: string, // Id куда хотим поместить
+) => Boolean(getParentBranch(entities, id).find((parentId) => parentId === activatedMovementId));
