@@ -19,7 +19,7 @@ export interface StateSchema {
   // Entities
   ui?: StateSchemaUI; // UI переведён на Zustand, Redux-слайс удалён
   user?: StateSchemaUser; // User переведён на Zustand, Redux-слайс удалён
-  company: StateSchemaCompany;
+  company?: StateSchemaCompany; // Company переведён на Zustand, Redux-слайс удалён
   docs?: StateSchemaDocs; // Docs переведён на Zustand, Redux-слайс удалён
   hints?: StateSchemaHints; // Hints переведён на Zustand, Redux-слайс удалён
 

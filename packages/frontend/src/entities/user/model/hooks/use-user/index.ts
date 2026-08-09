@@ -6,11 +6,8 @@ import { Errors } from 'shared/lib/validators';
 import type { ReqGetAuth } from '../../services';
 import { getAuth } from '../../services';
 import { api as axiosApi } from 'shared/api';
-import { useAppDispatch } from 'shared/lib/hooks';
 
 export const useUser = () => {
-  const dispatch = useAppDispatch(); // Временно, для getAuth → errorHandlers/dispatch(actionsCompany)
-
   const _isLoaded = useUserStore((state) => state._isLoaded);
   const loading = useUserStore((state) => state.loading);
   const errors = useUserStore((state) => state.errors);
@@ -29,9 +26,9 @@ export const useUser = () => {
     () => ({
       setErrors: (err: Errors) => useUserStore.getState().setErrors(err),
       clearErrors: () => useUserStore.getState().clearErrors(),
-      serviceGetAuth: (data: ReqGetAuth) => getAuth(data, axiosApi, dispatch),
+      serviceGetAuth: (data: ReqGetAuth) => getAuth(data, axiosApi),
     }),
-    [dispatch],
+    [],
   );
 
   return {

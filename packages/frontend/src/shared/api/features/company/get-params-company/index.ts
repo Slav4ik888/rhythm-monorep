@@ -1,14 +1,12 @@
 // packages/frontend/src/shared/api/features/company/get-params-company/index.ts
 
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { ThunkConfig, errorHandlers, CustomAxiosError } from 'app/providers/store';
-import { ParamsCompany } from 'entities/company';
+import { ParamsCompany, useCompanyStore } from 'entities/company';
+import { useUIStore } from 'entities/ui';
+import { api } from '../../..';
 import { API_PATHS } from '../../../api-paths';
-import { Errors } from 'shared/lib/validators';
 import { LS } from 'shared/lib/local-storage';
 import cfg from 'app/config';
 import { cloneObj } from 'shared/helpers/objects';
-import { useUIStore } from 'entities/ui';
 
 export interface ReqGetCompany {
   companyId: string;
@@ -20,12 +18,8 @@ export interface SetParamsCompany {
 }
 
 /** Возвращает данные компании. */
-export const getParamsCompany = createAsyncThunk<
-  SetParamsCompany, // ResData
-  ReqGetCompany, // ReqData
-  ThunkConfig<Errors>
->('features/company/getParamsCompany', async (companyData, thunkApi) => {
-  const { extra, dispatch, rejectWithValue } = thunkApi;
+export const getParamsCompany = async (companyData: ReqGetCompany) => {
+  useCompanyStore.getState().startLoading();
 
   try {
     let paramsCompany = {} as ParamsCompany;
@@ -35,19 +29,18 @@ export const getParamsCompany = createAsyncThunk<
     if (cfg.IS_DEV) {
       paramsCompany = LS.getParamsCompanyState() as ParamsCompany;
     } else {
-      const { data } = await extra.api.post<ParamsCompany>(API_PATHS.paramsCompany.get, companyData);
+      const { data } = await api.post<ParamsCompany>(API_PATHS.paramsCompany.get, companyData);
       paramsCompany = cloneObj(data);
     }
 
     useUIStore.getState().setPageLoading({ 'get-params-company': { text: '', name: 'getParamsCompany' } });
 
-    return { paramsCompany };
-  } catch (e) {
-    errorHandlers(e as CustomAxiosError, dispatch);
-    return rejectWithValue(
-      (e as CustomAxiosError).response.data || {
+    useCompanyStore.getState().finishGetParamsCompany(paramsCompany);
+  } catch (e: any) {
+    useCompanyStore.getState().failGetParamsCompany(
+      e?.response?.data || {
         general: 'Error in features/company/getParamsCompany',
       },
     );
   }
-});
+};

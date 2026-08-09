@@ -7,7 +7,7 @@ import { getCookie } from './utils';
 import { useUserStore, User } from 'entities/user';
 import { Errors } from 'shared/lib/validators';
 import { API_PATHS } from 'shared/api';
-import { actionsCompany, Company } from 'entities/company';
+import { useCompanyStore, Company } from 'entities/company';
 import { LS } from 'shared/lib/local-storage';
 import { userApi } from 'shared/api/features/user';
 
@@ -56,7 +56,7 @@ export const authByLogin = createAsyncThunk<undefined, AuthByLogin, ThunkConfig<
       // End check dontShowAgain
 
       useUserStore.getState().setUser(user.companyId, user);
-      dispatch(actionsCompany.setCompany({ company }));
+      useCompanyStore.getState().setCompany(company);
     } catch (e) {
       errorHandlers(e as CustomAxiosError, dispatch);
       return rejectWithValue(

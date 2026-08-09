@@ -2,7 +2,7 @@
 
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CustomAxiosError, errorHandlers, ThunkConfig } from 'app/providers/store';
-import { actionsCompany, Company } from 'entities/company';
+import { useCompanyStore, Company } from 'entities/company';
 import { Errors } from 'shared/lib/validators';
 import { userApi } from '../api';
 import { useUserStore } from 'entities/user';
@@ -20,7 +20,7 @@ export const logout = createAsyncThunk<undefined, undefined, ThunkConfig<Errors>
       userApi.logout(extra.api);
 
       useUserStore.getState().clearUser();
-      dispatch(actionsCompany.setCompany({ company: {} as Company }));
+      useCompanyStore.getState().setCompany({} as Company);
     } catch (e) {
       errorHandlers(e as CustomAxiosError, dispatch);
       return rejectWithValue({ general: 'Error in features/user/logout' });

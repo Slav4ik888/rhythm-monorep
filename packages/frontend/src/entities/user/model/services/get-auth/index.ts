@@ -1,7 +1,7 @@
 // packages/frontend/src/entities/user/model/services/get-auth/index.ts
 
 import { CustomAxiosError, errorHandlers } from 'app/providers/store';
-import { actionsCompany, Company } from 'entities/company';
+import { useCompanyStore, Company } from 'entities/company';
 import { API_PATHS } from 'shared/api';
 import { Errors } from 'shared/lib/validators';
 import type { User } from '../../../types';
@@ -26,7 +26,7 @@ interface ResGetAuth {
 export const getAuth = async (
   { pathname }: ReqGetAuth,
   api: AxiosInstance,
-  dispatch: any, // Остаётся для dispatch(actionsCompany) и errorHandlers, пока company на Redux
+  dispatch?: any, // Для errorHandlers
 ) => {
   const store = useUserStore.getState();
   store.startLoading();
@@ -53,7 +53,7 @@ export const getAuth = async (
 
     if (company) {
       // Чтобы при отсутствии данных, не затёрлись имеющиеся в LS
-      dispatch(actionsCompany.setCompany({ company }));
+      useCompanyStore.getState().setCompany(company);
     }
 
     useUIStore.getState().setPageLoading({ 'get-auth': { text: '', name: 'getAuth' } });

@@ -4,14 +4,10 @@ import { configureStore, ReducersMapObject } from '@reduxjs/toolkit';
 import type { StateSchema } from './state';
 import { createReducerManager } from './reducer-manager';
 import { api } from 'shared/api';
-import { reducerCompany } from 'entities/company';
 
 export function createReduxStore(initialState?: StateSchema, asyncReducers?: ReducersMapObject<StateSchema>) {
   const rootReducers: ReducersMapObject<StateSchema> = {
       ...asyncReducers,
-
-      // Entities
-      company: reducerCompany,
     },
     reducerManager = createReducerManager(rootReducers),
     extraArg = {

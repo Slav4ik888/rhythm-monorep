@@ -55,8 +55,11 @@
 - [x] 3.3.4 Мигрировать entities/user (77 строк, средняя сложность, 1 asyncThunk: getAuth)
   - Zustand-стор + тесты (15/15 passed), getAuth переписан с createAsyncThunk на прямую функцию
   - reducerUser убран из Redux store, user?: сделан опциональным в StateSchema
-- [ ] 3.3.5 Мигрировать entities/company (118 строк, средняя сложность, 3 asyncThunk)
-  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [x] 3.3.5 Мигрировать entities/company (118 строк, средняя сложность, 3 asyncThunk)
+  - Zustand-стор + тесты (23/23 passed), getParamsCompany/updateCompany/deleteSheet переписаны с createAsyncThunk на прямые async-функции
+  - reducerCompany убран из Redux store, company?: сделан опциональным в StateSchema
+  - dispatch(actionsCompany.setCompany) заменён на useCompanyStore.getState().setCompany в 4 файлах
+  - useUser: убран dispatch (больше не нужен для getAuth)
 - [ ] 3.3.6 Мигрировать entities/dashboard-data (153 строки, высокая сложность, периоды + LS)
   - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
 - [ ] 3.3.7 Мигрировать entities/dashboard-templates (197 строк, высокая сложность, дерево + LS)

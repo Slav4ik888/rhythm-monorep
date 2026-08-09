@@ -1,17 +1,13 @@
 // packages/frontend/src/shared/lib/tests/store/create-redux-store/index.ts
 
-import { configureStore, Reducer, ReducersMapObject } from '@reduxjs/toolkit';
+import { configureStore, ReducersMapObject } from '@reduxjs/toolkit';
 import { api } from 'shared/api';
 import { StateSchema } from 'app/providers/store';
 import { createReducerManager } from 'app/providers/store/config/reducer-manager';
-import { reducerCompany } from 'entities/company';
 import { reducerDashboardView } from 'entities/dashboard-view';
 
 export function createReduxStore(initialState: DeepPartial<StateSchema>) {
   const rootReducers: ReducersMapObject<StateSchema> = {
-      // Entities
-      company: reducerCompany,
-
       // @ts-ignore
       dashboardView: reducerDashboardView,
     },
