@@ -60,8 +60,10 @@
   - reducerCompany убран из Redux store, company?: сделан опциональным в StateSchema
   - dispatch(actionsCompany.setCompany) заменён на useCompanyStore.getState().setCompany в 4 файлах
   - useUser: убран dispatch (больше не нужен для getAuth)
-- [ ] 3.3.6 Мигрировать entities/dashboard-data (153 строки, высокая сложность, периоды + LS)
-  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [x] 3.3.6 Мигрировать entities/dashboard-data (153 строки, высокая сложность, периоды + LS)
+  - Zustand-стор + тесты (17/17 passed), getData переписан с createAsyncThunk на прямую async-функцию
+  - reducerDashboardData убран из Redux store, dashboardData?: сделан опциональным в StateSchema
+  - useDashboardData хук переписан на Zustand (интерфейс сохранён — 50+ мест использования без изменений)
 - [ ] 3.3.7 Мигрировать entities/dashboard-templates (197 строк, высокая сложность, дерево + LS)
   - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
 - [ ] 3.3.8 Мигрировать entities/dashboard-view (390 строк, очень высокая сложность, bunches + LS)

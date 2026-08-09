@@ -1,58 +1,70 @@
-import * as s from '../../selectors';
-import { actions as a } from '../../slice';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
+// packages/frontend/src/entities/dashboard-data/model/hooks/use-dashboard-data/index.ts
+// Переписан с Redux (useSelector/useDispatch) на Zustand (useDashboardDataStore)
+// Миграция Redux → Zustand
+
+import { useDashboardDataStore } from '../../store';
 import { Errors } from 'shared/lib/validators';
 import type { StateSchemaDashboardData } from '../../slice/state-schema';
 import type { SetActivePeriod, SetSelectedPeriod } from '../../slice/types';
 import { useMemo } from 'react';
-
-
+import { sortingArr } from 'shared/helpers/sorting';
 
 interface Config {
-  kod?: string
+  kod?: string;
 }
 
 export const useDashboardData = (config: Config = {}) => {
   const { kod } = config;
-  const dispatch = useAppDispatch();
 
-  const loading             = useSelector(s.selectLoading);
-  const errors              = useSelector(s.selectErrors);
-  const isMounted           = useSelector(s.selectIsMounted);
+  const loading = useDashboardDataStore((s) => s.loading);
+  const errors = useDashboardDataStore((s) => s.errors);
+  const isMounted = useDashboardDataStore((s) => s._isMounted);
 
-  const startEntities       = useSelector(s.selectStartEntities);
-  const startDates          = useSelector(s.selectStartDates);
-  const kods                = useSelector(s.selectKods);
-  const selectItemByKod     = s.makeSelectItemByKod(kod);
-  const itemByKod           = useSelector(selectItemByKod);
+  const startEntities = useDashboardDataStore((s) => s.startEntities);
+  const startDates = useDashboardDataStore((s) => s.startDates);
 
-  const activeEntities      = useSelector(s.selectActiveEntities);
-  const activeDates         = useSelector(s.selectActiveDates);
-
-  const lastUpdated         = useSelector(s.selectLastUpdated);
-
-  const activePeriod        = useSelector(s.selectActivePeriod);
-  const activePeriodType    = activePeriod?.type;
-  const activeDateStart     = activePeriod?.start;
-  const activeDateEnd       = activePeriod?.end;
-
-  const selectedPeriod      = useSelector(s.selectSelectedPeriod);
-  const selectedPeriodType  = selectedPeriod?.type;
-  const selectedDateStart   = selectedPeriod?.start;
-  const selectedDateEnd     = selectedPeriod?.end;
-
-
-  const api = useMemo(() => ({
-    setErrors         : (errors: Errors) => dispatch(a.setErrors(errors)),
-    clearErrors       : () => dispatch(a.setErrors({})),
-    setInitial        : (state: StateSchemaDashboardData) => dispatch(a.setInitial(state)),
-    setActivePeriod   : (data: SetActivePeriod) => dispatch(a.setActivePeriod(data)),
-    setSelectedPeriod : (data: SetSelectedPeriod) => dispatch(a.setSelectedPeriod(data)),
-  }),
-    [dispatch]
+  const kods = useMemo(
+    () =>
+      sortingArr(
+        Object.values(startEntities).map((entity) => ({
+          value: entity.kod,
+          title: entity.title,
+          company: entity.companyType,
+          product: entity.productType,
+          period: entity.periodType,
+        })),
+        'value',
+      ),
+    [startEntities],
   );
 
+  const itemByKod = useMemo(() => startEntities[kod || ''] || '', [startEntities, kod]);
+
+  const activeEntities = useDashboardDataStore((s) => s.activeEntities);
+  const activeDates = useDashboardDataStore((s) => s.activeDates);
+
+  const lastUpdated = useDashboardDataStore((s) => s.lastUpdated);
+
+  const activePeriod = useDashboardDataStore((s) => s.activePeriod);
+  const activePeriodType = activePeriod?.type;
+  const activeDateStart = activePeriod?.start;
+  const activeDateEnd = activePeriod?.end;
+
+  const selectedPeriod = useDashboardDataStore((s) => s.selectedPeriod);
+  const selectedPeriodType = selectedPeriod?.type;
+  const selectedDateStart = selectedPeriod?.start;
+  const selectedDateEnd = selectedPeriod?.end;
+
+  const api = useMemo(
+    () => ({
+      setErrors: (errors: Errors) => useDashboardDataStore.getState().setErrors(errors),
+      clearErrors: () => useDashboardDataStore.getState().clearErrors(),
+      setInitial: (state: StateSchemaDashboardData) => useDashboardDataStore.getState().setInitial(state),
+      setActivePeriod: (data: SetActivePeriod) => useDashboardDataStore.getState().setActivePeriod(data),
+      setSelectedPeriod: (data: SetSelectedPeriod) => useDashboardDataStore.getState().setSelectedPeriod(data),
+    }),
+    [],
+  );
 
   return {
     loading,
@@ -80,5 +92,5 @@ export const useDashboardData = (config: Config = {}) => {
     selectedDateEnd,
 
     ...api,
-  }
+  };
 };

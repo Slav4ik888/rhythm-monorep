@@ -1,5 +1,6 @@
+// packages/frontend/src/pages/dashboard/ui/container.tsx
+
 import { FC, memo, useEffect } from 'react';
-import { reducerDashboardData } from 'entities/dashboard-data';
 import { Sidebar } from 'widgets/sidebar';
 import { DynamicModuleLoader, ReducersList } from 'shared/lib/components';
 import { DashboardBody } from './body';
@@ -16,13 +17,9 @@ import { useUI } from 'entities/ui';
 import { useUser } from 'entities/user';
 import { removeJivoSite } from 'shared/lib/remove-jivo';
 
-
-
 const initialReducers: ReducersList = {
-  dashboardData      : reducerDashboardData,
-  dashboardView      : reducerDashboardView,
+  dashboardView: reducerDashboardView,
 };
-
 
 export const DashboardPageContainer: FC = memo(() => {
   const { auth } = useUser();
@@ -34,57 +31,52 @@ export const DashboardPageContainer: FC = memo(() => {
   const { setPageLoading } = useUI();
   const { isDashboardAccessView } = useAccess();
 
+  useEffect(
+    () => {
+      // Если нет доступа то нах с мопэда
+      if (!isDashboardAccessView) return;
 
-  useEffect(() => {
-    // Если нет доступа то нах с мопэда
-    if (! isDashboardAccessView) return;
+      // Если авторизован, убираем Живосайт
+      if (auth) removeJivoSite();
 
-    // Если авторизован, убираем Живосайт
-    if (auth) removeJivoSite();
+      // 1. GOOGLE-DATA - если нет данных, то загружаем
+      if (!LS.getDataState(paramsCompanyId)?.startEntities && paramsCompanyId) {
+        setPageLoading({
+          'get-g-data': {
+            text: 'Загрузка данных c google-таблицы...',
+            name: 'DashboardPageContainer',
+          },
+        });
+        serviceGetData({ companyId: paramsCompanyId, dashboardSheetId });
+      }
 
-    // 1. GOOGLE-DATA - если нет данных, то загружаем
-    if (! LS.getDataState(paramsCompanyId)?.startEntities && paramsCompanyId) {
-      setPageLoading({
-        'get-g-data': {
-          text: 'Загрузка данных c google-таблицы...',
-          name: 'DashboardPageContainer'
-        }
+      // 2. VIEW-ITEMS
+      const bunchesForLoad = getBunchesToUpdate(paramsBunchesUpdated, LS.getViewBunchesUpdated(paramsCompanyId));
+
+      // Загружаем из кеша bunches в которых нет изменений
+      setDashboardBunchesFromCache({
+        companyId: paramsCompanyId, // paramsCompany.id,
+        changedBunches: bunchesForLoad,
       });
-      serviceGetData({ companyId: paramsCompanyId, dashboardSheetId });
-    }
 
-    // 2. VIEW-ITEMS
-    const bunchesForLoad = getBunchesToUpdate(
-      paramsBunchesUpdated,
-      LS.getViewBunchesUpdated(paramsCompanyId)
-    );
-
-    // Загружаем из кеша bunches в которых нет изменений
-    setDashboardBunchesFromCache({
-      companyId      : paramsCompanyId, // paramsCompany.id,
-      changedBunches : bunchesForLoad
-    });
-
-    if (bunchesForLoad.length) {
-      __devLog('DashboardPageContainer', 'Bunches for load:', bunchesForLoad.length);
-      __devLog('DashboardPageContainer', bunchesForLoad);
-      serviceGetBunches({
-        companyId      : paramsCompanyId, // paramsCompany.id,
-        bunchIds       : bunchesForLoad,
-        bunchesUpdated : paramsBunchesUpdated,
-        dashboardSheetId,
-        pathname
-      });
-    }
-    else {
-      __devLog('DashboardPageContainer', 'All bunches from cache');
-    }
-  },
+      if (bunchesForLoad.length) {
+        __devLog('DashboardPageContainer', 'Bunches for load:', bunchesForLoad.length);
+        __devLog('DashboardPageContainer', bunchesForLoad);
+        serviceGetBunches({
+          companyId: paramsCompanyId, // paramsCompany.id,
+          bunchIds: bunchesForLoad,
+          bunchesUpdated: paramsBunchesUpdated,
+          dashboardSheetId,
+          pathname,
+        });
+      } else {
+        __devLog('DashboardPageContainer', 'All bunches from cache');
+      }
+    },
     // Повторно обновляем если переключились на другую компанию
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [auth, paramsCompanyId, paramsBunchesUpdated, isDashboardAccessView]
+    [auth, paramsCompanyId, paramsBunchesUpdated, isDashboardAccessView],
   );
-
 
   return (
     <DynamicModuleLoader reducers={initialReducers}>
