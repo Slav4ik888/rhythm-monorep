@@ -43,14 +43,23 @@
 - [ ] 3.1 React 18 → React 19 (установлены пакеты, исправлен JSX namespace)
 - [x] 3.2 React Router 6 → React Router 7 (пакеты обновлены)
 - [x] 3.3 Redux Toolkit → Zustand — миграция entities/ui выполнена (zustand стор + хук + замена 12 файлов с actionsUI → useUIStore.getState())
-- [ ] 3.3.1 Мигрировать entities/user (с thunk'ами — переделать на прямые API-вызовы)
-- [ ] 3.3.2 Мигрировать entities/company
-- [ ] 3.3.3 Мигрировать entities/docs
-- [ ] 3.3.4 Мигрировать entities/hints
-- [ ] 3.3.5 Мигрировать entities/dashboard-data
-- [ ] 3.3.6 Мигрировать entities/dashboard-templates
-- [ ] 3.3.7 Мигрировать entities/dashboard-view
-- [ ] 3.3.8 Мигрировать entities/transactions
+- [x] 3.3.0 Удалить Redux-слайс UI из store (Zustand уже работает, reducerUI — мёртвый груз)
+- [x] 3.3.1 Мигрировать entities/transactions (45 строк, низкая сложность)
+  - Zustand-стор + тесты (8/8 passed), sendTransactions переписан с createAsyncThunk на прямые API-вызовы
+- [ ] 3.3.2 Мигрировать entities/docs (49 строк, низкая сложность, 1 asyncThunk: getPolicy)
+  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [ ] 3.3.3 Мигрировать entities/hints (102 строки, средняя сложность, 1 asyncThunk: dontShowAgain)
+  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [ ] 3.3.4 Мигрировать entities/user (77 строк, средняя сложность, 1 asyncThunk: getAuth)
+  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [ ] 3.3.5 Мигрировать entities/company (118 строк, средняя сложность, 3 asyncThunk)
+  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [ ] 3.3.6 Мигрировать entities/dashboard-data (153 строки, высокая сложность, периоды + LS)
+  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [ ] 3.3.7 Мигрировать entities/dashboard-templates (197 строк, высокая сложность, дерево + LS)
+  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [ ] 3.3.8 Мигрировать entities/dashboard-view (390 строк, очень высокая сложность, bunches + LS)
+  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
 - [ ] 3.3.9 Мигрировать страничные сторы (login, signup)
 - [ ] 3.3.10 Убрать Redux Provider из app/providers, удалить зависимости
 - [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)

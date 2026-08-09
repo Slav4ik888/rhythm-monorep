@@ -1,38 +1,27 @@
-import * as s from '../../selectors';
-import { actions as a } from '../../slice';
-// import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
+// packages/frontend/src/entities/transactions/model/hooks/use-transactions/index.ts
+
+import { useTransactionsStore } from '../../store';
 import { Errors } from 'shared/lib/validators';
 import type { RequestTransactions } from '../../types';
 import { sendTransactions } from 'features/transactions';
 
-
-// interface Config {
-
-// }
-
-// export const useTransactions = (config: Config = {}) => {
-//   const
-//     { } = config,
 export const useTransactions = () => {
-  const
-    dispatch = useAppDispatch(),
+  const setErrors = useTransactionsStore((s) => s.setErrors);
+  const clearErrors = useTransactionsStore((s) => s.clearErrors);
 
-    // loading     = useSelector(s.selectLoading),
-    // errors      = useSelector(s.selectErrors),
-    setErrors   = (errors: Errors) => dispatch(a.setErrors(errors)),
-    clearErrors = () => dispatch(a.setErrors({})),
-
-
-    serviceSendTransactions = (request: RequestTransactions) => dispatch(sendTransactions(request));
-
+  const serviceSendTransactions = async (request: RequestTransactions) => {
+    useTransactionsStore.getState().startLoading();
+    try {
+      await sendTransactions(request);
+      useTransactionsStore.getState().finishLoading();
+    } catch {
+      useTransactionsStore.getState().setErrors({ general: 'Error in features/transactions/sendTransactions' });
+    }
+  };
 
   return {
-    // loading,
-    // errors,
     setErrors,
     clearErrors,
-
-    serviceSendTransactions
-  }
+    serviceSendTransactions,
+  };
 };

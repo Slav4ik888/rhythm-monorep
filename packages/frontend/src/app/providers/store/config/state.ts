@@ -17,7 +17,7 @@ import type { StateSchemaUserFeatures } from 'features/user/model/slice/state-sc
 
 export interface StateSchema {
   // Entities
-  ui: StateSchemaUI;
+  ui?: StateSchemaUI; // UI переведён на Zustand, Redux-слайс удалён
   user: StateSchemaUser;
   company: StateSchemaCompany;
   docs: StateSchemaDocs;

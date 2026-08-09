@@ -10,7 +10,7 @@ export type {
 export { DbRefName } from './model/types';
 
 export { useTransactions } from './model/hooks';
-export { reducer as reducerTransactions } from './model/slice';
+export { useTransactionsStore, type TransactionsStore } from './model/store';
 export type { StateSchemaTransactions } from './model/slice/state-schema';
 
 export {
