@@ -10,7 +10,6 @@ import { hexToRgba, isValidRGBA, rgba, rgbaToHexWithAlpha } from '../utils';
 import PasteIcon from '@mui/icons-material/ContentPaste';
 import TransparentIcon from '@mui/icons-material/BlurOn';
 import { getClipboardText } from '../../clipboard';
-import { __devLog } from '../../tests/__dev-log';
 import { IconButton } from 'shared/ui/mui-components';
 import { CopyBtn } from 'shared/ui/buttons';
 // import s from './index.module.scss';

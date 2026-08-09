@@ -1,20 +1,16 @@
-import * as s from '../../selectors';
-import { actions as a } from '../../slice';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
-import type { AuthByLogin } from '../../services';
-import { authByLogin, resetEmailPassword } from '../../services';
-import { Errors } from 'shared/lib/validators';
+// packages/frontend/src/pages/login/model/hooks/use-login/index.ts
+
+import { useLoginPageStore } from '../../store';
 
 export const useLogin = () => {
-  const dispatch = useAppDispatch(),
-    loading = useSelector(s.selectLoading),
-    resetEmailResult = useSelector(s.selectResetEmailResult),
-    setResetEmailResult = (result?: boolean | undefined) => dispatch(a.setResetEmailResult(result)),
-    errors = useSelector(s.selectErrors),
-    setErrors = (errors?: Errors | undefined) => dispatch(a.setErrors(errors)),
-    serviceAuthByLogin = (data: AuthByLogin) => dispatch(authByLogin(data)),
-    serviceResetEmailPassword = (email: string) => dispatch(resetEmailPassword(email));
+  const loading = useLoginPageStore((s) => s.loading);
+  const resetEmailResult = useLoginPageStore((s) => s.resetEmailResult);
+  const errors = useLoginPageStore((s) => s.errors);
+
+  const setResetEmailResult = useLoginPageStore((s) => s.setResetEmailResult);
+  const setErrors = useLoginPageStore((s) => s.setErrors);
+  const serviceAuthByLogin = useLoginPageStore((s) => s.serviceAuthByLogin);
+  const serviceResetEmailPassword = useLoginPageStore((s) => s.serviceResetEmailPassword);
 
   return {
     loading,

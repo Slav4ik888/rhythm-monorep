@@ -7,8 +7,6 @@ import { Errors } from 'shared/lib/validators';
 import { useUserStore } from 'entities/user';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { LS } from 'shared/lib/local-storage';
-import { isDashboardPage } from 'shared/lib/hooks/use-pages/utils';
-import { Location } from 'react-router-dom';
 import { objectFieldsToString } from 'shared/helpers/objects';
 
 export interface CustomAxiosError {

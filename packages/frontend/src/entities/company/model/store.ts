@@ -5,7 +5,7 @@ import { Errors } from 'shared/lib/validators';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import { LS } from 'shared/lib/local-storage';
 import { updateObject } from 'shared/helpers/objects';
-import type { Company, CustomSettings, ParamsCompany, PartialCompany } from '../types';
+import type { Company, CustomSettings, ParamsCompany } from '../types';
 import type { StateSchemaCompany } from './slice/state-schema';
 
 const initialState: StateSchemaCompany = {

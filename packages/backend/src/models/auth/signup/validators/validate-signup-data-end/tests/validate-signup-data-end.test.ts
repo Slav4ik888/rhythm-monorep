@@ -1,7 +1,5 @@
-import { SignupData } from '../../../types';
 import { validateSignupDataEnd } from '..';
 import { MOCK_SIGNUP_DATA_END } from '../../../mocks';
-import { getMockStrLength } from '../../../../../../shared/utils/strings';
 import { CtxClass } from '../../../../../../libs/tests';
 import { Context } from 'koa';
 

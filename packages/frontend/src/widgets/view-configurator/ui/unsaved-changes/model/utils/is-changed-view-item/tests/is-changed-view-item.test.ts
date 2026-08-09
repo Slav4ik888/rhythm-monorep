@@ -1,6 +1,4 @@
-import { isNotEmpty } from 'shared/helpers/objects';
 import { isChangedViewItem } from '..';
-
 
 describe('isChangedViewItem', () => {
   test('TC01 should return false when selectedId is falsy and all objects are empty', () => {

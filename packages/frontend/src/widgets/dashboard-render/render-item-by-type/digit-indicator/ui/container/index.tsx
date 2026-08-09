@@ -3,9 +3,9 @@ import { getKod, useDashboardViewState, ViewItem } from 'entities/dashboard-view
 import { DashboardStatisticItem, useDashboardData } from 'entities/dashboard-data';
 import type { ValueStringAndReduction } from '../../utils';
 import { getComparisonValues, getIncreased, getInverted, getReversedIndicators } from '../../utils';
-import { getFixedFraction, getReducedWithReduction, toNumber } from 'shared/helpers/numbers';
+import { getFixedFraction, getReducedWithReduction } from 'shared/helpers/numbers';
 import { calcGrowthChange } from '../../../growth-icon/utils';
-import { isNotUndefined, isNum } from 'shared/lib/validators';
+import { isNotUndefined } from 'shared/lib/validators';
 import { getStyles } from './styles';
 import { ItemDigitIndicatorComponent } from './component';
 

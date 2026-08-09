@@ -1,14 +1,11 @@
 import { FC, ReactNode, useState, useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
-import { __devLog } from 'shared/lib/tests/__dev-log';
 import { useUIConfiguratorController } from 'app/providers/theme';
 import { useDashboardViewState } from 'entities/dashboard-view';
 
-
-
 interface Props {
-  children : ReactNode
-  onClick  : () => void
+  children: ReactNode;
+  onClick: () => void;
 }
 
 export const DashboardBodyContentWrapper: FC<Props> = ({ children, onClick }) => {
@@ -67,7 +64,7 @@ export const DashboardBodyContentWrapper: FC<Props> = ({ children, onClick }) =>
 
     const newScrollLeft = Math.min(
       Math.max(0, startScrollLeft + (deltaX * scrollableWidth) / (trackWidth - thumbWidth)),
-      scrollableWidth
+      scrollableWidth,
     );
 
     contentRef.current.scrollLeft = newScrollLeft;
@@ -94,61 +91,58 @@ export const DashboardBodyContentWrapper: FC<Props> = ({ children, onClick }) =>
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', endDrag);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging, thumbWidth]);
-
 
   return (
     <Box
       sx={{
-        position : 'relative',
-        minWidth : '300px',
-        height   : '100%',
-        mr       : editMode ? '470px' : 0,
-        mt       : 3,
-        pb       : 5, /* Место для скроллбара */
+        position: 'relative',
+        minWidth: '300px',
+        height: '100%',
+        mr: editMode ? '470px' : 0,
+        mt: 3,
+        pb: 5 /* Место для скроллбара */,
       }}
 
-      onClick = {onClick}
+      onClick={onClick}
     >
       <Box
         ref={contentRef}
         onScroll={handleScroll}
         sx={{
-          height          : '100%',
-          overflowY       : 'auto',
-          overflowX       : 'auto',
-          scrollbarWidth  : 'none', /* Для Firefox */
-          MsOverflowStyle : 'none', /* Для IE */
+          height: '100%',
+          overflowY: 'auto',
+          overflowX: 'auto',
+          scrollbarWidth: 'none' /* Для Firefox */,
+          MsOverflowStyle: 'none' /* Для IE */,
           '&::-webkit-scrollbar': {
             display: 'none',
           },
         }}
       >
-        {
-          children
-        }
+        {children}
         <Box
           sx={{
-            position   : 'fixed',
-            bottom     : 0,
-            left       : 0,
-            right      : 0,
-            height     : '20px',
-            background : 'rgba(0,0,0,0.2)',
-            zIndex     : 100,
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '20px',
+            background: 'rgba(0,0,0,0.2)',
+            zIndex: 100,
           }}
         >
           <Box
-            ref        = {scrollThumbRef}
-            sx         = {{
-              position     : 'absolute',
-              left         : `${leftOffsetScrollButton + 16}px`,
-              height       : '100%',
-              background   : 'rgba(0, 0, 0, 0.3)',
-              borderRadius : '4px',
-              cursor       : 'grab',
-              transition   : 'background 0.2s',
+            ref={scrollThumbRef}
+            sx={{
+              position: 'absolute',
+              left: `${leftOffsetScrollButton + 16}px`,
+              height: '100%',
+              background: 'rgba(0, 0, 0, 0.3)',
+              borderRadius: '4px',
+              cursor: 'grab',
+              transition: 'background 0.2s',
               '&:hover, &:active': {
                 background: 'rgba(0, 0, 0, 0.5)',
               },
@@ -156,14 +150,14 @@ export const DashboardBodyContentWrapper: FC<Props> = ({ children, onClick }) =>
                 cursor: 'grabbing',
               },
             }}
-            style       = {{
-              width     : `${thumbWidth}px`,
-              transform : `translateX(${thumbPosition}px)`
+            style={{
+              width: `${thumbWidth}px`,
+              transform: `translateX(${thumbPosition}px)`,
             }}
-            onMouseDown = {startDrag}
+            onMouseDown={startDrag}
           />
         </Box>
       </Box>
     </Box>
-  )
+  );
 };

@@ -4,15 +4,12 @@ import { getErrorText } from '../get-error-text';
 import { ERROR_NAME } from '../get-error-text/error-text';
 import { getValidResult } from '../../../base/get-valid-result';
 import { getLabelByInstancePath, getName } from './utils';
-import { __devLog } from '../../../../tests/__dev-log';
-
-
 
 export const getValidResultByKeywords = (
-  validate? : AnyValidateFunction<unknown>,
-  T?        : string // Titles // Translate schema  styles.document.structure.dialogTitle
+  validate?: AnyValidateFunction<unknown>,
+  T?: string, // Titles // Translate schema  styles.document.structure.dialogTitle
 ): Validation => {
-  if (! validate?.errors?.length) return getValidResult();
+  if (!validate?.errors?.length) return getValidResult();
   // __devLog('getValidResultByKeywords', 'validate?.errors: ', JSON.stringify(validate?.errors, null, 2));
 
   const errors = {} as Errors;
@@ -39,11 +36,11 @@ export const getValidResultByKeywords = (
         // }
         break;
 
-    //   case 'enum':
-    //     switch (label) {
-    //       case 'permissions': errors[label] = getErrorText(ERR_TEMP.MustBePermissions); break;
-    //     }
-    //     break;
+      //   case 'enum':
+      //     switch (label) {
+      //       case 'permissions': errors[label] = getErrorText(ERR_TEMP.MustBePermissions); break;
+      //     }
+      //     break;
 
       case 'additionalProperties':
         errors[params.additionalProperty] = getErrorText(ERROR_NAME.ADDITIONAL_PROPERTIES, params.additionalProperty);
@@ -74,9 +71,9 @@ export const getValidResultByKeywords = (
         errors[label] = getErrorText(ERROR_NAME.INVALID_ONE_OF, getName(label));
         break;
 
-    //   case 'pattern':
-    //     errors[label] = getErrorText(ERR_TEMP.InvalidData, getName(label), err.params.pattern);
-    //     break;
+      //   case 'pattern':
+      //     errors[label] = getErrorText(ERR_TEMP.InvalidData, getName(label), err.params.pattern);
+      //     break;
 
       case 'const':
         if (label === 'confirmPassword') errors[label] = getErrorText(ERROR_NAME.PASSWORD_NOT_EQUAL_CONF);
@@ -112,7 +109,8 @@ export const getValidResultByKeywords = (
         errors.ITN = getErrorText(ERROR_NAME.ITN);
         break;
 
-      default: errors.general = err.message || '';
+      default:
+        errors.general = err.message || '';
     }
   }
 

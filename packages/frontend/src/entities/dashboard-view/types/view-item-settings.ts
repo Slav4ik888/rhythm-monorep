@@ -1,65 +1,62 @@
-import { ChartConfigOptions, ViewItemChart } from 'entities/charts'
-import { DefaultIconId } from 'shared/lib/icons'
-import type { ViewItemId } from '.'
-import type { GaugeColumnItem } from './gauge-column-item'
-import type { IndicatorsConfig } from './indicators-config'
-import type { Periods, PeriodStyles } from './period'
+import { ChartConfigOptions, ViewItemChart } from 'entities/charts';
+import { DefaultIconId } from 'shared/lib/icons';
+import type { ViewItemId } from '.';
+import type { GaugeColumnItem } from './gauge-column-item';
+import type { IndicatorsConfig } from './indicators-config';
+import type { Periods } from './period';
 
-
-
-export type ChipType          = 'condition'  | 'period'      | 'company'     | 'product' | 'custom'
-export type BaseChipType      = 'periodType' | 'companyType' | 'productType'
-export type SettingsDirection = 'horizontal' | 'vertical'
-export type GaugeValueType    = 'integer'    | 'fractional'
-
+export type ChipType = 'condition' | 'period' | 'company' | 'product' | 'custom';
+export type BaseChipType = 'periodType' | 'companyType' | 'productType';
+export type SettingsDirection = 'horizontal' | 'vertical';
+export type GaugeValueType = 'integer' | 'fractional';
 
 /** v.2025-08-09 */
 export type ViewItemSettings = IndicatorsConfig & {
   // Global settings
-  display?              : boolean // Показывать ли элемент
-  toolTitle?            : string  // Пользовательская всплывающая подсказка (описание)
+  display?: boolean; // Показывать ли элемент
+  toolTitle?: string; // Пользовательская всплывающая подсказка (описание)
 
   // Kod settings
-  kod?                  : string  // Код для одиночного элемента Box | Chip | GrowthItem | Indicator
+  kod?: string; // Код для одиночного элемента Box | Chip | GrowthItem | Indicator
 
   /** Если true, то это kod, будет автоматически подтягиваться всем children где стоит галка (fromGlobalKod) */
-  isGlobalKod?          : boolean
+  isGlobalKod?: boolean;
 
   /** Если true, то это Глобальны kod, будет автоматически подтягиваться в этот элемент */
-  fromGlobalKod?        : boolean
+  fromGlobalKod?: boolean;
 
   /** Если true, то всем children, у которых где стоит галка (fromGlobalInverted), примениться inverted = true */
-  globalInverted?       : boolean
+  globalInverted?: boolean;
 
-  inverted?             : boolean // Значения переворачиваются в противоположное, пример - если задолженность уменьшается то это рост
-  unchangedBlack?       : boolean // При отсутствии изменений в результатах красить чёрным цветом
+  inverted?: boolean; // Значения переворачиваются в противоположное, пример - если задолженность уменьшается то это рост
+  unchangedBlack?: boolean; // При отсутствии изменений в результатах красить чёрным цветом
 
   // Icon
-  iconId?               : DefaultIconId | null // Id иконки (которые из приложения)
+  iconId?: DefaultIconId | null; // Id иконки (которые из приложения)
 
   // Chart settings
-  charts?               : ViewItemChart[]
-  chartOptions?         : ChartConfigOptions
-  periodId?             : ViewItemId // Id элемента, из которого брать данные по индивидуально выбранному периоду
+  charts?: ViewItemChart[];
+  chartOptions?: ChartConfigOptions;
+  periodId?: ViewItemId; // Id элемента, из которого брать данные по индивидуально выбранному периоду
 
   // Period settings
-  selectedPeriod?       : string // Выбранный индивидуальный период (берётся из этого элемента по его Id)
-  periods?              : Periods
+  selectedPeriod?: string; // Выбранный индивидуальный период (берётся из этого элемента по его Id)
+  periods?: Periods;
 
   // Chips settings
-  chipType?             : ChipType
+  chipType?: ChipType;
 
   // GrowthItem settings
-  scale?                : number  // Изменение размера треуголька
-  isLeft?               : boolean // При отсутствии изменений чёрный треугольник повернуть влево
+  scale?: number; // Изменение размера треуголька
+  isLeft?: boolean; // При отсутствии изменений чёрный треугольник повернуть влево
 
   // GaugeColumn
-  gaugeValueType?       : GaugeValueType    // Целые или дробные значения, по умолчанию fractional
-  gaugeColumnItems?     : GaugeColumnItem[]
-  direction?            : SettingsDirection // Default 'horizontal'
-  displayParameters?    : boolean           // Показтать метки с выбранными параметрами на gaugeColumn
-  parametersLabelColor? : string            // Цвет меток параметров на gaugeColumn
-  displayResult?        : boolean           // Показать результат на gaugeColumn
-}
+  gaugeValueType?: GaugeValueType; // Целые или дробные значения, по умолчанию fractional
+  gaugeColumnItems?: GaugeColumnItem[];
+  direction?: SettingsDirection; // Default 'horizontal'
+  displayParameters?: boolean; // Показтать метки с выбранными параметрами на gaugeColumn
+  parametersLabelColor?: string; // Цвет меток параметров на gaugeColumn
+  displayResult?: boolean; // Показать результат на gaugeColumn
+};
 
-export type ViewItemSettingsField = keyof ViewItemSettings
+export type ViewItemSettingsField = keyof ViewItemSettings;

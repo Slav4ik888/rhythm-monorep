@@ -7,13 +7,10 @@ import type { StateSchemaUI } from 'entities/ui';
 import type { StateSchemaDashboardData } from 'entities/dashboard-data';
 import type { StateSchemaCompany } from 'entities/company';
 import type { StateSchemaUser } from 'entities/user';
-import type { StateSchemaSignupPage } from 'pages/signup';
-import type { StateSchemaLoginPage } from 'pages/login';
 import type { StateSchemaDocs } from 'entities/docs';
 import type { StateSchemaDashboardView } from 'entities/dashboard-view';
 import type { StateSchemaDashboardTemplates } from 'entities/dashboard-templates';
 import type { StateSchemaHints } from 'entities/hints/model/slice';
-import type { StateSchemaUserFeatures } from 'features/user/model/slice/state-schema';
 
 export interface StateSchema {
   // Entities
@@ -24,9 +21,6 @@ export interface StateSchema {
   hints?: StateSchemaHints; // Hints переведён на Zustand, Redux-слайс удалён
 
   // Async reducer
-  signupPage?: StateSchemaSignupPage;
-  loginPage?: StateSchemaLoginPage;
-  userFeatures?: StateSchemaUserFeatures;
   dashboardView?: StateSchemaDashboardView; // DashboardView переведён на Zustand, Redux-слайс в процессе миграции
   dashboardTemplates?: StateSchemaDashboardTemplates; // DashboardTemplates переведён на Zustand, Redux-слайс в процессе миграции
   dashboardData?: StateSchemaDashboardData; // DashboardData переведён на Zustand, Redux-слайс удалён

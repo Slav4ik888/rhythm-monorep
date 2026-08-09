@@ -5,11 +5,8 @@ import { DashboardBodyWrapper } from './wrapper';
 import { DashboardBodyPanel, DashboardBodyContent } from 'widgets/dashboard-view';
 import { getInitialState as getInitialStateView, useDashboardViewActions } from 'entities/dashboard-view';
 import { ViewItemConfigurator } from 'widgets/view-configurator';
-import { __devLog } from 'shared/lib/tests/__dev-log';
 import cfg from 'app/config';
 import { DashboardTemplates } from 'widgets/dashboard-templates';
-
-
 
 export const DashboardBody = memo(() => {
   const { paramsCompanyId } = useCompany();
@@ -17,33 +14,30 @@ export const DashboardBody = memo(() => {
   const { setInitial: setInitialView, editMode } = useDashboardViewActions();
   const { isDashboardAccessEdit } = useAccess();
 
-
-  useEffect(() => {
-    if (paramsCompanyId && isMountedData) {
-      setInitialData(getInitialStateData(paramsCompanyId));
-      setInitialView(getInitialStateView(paramsCompanyId));
-    }
-  },
+  useEffect(
+    () => {
+      if (paramsCompanyId && isMountedData) {
+        setInitialData(getInitialStateData(paramsCompanyId));
+        setInitialView(getInitialStateView(paramsCompanyId));
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [paramsCompanyId, isMountedData]
+    [paramsCompanyId, isMountedData],
   );
 
   // Вначале должен смонтироваться dashboardReducer
-  if (! isMountedData) return  null
-
+  if (!isMountedData) return null;
 
   return (
     <DashboardBodyWrapper>
-      {
-        isDashboardAccessEdit && <>
+      {isDashboardAccessEdit && (
+        <>
           {editMode && <DashboardBodyPanel />}
           <ViewItemConfigurator />
           <DashboardTemplates />
         </>
-      }
-      {
-        ! cfg.DASHBOARD_DISABLE && <DashboardBodyContent />
-      }
+      )}
+      {!cfg.DASHBOARD_DISABLE && <DashboardBodyContent />}
     </DashboardBodyWrapper>
-  )
+  );
 });

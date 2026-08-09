@@ -1,5 +1,4 @@
 import { Context } from '../../../app/types/global';
-import { isStr } from '../../validators';
 import { getUserDataTemp } from '../get-user-data-temp';
 
 /**

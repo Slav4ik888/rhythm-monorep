@@ -3,7 +3,6 @@
 import { CustomAxiosError, errorHandlers } from 'app/providers/store';
 import { useCompanyStore, Company } from 'entities/company';
 import { API_PATHS } from 'shared/api';
-import { Errors } from 'shared/lib/validators';
 import type { User } from '../../../types';
 import { LS } from 'shared/lib/local-storage';
 import cfg from 'app/config';

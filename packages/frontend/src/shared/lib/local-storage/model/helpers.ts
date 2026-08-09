@@ -9,7 +9,7 @@ import { StateSchemaUser } from 'entities/user';
 import { isStr } from '../../validators';
 import { ResGetData } from 'shared/types';
 import type { BunchesUpdated } from '../../structures/bunch';
-import { setStorageData, getStorageData, removeStorageData } from './main';
+import { setStorageData, getStorageData } from './main';
 
 /** Auth */
 export const setAcceptedCookie = () => setStorageData('acceptedCookie', { isAccepted: 'true' });

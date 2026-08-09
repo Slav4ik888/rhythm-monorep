@@ -1,6 +1,5 @@
 // packages/backend/src/shared/utils/objects/filter-ents-by-field/index.ts
 
-import { isArr } from '../../../../libs/validators';
 import type { Entities } from '../../arrays';
 
 type EntsRecord = Record<string, Record<string, unknown>>;

@@ -1,5 +1,5 @@
 import { Context } from '../../../../app/types/global';
-import { DbRef, getRefCol, getRefDoc } from '../../../helpers';
+import { DbRef, getRefDoc } from '../../../helpers';
 import { convertToDot } from '../../../../shared/utils/objects';
 import { IncreaseFollowerConfig } from '../../handlers/increase-follower';
 import { PartnerData } from '../../types';

@@ -1,18 +1,16 @@
-import { amber, blue, brown, deepPurple, green, grey, orange, pink, yellow } from '@mui/material/colors';
+import { amber, blue, brown, deepPurple, green, grey, orange, pink } from '@mui/material/colors';
 import { Color, PaletteMode } from '@mui/material/styles';
-
-
 
 export const customPalette = {
   mode: 'light' as PaletteMode,
 
   background: {
-    default       : '#f0f2f5',
-    card          : '#dbe0e8',
-    paper         : '#f0f2f5',
-    paperLight    : '#efefef',
-    demoPage      : '#f6f6f6',
-    demoPageHover : '#f1f2f5',
+    default: '#f0f2f5',
+    card: '#dbe0e8',
+    paper: '#f0f2f5',
+    paperLight: '#efefef',
+    demoPage: '#f6f6f6',
+    demoPageHover: '#f1f2f5',
   },
 
   text: {
@@ -138,8 +136,8 @@ export const customPalette = {
     main: '#e1e1e1',
     color: '#2e2e2e',
     gradients: {
-      main  : 'rgb(236, 236, 236)',
-      state : 'rgb(211, 211, 211)',
+      main: 'rgb(236, 236, 236)',
+      state: 'rgb(211, 211, 211)',
     },
     title: {
       headerColor: '#2f2f2f',
@@ -152,16 +150,16 @@ export const customPalette = {
       subtitle1: '#5d88b3', // subtitle1
       subtitle2: '#7a7a7a', // subtitle2
       subtitle3: '#7a7a7a', // subtitle3
-      textTitle: '#323232'
+      textTitle: '#323232',
     },
     tabs: {
-      notSelected: '#5e5e5e'
+      notSelected: '#5e5e5e',
     },
     icon: {
-      default : '#7b7b7b',
-      hover   : '#7b7b7b',
-      empty   : '#a6a6a6',
-    }
+      default: '#7b7b7b',
+      hover: '#7b7b7b',
+      empty: '#a6a6a6',
+    },
   },
 
   template: {
@@ -192,35 +190,34 @@ export const customPalette = {
   // Цвета с фоном для: Рост | Падение | Без изменений - результатов
   increasedBG: {
     growth: {
-      color      : '#274e13',
-      background : '#02bf02',
+      color: '#274e13',
+      background: '#02bf02',
     },
     fall: {
-      color      : '#660000',
-      background : '#cc0000',
+      color: '#660000',
+      background: '#cc0000',
     },
     unchanged: {
-      color      : '#b7b7b7',
-      background : '#434343',
+      color: '#b7b7b7',
+      background: '#434343',
     },
   },
 
   // Цвета с фоном для прогресса: Красный | Жёлтый | Зелёный
   progressBG: {
     danger: {
-      color      : '#660000',
-      background : '#cc0000',
+      color: '#660000',
+      background: '#cc0000',
     },
     average: {
-      color      : '#783f04',
-      background : '#ffd966',
+      color: '#783f04',
+      background: '#ffd966',
     },
     exellent: {
-      color      : '#274e13',
-      background : '#02bf02',
+      color: '#274e13',
+      background: '#02bf02',
     },
   },
-
 
   // My colors for departments
   department_7_title: {
@@ -251,7 +248,6 @@ export const customPalette = {
     main: amber[500] as string, // 'rgb(194 201 35 / 80%)',
     focus: 'rgb(194 201 35 / 80%)',
   },
-
 
   socialMediaColors: {
     facebook: {
@@ -318,56 +314,56 @@ export const customPalette = {
   // StatisticPeriodType
   statisticPeriodTypeChip: {
     day: {
-      color      : '#dadada',
-      background : 'braun',
+      color: '#dadada',
+      background: 'braun',
     },
     week: {
-      color      : '#263426',
-      background : '#afc8af',
+      color: '#263426',
+      background: '#afc8af',
     },
     month: {
-      color      : '#afc8af',
-      background : '#33635e',
+      color: '#afc8af',
+      background: '#33635e',
     },
     month_cal: {
-      color      : '#dadada',
-      background : 'blue',
+      color: '#dadada',
+      background: 'blue',
     },
   },
 
   // DashboardConditionType
   conditionTypeChip: {
     power: {
-      color      : '#d4edbb',
-      background : '#1B5E20',
+      color: '#d4edbb',
+      background: '#1B5E20',
     },
     abundance: {
-      color      : '#b8dcf5',
-      background : '#0a53a8',
+      color: '#b8dcf5',
+      background: '#0a53a8',
     },
     normal: {
-      color      : '#1159ab',
-      background : '#bfe1f6',
+      color: '#1159ab',
+      background: '#bfe1f6',
     },
     emergency: {
-      color      : '#b00302',
-      background : '#fecfc8',
+      color: '#b00302',
+      background: '#fecfc8',
     },
     danger: {
-      color      : '#fecfc8',
-      background : '#b00302',
+      color: '#fecfc8',
+      background: '#b00302',
     },
     non_existence: {
-      color      : '#3d3d3d',
-      background : '#e6e6e6',
+      color: '#3d3d3d',
+      background: '#e6e6e6',
     },
     null: {
-      color      : '#3d3d3d',
-      background : '#e6e6e6',
+      color: '#3d3d3d',
+      background: '#e6e6e6',
     },
     any: {
-      color      : '#fff',
-      background : '#000',
+      color: '#fff',
+      background: '#000',
     },
   },
 
@@ -436,7 +432,7 @@ export const customPalette = {
   // Material Kit 2 React Base Styles
   tabs: {
     indicator: {
-      boxShadow: '#ddd'
+      boxShadow: '#ddd',
     },
   },
 };

@@ -10,13 +10,11 @@ import { updateObject, cloneObj, isNotEmpty } from 'shared/helpers/objects';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { api, API_PATHS } from 'shared/api';
 import cfg from 'app/config';
-import type { BunchesUpdated } from 'shared/lib/structures/bunch';
 import type {
   ViewItem,
   ViewItemId,
   PartialViewItem,
   ViewItemStyles,
-  ViewItemSettings,
   ViewItemStylesField,
   BunchesViewItem,
 } from '../types';
@@ -26,10 +24,9 @@ import { getBunchesFromViewItems } from './utils/get-bunches-from-viewitems';
 import { getBunchesTimestamps } from './utils/get-bunches-timestamps';
 import { updateBunches } from './utils/update-bunches';
 import { updateChartsItem } from './utils/update-charts-item';
-import type { StateSchemaDashboardView, ActivatedCopied, DashboardViewEntities } from './slice/state-schema';
+import type { StateSchemaDashboardView, ActivatedCopied } from './slice/state-schema';
 import type {
   SetEditMode,
-  SetDashboardBunches,
   SetDashboardViewItems,
   ChangeSelectedStyle,
   ChangeOneSettingsField,
@@ -37,14 +34,9 @@ import type {
   ChangeOneDatasetsItem,
   SetDashboardBunchesFromCache,
 } from './slice/types';
-import type { CreateGroupViewItems, UpdateViewItems, DeleteViews } from 'shared/api/features/dashboard-view';
-import {
-  createGroupViewItems as createGroupViewItemsApi,
-  updateViewItems as updateViewItemsApi,
-  deleteViewItem as deleteViewItemApi,
-} from 'shared/api/features/dashboard-view';
+import type { UpdateViewItems, DeleteViews } from 'shared/api/features/dashboard-view';
+import { createGroupViewItems as createGroupViewItemsApi } from 'shared/api/features/dashboard-view';
 import type { Errors } from 'shared/lib/validators';
-import { ChartConfigDatasets } from 'entities/charts';
 import type { ReqGetBunches } from './services';
 
 // ============================================================

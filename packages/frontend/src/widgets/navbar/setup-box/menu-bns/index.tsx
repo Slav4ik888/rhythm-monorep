@@ -1,3 +1,5 @@
+// packages/frontend/src/widgets/navbar/setup-box/menu-bns/index.tsx
+
 import { FC } from 'react';
 import { MDBox } from 'shared/ui/mui-design-components';
 import { AddUserRoot, ProfilesMenuRoot, OpenUIConfiguratorBtn } from 'features/ui';
@@ -7,18 +9,9 @@ import { DashboardSetEditBtn } from 'features/dashboard-view';
 import { useAccess } from 'entities/company';
 import { usePages } from 'shared/lib/hooks';
 import { useUI } from 'entities/ui';
-import { DynamicModuleLoader, ReducersList } from 'shared/lib/components';
-import { reducerUserFeatures } from 'features/user';
-
-
-
-const reducers: ReducersList = {
-  userFeatures: reducerUserFeatures
-};
-
 
 interface Props {
-  light?: boolean
+  light?: boolean;
 }
 
 /** Кнопки Navbar меню после авторизации */
@@ -27,27 +20,19 @@ export const MenuBtns: FC<Props> = ({ light }) => {
   const { isDashboardPage } = usePages();
   const { isDashboardAccessEdit } = useAccess();
 
-
   return (
-    <DynamicModuleLoader reducers={reducers}>
-      <MDBox sx={(theme: CustomTheme) => sxNavbarRow(theme)}>
-        <MDBox display='flex' alignItems='center' color={light ? 'white' : 'inherit'}>
-          {
-            isDashboardPage
-            && isDashboardAccessEdit
-            && ! isMobile
-            && (
-              <>
-                <DashboardSetEditBtn />
-                <AddUserRoot />
-              </>
-            )
-          }
-          {/* <OpenNotificationMenuBtn /> */}
-          <OpenUIConfiguratorBtn />
-          <ProfilesMenuRoot />
-        </MDBox>
+    <MDBox sx={(theme: CustomTheme) => sxNavbarRow(theme)}>
+      <MDBox display='flex' alignItems='center' color={light ? 'white' : 'inherit'}>
+        {isDashboardPage && isDashboardAccessEdit && !isMobile && (
+          <>
+            <DashboardSetEditBtn />
+            <AddUserRoot />
+          </>
+        )}
+        {/* <OpenNotificationMenuBtn /> */}
+        <OpenUIConfiguratorBtn />
+        <ProfilesMenuRoot />
       </MDBox>
-    </DynamicModuleLoader>
+    </MDBox>
   );
 };

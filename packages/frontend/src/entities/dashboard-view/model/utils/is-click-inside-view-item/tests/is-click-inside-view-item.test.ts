@@ -1,20 +1,16 @@
 /* eslint-disable quote-props */
-import { ViewItem } from '../../../../types';
 import { isClickInsideViewItem } from '..';
-import { NO_PARENT_ID } from '../../../../consts';
 import { DashboardViewEntities } from '../../../slice/state-schema';
-
-
 
 describe('isClickInsideViewItem', () => {
   const mockEntities = {
-    'root': { parentId: null },       // Корневой элемент
-    '1':    { parentId: 'root' },     // Потомок root
-    '1-1':  { parentId: '1' },        // Потомок 1
-    '1-2':  { parentId: '1' },        // Потомок 1
-    '1-2-1': { parentId: '1-2' },     // Потомок 1-2
-    '2':    { parentId: 'root' },     // Другой потомок root
-    'orphan': { parentId: 'missing' } // Элемент с несуществующим parentId
+    root: { parentId: null }, // Корневой элемент
+    '1': { parentId: 'root' }, // Потомок root
+    '1-1': { parentId: '1' }, // Потомок 1
+    '1-2': { parentId: '1' }, // Потомок 1
+    '1-2-1': { parentId: '1-2' }, // Потомок 1-2
+    '2': { parentId: 'root' }, // Другой потомок root
+    orphan: { parentId: 'missing' }, // Элемент с несуществующим parentId
   } as unknown as DashboardViewEntities;
 
   it('should return true if activatedMovementId is a parent of target', () => {
@@ -42,8 +38,8 @@ describe('isClickInsideViewItem', () => {
 
   it('should handle cyclic dependencies safely', () => {
     const cyclicEntities: DashboardViewEntities = {
-      'A': { parentId: 'B' },
-      'B': { parentId: 'A' }
+      A: { parentId: 'B' },
+      B: { parentId: 'A' },
     } as unknown as DashboardViewEntities;
     // A → B → A (цикл) — функция должна оборвать поиск
     expect(isClickInsideViewItem(cyclicEntities, 'A', 'B')).toBe(true);

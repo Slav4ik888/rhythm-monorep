@@ -82,9 +82,9 @@
   - Изменено 5 файлов: reducer-manager.ts, use-company/index.ts, use-dashboard-view-services/index.ts, dashboard-templates/store.ts, dashboard-templates/hook/index.ts
   - Тесты: 180/195 suites passed (15 failed — предсуществующий TextEncoder)
   - Линтер: 36 ошибок (все предсуществующие — бэкенд + features/path-checker)
-- [ ] 3.3.9 Мигрировать страничные сторы (login, signup)
-- [ ] 3.3.10 Убрать Redux Provider из app/providers, удалить зависимости
-- [ ] 3.3.11 Установить eslint-plugin-unused-imports для автофикса неиспользуемых импортов
+- [x] 3.3.9 Мигрировать страничные сторы (login, signup) — Zustand-сторы + удаление Redux-слайсов/slice/selectors/services
+- [x] 3.3.10 Убрать Redux — features/user мигрирован, DynamicModuleLoader убраны из navbar/login/signup
+- [x] 3.3.11 Установить eslint-plugin-unused-imports для автофикса неиспользуемых импортов
   - Плагин не установился из-за конфликта `@types/react@^19.2.18` (override) с прямой зависимостью
   - После установки включить `@typescript-eslint/no-unused-vars` и запустить `--fix`
   - Текущий статус: правило отключено, ~260 неиспользуемых переменных/импортов в кодовой базе

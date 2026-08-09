@@ -1,5 +1,4 @@
 import { getValueByScheme } from 'shared/helpers/objects';
-import { __devLog } from 'shared/lib/tests/__dev-log';
 import type { ParamsCompany } from '../../../../../types';
 import { getUserDashboardAccess } from '../get-user-dashboard-access';
 import { canAccess } from '../can-access';

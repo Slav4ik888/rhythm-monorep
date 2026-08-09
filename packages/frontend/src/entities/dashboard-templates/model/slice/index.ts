@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Errors } from 'shared/lib/validators';
 import { getPayloadError as getError } from 'shared/lib/errors';
 import type { StateSchemaDashboardTemplates } from './state-schema';
-import { __devLog } from 'shared/lib/tests/__dev-log';
 import { ViewItem, ViewItemId } from 'entities/dashboard-view';
 import type { ResGetTemplates } from '../services';
 import { getTemplates } from '../services';

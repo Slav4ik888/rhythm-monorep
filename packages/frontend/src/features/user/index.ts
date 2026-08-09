@@ -1,4 +1,3 @@
-export { useFeaturesUser } from './model/hooks'
-export {
-  reducer as reducerUserFeatures
-} from './model/slice'
+// packages/frontend/src/features/user/index.ts
+
+export { useFeaturesUser } from './model/hooks';

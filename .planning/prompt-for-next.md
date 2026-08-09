@@ -6,59 +6,65 @@
 
 ## Контекст: что сделано в этой сессии
 
-### 1. Исправление рантайм-ошибок после миграции на Zustand (3.3.8 → 3.3.8.1)
+### 3.3.9 Миграция страничных сторов (login, signup)
 
-**Пять корневых причин и их исправления:**
+- Созданы Zustand-сторы: `useLoginPageStore`, `useSignupPageStore`
+- Хуки `useLogin`/`useSignup` переписаны с Redux на Zustand
+- `createAsyncThunk` сервисы заменены на прямые async-функции внутри сторов
+- `DynamicModuleLoader` убраны из `LoginPageComponent` и `SignupPageComponent`
+- **Удалены Redux-слайсы:** `login/model/slice`, `signup/model/slice`
+- **Удалены createAsyncThunk сервисы:** `login/model/services`, `signup/model/services`
+- **Удалены Redux-селекторы:** `login/model/selectors`, `signup/model/selectors`
+- Типы перенесены в `store.ts` (инлайн)
+- `getCookie` утилита вынесена в `login/model/utils.ts`
 
-**1. `Store does not have a valid reducer`**
+### 3.3.10 Убрать Redux — features/user + DynamicModuleLoader
 
-- Причина: `combineReducers({})` падал при пустом initialReducers
-- Исправлено: `reducer-manager.ts` — `noopReducer` как fallback
+- Создан Zustand-стор `useUserFeaturesStore`
+- Хук `useFeaturesUser` переписан
+- **Удалён Redux-слайс:** `features/user/model/slice`
+- `DynamicModuleLoader` + `reducerUserFeatures` убраны из navbar
+- `userFeatures` удалён из `StateSchema`
 
-**2. `getSnapshot should be cached` / `Maximum update depth exceeded` — 4 места:**
+### 3.3.11 eslint-plugin-unused-imports
 
-- `useCompany` — `getChanges()` создавал новый объект на каждом рендере → `useMemo`
-- `useDashboardViewServices` — Redux dispatch + Zustand чтение (дуализм) → `useDashboardViewStore.getState()`
-- `DashboardTemplates store` — `selectTemplates` возвращал `Object.values()` (новый массив каждый вызов) → возврат `entities`
-- `DashboardTemplates hook` — `useMemo` для `Object.values(rawTemplates)`
+- Плагин установлен, правило `unused-imports/no-unused-imports` включено как `error`
+- Исправлен конфликт `@types/react` в `package.json`
 
-**3. Сохранение не работало (isUnsaved не сбрасывался)**
+### Очистка мёртвого кода
 
-- Причина: `saveUpdateViewItems`/`saveDeleteViewItem` были заглушками (TODO)
-- Исправлено: реальные `api.patch`/`api.post`, восстановлена логика Redux extraReducer (entities, LS, isUnsaved: false)
+Удалены файлы (папки целиком):
 
-### 2. ESLint: 296 проблем → 0
-
-- Добавлены отключения предсуществующих правил: `no-use-before-define`, `camelcase`, `default-param-last`, `import/no-named-default`, `no-restricted-syntax`, `max-len`, `no-useless-escape`, `path-checker`
-- `@typescript-eslint/no-unused-vars` отключён — ~260 неиспользуемых переменных. Нужен плагин `eslint-plugin-unused-imports` (пункт 3.3.11 в PLAN.md)
-
-### Изменённые файлы (7):
-
-1. `reducer-manager.ts` — noopReducer
-2. `use-company/index.ts` — useMemo для paramsChangedCompany
-3. `use-dashboard-view-services/index.ts` — Redux dispatch → Zustand getState()
-4. `dashboard-templates/model/store.ts` — селекторы возвращают стабильные ссылки
-5. `dashboard-templates/model/hooks/use-dashboard-templates/index.ts` — useMemo для templates
-6. `dashboard-view/model/store.ts` — восстановлены saveUpdateViewItems/saveDeleteViewItem
-7. `.eslintrc.js` — 8 правил отключено, no-unused-vars отложено до 3.3.11
+- `pages/login/model/slice/`
+- `pages/login/model/selectors/`
+- `pages/login/model/services/`
+- `pages/signup/model/slice/`
+- `pages/signup/model/selectors/`
+- `pages/signup/model/services/`
+- `features/user/model/slice/`
+- `features/user/model/selectors/`
 
 ### Результаты проверок
 
 - `npm run lint`: **0 errors, 0 warnings** ✅
-- `npm run test -w packages/frontend`: **180/195 suites passed** (15 failed — предсуществующий TextEncoder)
+- `npm run test -w packages/frontend`: **180/193 suites passed** (13 failed — предсуществующий TextEncoder, -2 suites после удаления тестов старых слайсов)
 
 ## Следующие шаги
 
-1. **3.3.9 Мигрировать страничные сторы (login, signup)**
-2. **3.3.10 Убрать Redux Provider из app/providers, удалить зависимости**
-3. **3.3.11 Установить eslint-plugin-unused-imports** (конфликт `@types/react`)
+1. **3.1 React 18 → React 19** — завершить миграцию
+2. **3.4 TanStack Query** — интеграция для серверного состояния
+3. **Полное удаление Redux из production-кода:**
+   - Удалить `@reduxjs/toolkit` и `react-redux` из dependencies
+   - Убрать `StoreProvider` из `index.tsx`
+   - Удалить `DynamicModuleLoader` из `pages/dashboard` и `pages/user-profile`
+   - Удалить старые Redux-слайсы (dashboardView, dashboardTemplates — всё ещё экспортируются)
 
 ## Коммит
 
-`fix: Zustand-миграция — исправлены бесконечные циклы, сохранение, ESLint 0`
+`refactor: Zustand-миграция login/signup/features-user, удаление мёртвых Redux-слайсов, eslint-plugin-unused-imports`
 
 ## Предупреждения/заметки
 
-- **Ключевое правило Zustand:** селекторы НЕ возвращают новые ссылки (`Object.values()`, `|| {}`). Только `useMemo` в хуках.
-- **Дуализм Redux/Zustand** (dispatch + чтение из Zustand) = гарантированный бесконечный цикл.
-- **3.3.11 (unused-imports) записан в PLAN.md** — нужен eslint-plugin-unused-imports.
+- **Redux ещё НЕ удалён полностью** — `StoreProvider` в `index.tsx`, `DynamicModuleLoader` в `pages/dashboard` и `pages/user-profile`
+- **13 test suites падают** из-за предсуществующей проблемы с TextEncoder (не связано с миграцией)
+- `@typescript-eslint/no-unused-vars` всё ещё отключено — ~260 предсуществующих неиспользуемых переменных

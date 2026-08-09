@@ -1,14 +1,13 @@
-import { PartialUser } from 'entities/user';
-import { useAppDispatch } from 'shared/lib/hooks';
-import { logout, updateUser } from 'shared/api/features/user';
+// packages/frontend/src/features/user/model/hooks/use-features-user/index.ts
 
-
+import { useUserFeaturesStore } from '../../store';
 
 export const useFeaturesUser = () => {
-  const dispatch = useAppDispatch();
+  const serviceUpdateUser = useUserFeaturesStore((s) => s.serviceUpdateUser);
+  const serviceLogout = useUserFeaturesStore((s) => s.serviceLogout);
 
   return {
-    serviceUpdateUser : (user: PartialUser) => dispatch(updateUser(user)),
-    serviceLogout     : () => dispatch(logout()),
-  }
+    serviceUpdateUser,
+    serviceLogout,
+  };
 };

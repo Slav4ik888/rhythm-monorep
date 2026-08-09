@@ -1,29 +1,22 @@
 import '@testing-library/jest-dom';
 import { ErrorBox } from '..';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { createTheme, ThemeOptions, ThemeProvider } from '@mui/material/styles';
 import { customPalette as themeLight } from 'app/providers/theme/model/themes/light-custom-palette';
 
-
-
 const theme = createTheme(themeLight as ThemeOptions);
-
 
 describe('ErrorBox', () => {
   it('Get error text by field', () => {
     const errors = {
-      anyField   : 'anyField text',
-      errorField : 'errorField text'
+      anyField: 'anyField text',
+      errorField: 'errorField text',
     };
 
     const { getByText, container } = render(
       <ThemeProvider theme={theme}>
-        <ErrorBox
-          field  = 'errorField'
-          sx     = {{}}
-          errors = {errors}
-        />
-      </ThemeProvider>
+        <ErrorBox field='errorField' sx={{}} errors={errors} />
+      </ThemeProvider>,
     );
 
     expect(getByText('errorField text')).toBeInTheDocument();
@@ -32,20 +25,15 @@ describe('ErrorBox', () => {
     expect(boxes.length).toBe(2);
   });
 
-
   it('ErrorBox not be rendered', () => {
     const errors = {
-      anyField   : 'anyField text'
+      anyField: 'anyField text',
     };
 
     const { debug, container } = render(
       <ThemeProvider theme={theme}>
-        <ErrorBox
-          field  = 'errorField'
-          sx     = {{}}
-          errors = {errors}
-        />
-      </ThemeProvider>
+        <ErrorBox field='errorField' sx={{}} errors={errors} />
+      </ThemeProvider>,
     );
 
     debug();

@@ -1,7 +1,6 @@
 // packages/frontend/src/entities/transactions/model/hooks/use-transactions/index.ts
 
 import { useTransactionsStore } from '../../store';
-import { Errors } from 'shared/lib/validators';
 import type { RequestTransactions } from '../../types';
 import { sendTransactions } from 'features/transactions';
 

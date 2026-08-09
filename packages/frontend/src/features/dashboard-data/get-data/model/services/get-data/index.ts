@@ -3,14 +3,12 @@
 
 import { useUIStore } from 'entities/ui';
 import { useDashboardDataStore } from 'entities/dashboard-data/model/store';
-import { Errors } from 'shared/lib/validators';
 import { getEntities } from './utils';
 import { LS } from 'shared/lib/local-storage';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { api, API_PATHS } from 'shared/api';
 import { ResGetGoogleData, ReqGetGoogleData } from 'shared/types';
 import { CustomAxiosError } from 'app/providers/store';
-import cfg from 'app/config';
 
 export const getData = async (reqData: ReqGetGoogleData) => {
   const { companyId, dashboardSheetId } = reqData;

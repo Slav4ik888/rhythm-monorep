@@ -1,8 +1,4 @@
-import {
-  amber, blue, blueGrey, brown, common, cyan, deepOrange, deepPurple, green, grey,
-  indigo, lightBlue, lightGreen, lime, orange, pink, purple, red, teal, yellow,
-} from '@mui/material/colors';
-
+import { amber, blue, deepPurple, green, grey, orange, pink } from '@mui/material/colors';
 
 export const gradients = {
   primary: {
@@ -80,4 +76,4 @@ export const gradients = {
     main: amber[100] as string, // "rgb(239 236 129)",
     state: amber[300] as string, // "rgb(194 201 35)",
   },
-}
+};

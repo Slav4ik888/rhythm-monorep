@@ -1,13 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import { MoveItemUpdownward } from '..';
-import { TowardType } from 'shared/ui/configurators-components';
 import { DashboardViewEntities, useDashboardViewActions, ViewItem } from 'entities/dashboard-view';
 import { setupRender } from 'shared/lib/tests';
 import { StateSchema, StoreProvider } from 'app/providers/store';
 import { UIConfiguratorProvider } from 'app/providers/theme';
 import { cloneObj } from 'shared/helpers/objects';
-
-
 
 // Мокаем хук useDashboardViewActions
 // jest.mock('entities/dashboard-view');
@@ -33,9 +30,9 @@ const mockedStoreBase: DeepPartial<StateSchema> = {
       { id: 'item-2', parentId: 'parent-1', order: 2000 },
       { id: 'item-3', parentId: 'parent-1', order: 3000 },
     ] as unknown as DashboardViewEntities,
-    loading : false,
-    errors  : {}
-  }
+    loading: false,
+    errors: {},
+  },
 };
 
 describe('MoveItemUpdownward', () => {
@@ -55,11 +52,11 @@ describe('MoveItemUpdownward', () => {
         <UIConfiguratorProvider>
           <MoveItemUpdownward viewItem={mockViewItem} />
         </UIConfiguratorProvider>
-      </StoreProvider>
+      </StoreProvider>,
     );
 
-    expect(getByTestId('btn-up')).toBeInTheDocument()
-    expect(getByTestId('btn-down')).toBeInTheDocument()
+    expect(getByTestId('btn-up')).toBeInTheDocument();
+    expect(getByTestId('btn-down')).toBeInTheDocument();
 
     // expect(getByRole('button', { name: /вверх/i })).toBeInTheDocument();
     // expect(getByRole('button', { name: /вниз/i })).toBeInTheDocument();
@@ -70,16 +67,16 @@ describe('MoveItemUpdownward', () => {
     const mockedStore: DeepPartial<StateSchema> = {
       user: {},
       dashboardView: {
-        loading : false,
-        errors  : {}
-      }
+        loading: false,
+        errors: {},
+      },
     };
     const { user, debug, getByTestId, getByRole, getByText } = setupRender(
       <StoreProvider initialState={mockedStore}>
         <UIConfiguratorProvider>
           <MoveItemUpdownward viewItem={mockViewItem} />
         </UIConfiguratorProvider>
-      </StoreProvider>
+      </StoreProvider>,
     );
 
     fireEvent.click(getByTestId('btn-up'));
@@ -96,16 +93,16 @@ describe('MoveItemUpdownward', () => {
     const mockedStore: DeepPartial<StateSchema> = {
       user: {},
       dashboardView: {
-        loading : false,
-        errors  : {}
-      }
+        loading: false,
+        errors: {},
+      },
     };
     const { user, debug, getByTestId, getByRole, getByText } = setupRender(
       <StoreProvider initialState={mockedStore}>
         <UIConfiguratorProvider>
           <MoveItemUpdownward viewItem={mockViewItem} />
         </UIConfiguratorProvider>
-      </StoreProvider>
+      </StoreProvider>,
     );
 
     fireEvent.click(getByTestId('btn-down'));

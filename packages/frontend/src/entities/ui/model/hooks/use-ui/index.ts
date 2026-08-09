@@ -1,9 +1,7 @@
 // packages/frontend/src/entities/ui/model/hooks/use-ui/index.ts
 
 import { useUIStore } from '../../store';
-import type { Message } from '../../../types';
 import { useMemo } from 'react';
-import type { PageLoading } from '../../slice/state-schema';
 import { isDarkMode, useUIConfiguratorController } from 'app/providers/theme';
 import { isGreaterMd as isGreaterMdFn } from '../../utils';
 

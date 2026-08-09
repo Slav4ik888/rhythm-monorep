@@ -1,5 +1,3 @@
-import type { Item } from '../../types';
-
 export type MockSimpleType = string;
 export type MocksSimpleType = Array<MockSimpleType>;
 

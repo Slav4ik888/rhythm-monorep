@@ -1,6 +1,4 @@
-import { getMockStrLength } from 'shared/helpers/strings';
 import { validate, SCHEMA_NAME } from 'shared/lib/validators';
-
 
 describe('SCHEMA_NAME.REC', () => {
   it('Valid data', () => {
@@ -12,7 +10,7 @@ describe('SCHEMA_NAME.REC', () => {
 
     expect(res.valid).toEqual(false);
     expect(res.errors).toEqual({
-      email: 'Не верный формат данных, для поля "email".'
+      email: 'Не верный формат данных, для поля "email".',
     });
   });
 
@@ -21,7 +19,7 @@ describe('SCHEMA_NAME.REC', () => {
 
     expect(res.valid).toEqual(false);
     expect(res.errors).toEqual({
-      email: 'Не верный формат данных, для поля "email".'
+      email: 'Не верный формат данных, для поля "email".',
     });
   });
 });

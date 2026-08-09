@@ -23,7 +23,7 @@ module.exports = {
     sourceType: 'module',
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['react', '@typescript-eslint', 'react-hooks', 'slavchik888-plugin'],
+  plugins: ['react', '@typescript-eslint', 'react-hooks', 'unused-imports', 'slavchik888-plugin'],
   overrides: [
     {
       files: ['**/src/**/*.{test,stories}.{ts,tsx}'],
@@ -112,6 +112,7 @@ module.exports = {
     'implicit-arrow-linebreak': 0,
     'no-useless-escape': 0,
     '@typescript-eslint/no-unused-vars': 0,
+    'unused-imports/no-unused-imports': 'error',
     '@typescript-eslint/semi': 0,
     '@typescript-eslint/type-annotation-spacing': 0,
     '@typescript-eslint/brace-style': 0,

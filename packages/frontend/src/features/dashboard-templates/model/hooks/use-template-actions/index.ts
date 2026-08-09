@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import type { Template } from 'entities/dashboard-templates';
 import { useDashboardTemplates, MAX_COUNT_BUNCH_TEMPLATES } from 'entities/dashboard-templates';
-import { ActivatedCopiedType, createNextOrder, NO_SHEET_ID, useDashboardViewState } from 'entities/dashboard-view';
+import { ActivatedCopiedType, createNextOrder, useDashboardViewState } from 'entities/dashboard-view';
 import { getCopyViewItem } from 'features/dashboard-view';
 import { v4 as uuidv4 } from 'uuid';
 import { creatorFixDate, updateEntities } from 'entities/base';

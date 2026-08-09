@@ -1,4 +1,6 @@
-import { render, screen, renderHook, fireEvent } from '@testing-library/react';
+// packages/frontend/src/shared/ui/pages/action-container/action-main/tests/action-main-signup.test.tsx
+
+import { fireEvent } from '@testing-library/react';
 import { createTheme, ThemeProvider, ThemeOptions } from '@mui/material/styles';
 import { customPalette as themeLight } from 'app/providers/theme/model/themes/light-custom-palette';
 import { ActionMain } from '..';
@@ -6,17 +8,12 @@ import { StateSchema } from 'app/providers/store';
 import { setupRender } from 'shared/lib/tests/setup-render';
 import { StoreProvider } from 'shared/lib/tests';
 
-
-
 const theme = createTheme(themeLight as ThemeOptions);
-
 
 describe('ActionMain', () => {
   const generalError = 'General error';
   const mockedStoreEmpty: DeepPartial<StateSchema> = {
-    user       : {},
-    loginPage  : {},
-    signupPage : {}
+    user: {},
   };
 
   it('AuthType.SIGNUP, empty', async () => {
@@ -25,15 +22,9 @@ describe('ActionMain', () => {
     const { user, getByRole, getByText } = setupRender(
       <StoreProvider initialState={mockedStoreEmpty}>
         <ThemeProvider theme={theme}>
-          <ActionMain
-            type     = 'signup'
-            errors   = {{}}
-            loading  = {false}
-            disabled = {false}
-            onSubmit = {onSubmit}
-          />
+          <ActionMain type='signup' errors={{}} loading={false} disabled={false} onSubmit={onSubmit} />
         </ThemeProvider>
-      </StoreProvider>
+      </StoreProvider>,
     );
 
     // debug();
@@ -57,28 +48,12 @@ describe('ActionMain', () => {
 
   it('AuthType.SIGNUP, with error & loading', async () => {
     const onSubmit = jest.fn();
-    const mockedStore: DeepPartial<StateSchema> = {
-      user: {},
-      signupPage: {
-        loading : true,
-        errors  : {
-          general: generalError
-        }
-      }
-    };
-
     const { user, debug, getByRole, getByText } = setupRender(
-      <StoreProvider initialState={mockedStore}>
+      <StoreProvider initialState={mockedStoreEmpty}>
         <ThemeProvider theme={theme}>
-          <ActionMain
-            type     = 'signup'
-            errors   = {{}}
-            loading  = {false}
-            disabled = {false}
-            onSubmit = {onSubmit}
-          />
+          <ActionMain type='signup' errors={{ general: generalError }} loading disabled={false} onSubmit={onSubmit} />
         </ThemeProvider>
-      </StoreProvider>
+      </StoreProvider>,
     );
 
     // debug();
@@ -102,21 +77,15 @@ describe('ActionMain', () => {
 
   // --------------------------------------------------------------------------------------------------
 
-    it('AuthType.SIGNUP, disabled', async () => {
+  it('AuthType.SIGNUP, disabled', async () => {
     const onSubmit = jest.fn();
 
     const { user, debug, getByRole, getByText } = setupRender(
       <StoreProvider initialState={mockedStoreEmpty}>
         <ThemeProvider theme={theme}>
-          <ActionMain
-            type     = 'signup'
-            disabled
-            errors   = {{}}
-            loading  = {false}
-            onSubmit = {onSubmit}
-          />
+          <ActionMain type='signup' disabled errors={{}} loading={false} onSubmit={onSubmit} />
         </ThemeProvider>
-      </StoreProvider>
+      </StoreProvider>,
     );
 
     debug();

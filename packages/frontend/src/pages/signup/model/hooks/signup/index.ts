@@ -1,29 +1,17 @@
-import * as s from '../../selectors';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
-import { signupByEmailStart, signupByEmailEnd, signupSendCodeAgain } from '../../services';
-import type { SignupData, SignupDataEnd } from '../../types';
-import { actions } from '../../slice';
-import { Errors } from 'shared/lib/validators';
-import { useMemo } from 'react';
+// packages/frontend/src/pages/signup/model/hooks/signup/index.ts
 
-
+import { useSignupPageStore } from '../../store';
 
 export const useSignup = () => {
-  const dispatch   = useAppDispatch();
+  const loading = useSignupPageStore((s) => s.loading);
+  const errors = useSignupPageStore((s) => s.errors);
+  const signupData = useSignupPageStore((s) => s.signupData);
+  const codeSended = useSignupPageStore((s) => s.codeSended);
 
-  const loading    = useSelector(s.selectLoading);
-  const errors     = useSelector(s.selectErrors);
-  const signupData = useSelector(s.selectSignupData);
-  const codeSended = useSelector(s.selectCodeSended);
-
-  const api = useMemo(() => ({
-    setErrors            : (errors: Errors) => dispatch(actions.setErrors(errors)),
-    serviceSignupStart   : (data: SignupData) => dispatch(signupByEmailStart(data)),
-    serviceSendCodeAgain : (data: SignupData) => dispatch(signupSendCodeAgain(data)),
-    serviceSignupEnd     : (data: SignupDataEnd) => dispatch(signupByEmailEnd(data)),
-  }), [dispatch]);
-
+  const setErrors = useSignupPageStore((s) => s.setErrors);
+  const serviceSignupStart = useSignupPageStore((s) => s.serviceSignupStart);
+  const serviceSendCodeAgain = useSignupPageStore((s) => s.serviceSendCodeAgain);
+  const serviceSignupEnd = useSignupPageStore((s) => s.serviceSignupEnd);
 
   return {
     loading,
@@ -31,6 +19,9 @@ export const useSignup = () => {
     signupData,
     codeSended,
 
-    ...api
-  }
+    setErrors,
+    serviceSignupStart,
+    serviceSendCodeAgain,
+    serviceSignupEnd,
+  };
 };

@@ -7,9 +7,6 @@ import type { StateSchemaDashboardView } from '../state-schema';
 import type { ViewItem } from '../../../types';
 import type { BunchesViewItem } from '../../../types/view-item';
 import { LS } from 'shared/lib/local-storage';
-import { updateEntities } from 'entities/base';
-import { getViewitemsFromBunches } from '../../../model/utils/get-viewitems-from-bunches';
-import { getBunchesWithoutChanges } from '../../../model/utils/get-bunches-without-changes';
 
 // Мокаем LS
 jest.mock('shared/lib/local-storage', () => ({
