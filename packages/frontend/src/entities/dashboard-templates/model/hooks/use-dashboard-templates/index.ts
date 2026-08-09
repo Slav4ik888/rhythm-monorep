@@ -1,58 +1,66 @@
+// packages/frontend/src/entities/dashboard-templates/model/hooks/use-dashboard-templates/index.ts
+// Хук useDashboardTemplates — мигрирован с Redux на Zustand
+// Публичный интерфейс сохранён для обратной совместимости
+
 import { useMemo } from 'react';
-import * as s from '../../selectors';
-import { actions as a } from '../../slice';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
+import {
+  useDashboardTemplatesStore,
+  selectLoading,
+  selectErrors,
+  selectIsMounted,
+  selectBunchesUpdated,
+  selectEntities,
+  selectTemplates,
+  selectOpened,
+  selectSelectedId,
+  selectSelectedTemplate,
+  selectSelectedViewItem,
+  selectIsMainItem,
+  selectStoredSelected,
+  selectIsUnsaved,
+} from '../../store';
 import { Errors } from 'shared/lib/validators';
 import type { StateSchemaDashboardTemplates } from '../../slice/state-schema';
 import { ViewItemId } from 'entities/dashboard-view';
-import { getBunchesUpdated, getTemplates } from '../../services';
-import {
-  deleteTemplate, DeleteTemplate, updateTemplate, UpdateTemplate
- } from 'shared/api/features/dashboard-templates';
-import type { ReqGetTemplates } from '../../services/get-templates';
-
-
+import type { DeleteTemplate, UpdateTemplate } from 'shared/api/features/dashboard-templates';
 
 export const useDashboardTemplates = () => {
-  const dispatch = useAppDispatch();
+  // Состояние через Zustand селекторы
+  const loading = useDashboardTemplatesStore(selectLoading);
+  const errors = useDashboardTemplatesStore(selectErrors);
+  const isMounted = useDashboardTemplatesStore(selectIsMounted);
+  const bunchesUpdated = useDashboardTemplatesStore(selectBunchesUpdated);
+  const entities = useDashboardTemplatesStore(selectEntities);
+  const templates = useDashboardTemplatesStore(selectTemplates);
+  const opened = useDashboardTemplatesStore(selectOpened);
+  const selectedId = useDashboardTemplatesStore(selectSelectedId);
+  const selectedTemplate = useDashboardTemplatesStore(selectSelectedTemplate);
+  const selectedViewItem = useDashboardTemplatesStore(selectSelectedViewItem);
+  const isMainItem = useDashboardTemplatesStore(selectIsMainItem);
+  const storedSelected = useDashboardTemplatesStore(selectStoredSelected);
+  const isUnsaved = useDashboardTemplatesStore(selectIsUnsaved);
 
-  const loading          = useSelector(s.selectLoading);
-  const errors           = useSelector(s.selectErrors);
-  const isMounted        = useSelector(s.selectIsMounted);
-  const bunchesUpdated   = useSelector(s.selectBunchesUpdated);
-  const entities         = useSelector(s.selectEntities);
-  const templates        = useSelector(s.selectTemplates);
+  // Действия через getState() (как в useDashboardData)
+  const api = useMemo(() => {
+    const store = useDashboardTemplatesStore.getState;
+    return {
+      setErrors: (errors: Errors) => store().setErrors(errors),
+      clearErrors: () => store().clearErrors(),
 
-  const opened           = useSelector(s.selectOpened);
-  const selectedId       = useSelector(s.selectSelectedId);
-  const selectedTemplate = useSelector(s.selectSelectedTemplate);
-  const selectedViewItem = useSelector(s.selectSelectedViewItem);
-  const isMainItem       = useSelector(s.selectIsMainItem);
-  const storedSelected   = useSelector(s.selectStoredSelected);
-  const isUnsaved        = useSelector(s.selectIsUnsaved);
+      setInitial: (state: StateSchemaDashboardTemplates) => store().setInitial(state),
+      setIsMounted: () => store().setIsMounted(),
+      setOpened: (flag: boolean) => store().setOpened(flag),
+      setSelectedId: (id: ViewItemId) => store().setSelectedId(id),
+      activateMainViewItem: () => store().activateMainViewItem(),
+      deleteSelectedViewItem: () => store().deleteSelectedViewItem(),
+      cancelUpdateTemplate: () => store().cancelUpdateTemplate(),
 
-
-  const api = useMemo(() => ({
-    setErrors                : (errors: Errors) => dispatch(a.setErrors(errors)),
-    clearErrors              : () => dispatch(a.setErrors({})),
-
-    setInitial               : (state: StateSchemaDashboardTemplates) => dispatch(a.setInitial(state)),
-    setIsMounted             : () => dispatch(a.setIsMounted()),
-    setOpened                : (flag: boolean) => dispatch(a.setOpened(flag)),
-    setSelectedId            : (id: ViewItemId) => dispatch(a.setSelectedId(id)),
-    activateMainViewItem     : () => dispatch(a.activateMainViewItem()),
-    deleteSelectedViewItem   : () => dispatch(a.deleteSelectedViewItem()),
-    cancelUpdateTemplate     : () => dispatch(a.cancelUpdateTemplate()),
-
-    serviceGetBunchesUpdated : () => dispatch(getBunchesUpdated()),
-    serviceGetTemplates      : (data: ReqGetTemplates) => dispatch(getTemplates(data)),
-    serviceUpdateTemplate    : (data: UpdateTemplate) => dispatch(updateTemplate(data)),
-    serviceDeleteTemplate    : (data: DeleteTemplate) => dispatch(deleteTemplate(data)),
-  }),
-    [dispatch]
-  );
-
+      serviceGetBunchesUpdated: () => store().serviceGetBunchesUpdated(),
+      serviceGetTemplates: (data: { bunchIds: string[] }) => store().serviceGetTemplates(data),
+      serviceUpdateTemplate: (data: UpdateTemplate) => store().serviceUpdateTemplate(data),
+      serviceDeleteTemplate: (data: DeleteTemplate) => store().serviceDeleteTemplate(data),
+    };
+  }, []);
 
   return {
     loading,
@@ -71,6 +79,6 @@ export const useDashboardTemplates = () => {
     isMainItem,
     isUnsaved,
 
-    ...api
-  }
+    ...api,
+  };
 };

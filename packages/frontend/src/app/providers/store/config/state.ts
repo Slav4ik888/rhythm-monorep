@@ -28,8 +28,8 @@ export interface StateSchema {
   loginPage?: StateSchemaLoginPage;
   userFeatures?: StateSchemaUserFeatures;
   dashboardView?: StateSchemaDashboardView;
-  dashboardTemplates?: StateSchemaDashboardTemplates;
-  dashboardData?: StateSchemaDashboardData; // DashboardData переведён на Zustand, Redux-слайс в процессе миграции
+  dashboardTemplates?: StateSchemaDashboardTemplates; // DashboardTemplates переведён на Zustand, Redux-слайс в процессе миграции
+  dashboardData?: StateSchemaDashboardData; // DashboardData переведён на Zustand, Redux-слайс удалён
 }
 
 // export const selectProps = (_: StateSchema, props: any) => props;

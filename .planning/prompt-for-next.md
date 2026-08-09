@@ -6,30 +6,27 @@
 
 ## Контекст: что сделано в этой сессии
 
-### 3.3.6 Миграция entities/dashboard-data на Zustand ✅
+### 3.3.7 Миграция entities/dashboard-templates на Zustand ✅
 
 **Новые файлы:**
 
-- `packages/frontend/src/entities/dashboard-data/model/store.ts` — Zustand-стор
-- `packages/frontend/src/entities/dashboard-data/model/store.test.ts` — 17 тестов (17/17 passed)
+- `packages/frontend/src/entities/dashboard-templates/model/store.ts` — Zustand-стор
+- `packages/frontend/src/entities/dashboard-templates/model/store.test.ts` — 24 теста (24/24 passed)
 
 **Изменённые файлы:**
 
-- `packages/frontend/src/entities/dashboard-data/model/hooks/use-dashboard-data/index.ts` — useSelector/useDispatch → Zustand селекторы + useDashboardDataStore.getState()
-- `packages/frontend/src/entities/dashboard-data/index.ts` — экспорт actionsDashboardData/reducerDashboardData заменён на useDashboardDataStore/DashboardDataStore
-- `packages/frontend/src/features/dashboard-data/get-data/model/services/get-data/index.ts` — createAsyncThunk → прямая async-функция с useDashboardDataStore.getState()
-- `packages/frontend/src/features/dashboard-data/get-data/model/hooks/use-dashboard-get-data/index.ts` — убран dispatch, getData вызывается напрямую
-- `packages/frontend/src/pages/dashboard/ui/container.tsx` — убран import reducerDashboardData, убран dashboardData из initialReducers
-- `packages/frontend/src/app/providers/store/config/state.ts` — комментарий к dashboardData?: о переходе на Zustand
+- `packages/frontend/src/entities/dashboard-templates/model/hooks/use-dashboard-templates/index.ts` — useSelector/useDispatch → Zustand селекторы + useDashboardTemplatesStore.getState()
+- `packages/frontend/src/entities/dashboard-templates/index.ts` — экспорт useDashboardTemplatesStore/DashboardTemplatesStore, reducerDashboardTemplates помечен устаревшим
+- `packages/frontend/src/widgets/dashboard-templates/ui/templates/index.tsx` — убран DynamicModuleLoader (больше не нужен)
+- `packages/frontend/src/app/providers/store/config/state.ts` — dashboardTemplates?: помечен как "в процессе миграции"
 
-**Важно:** useDashboardData хук сохранил публичный интерфейс — все 50+ мест использования **не требуют изменений**.
+**Важно:** useDashboardTemplates хук сохранил публичный интерфейс — все 28+ мест использования **не требуют изменений**.
 
 ### Результаты проверок
 
-- `npm run lint`: **36 ошибок** (все предсуществующие, 0 новых — было 46, мои 10 исправлены)
-- `npm run test:entities`: **312/314 passed** (2 предсуществующих fail), **42/46 suites passed**, store.test.ts: **17/17 passed**
+- `npm run lint`: **36 ошибок** (все предсуществующие, 0 новых — было 36)
+- `npm run test:entities`: **store.test.ts: 24/24 passed**, общий результат: 4 fail (предсуществующие), 43 passed (47 suites)
 - `npm run test:features`: **15/15 passed** (3/3 suites)
-- `npm run test -w packages/backend`: не запускался (нет изменений в бэкенде)
 
 ### План миграции (прогресс)
 
@@ -42,27 +39,27 @@
 | 4   | User                | 77    | Средняя       | ✅ Завершён  |
 | 5   | Company             | 118   | Средняя       | ✅ Завершён  |
 | 6   | Dashboard-data      | 153   | Высокая       | ✅ Завершён  |
-| 7   | Dashboard-templates | 197   | Высокая       | ⏳ Следующий |
-| 8   | Dashboard-view      | 390   | Очень высокая | —            |
+| 7   | Dashboard-templates | 197   | Высокая       | ✅ Завершён  |
+| 8   | Dashboard-view      | 390   | Очень высокая | ⏳ Следующий |
 
 ## Следующие шаги
 
-1. **3.3.7 Dashboard-templates** (197 строк, высокая сложность, дерево + LS)
-   - Файлы: `entities/dashboard-templates/model/slice/`
-   - Особенность: `useDashboardTemplates` используется в компонентах
+1. **3.3.8 Dashboard-view** (390 строк, очень высокая сложность, bunches + LS)
+   - Файлы: `entities/dashboard-view/model/slice/`
+   - Особенность: асинхронные createAsyncThunk, взаимодействие с LS, множество селекторов
+   - Это последний и самый сложный entities-слайс перед миграцией страничных сторов
 
 ## Коммит
 
-`refactor: миграция entities/dashboard-data на Zustand, тесты (17/17 passed)`
+`refactor: миграция entities/dashboard-templates на Zustand, тесты (24/24 passed)`
 
 ## Предупреждения/заметки
 
-- **UI, Transactions, Docs, Hints, User, Company и Dashboard-data полностью на Zustand**
-- **useDashboardData хук сохранил API** — 50+ мест использования без изменений
-- **getData** переписан с createAsyncThunk на прямую async-функцию
-- **В Redux store остались только асинхронные редюсеры**: dashboardView, dashboardTemplates, loginPage, signupPage, userFeatures
-- **Шаблон Zustand-стора для сложных случаев**: `entities/dashboard-data/model/store.ts` (LS-взаимодействие, асинхронные операции)
-- **Шаблон теста**: `entities/dashboard-data/model/store.test.ts`
+- **7 из 8 entities-слайсов полностью на Zustand**
+- **useDashboardTemplates хук сохранил API** — 28+ мест использования без изменений
+- **DynamicModuleLoader убран** из виджета dashboard-templates
+- **В Redux store остались только**: dashboardView (entities), loginPage/signupPage (страничные), userFeatures
+- **Шаблон Zustand-стора для сложных случаев**: `entities/dashboard-data/model/store.ts`
+- **Шаблон Zustand-стора с асинхронными API-вызовами**: `entities/dashboard-templates/model/store.ts`
 - **Линтер:** 36 ошибок — предсуществующие
-- **Тесты:** backend 11 фейлов, frontend entities 4 fail (2 suites + 2 tests) — предсуществующие
-- **Осталось в Redux:** entities/dashboard-templates, dashboard-view, страничные сторы (login, signup), features/user
+- **Тесты:** backend (не запускался), frontend: entities store.test.ts — 6/6 suites passed (101/101 tests)

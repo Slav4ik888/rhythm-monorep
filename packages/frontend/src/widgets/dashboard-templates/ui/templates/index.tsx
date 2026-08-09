@@ -1,29 +1,20 @@
+// packages/frontend/src/widgets/dashboard-templates/ui/templates/index.tsx
+
 import { memo, useEffect } from 'react';
-import { useDashboardTemplates, reducerDashboardTemplates } from 'entities/dashboard-templates';
-import { DynamicModuleLoader, ReducersList } from 'shared/lib/components';
+import { useDashboardTemplates } from 'entities/dashboard-templates';
 import { DashboardTemplatesContainer } from './container';
-
-
-
-const initialReducers: ReducersList = {
-  dashboardTemplates : reducerDashboardTemplates
-};
 
 /** Шаблоны */
 export const DashboardTemplates = memo(() => {
   const { serviceGetBunchesUpdated } = useDashboardTemplates();
 
-  useEffect(() => {
-    serviceGetBunchesUpdated(); /** Get актуальное состояние bunchesUpdated from DB */
-  },
+  useEffect(
+    () => {
+      serviceGetBunchesUpdated(); /** Get актуальное состояние bunchesUpdated from DB */
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
-
-  return (
-    <DynamicModuleLoader reducers={initialReducers}>
-      <DashboardTemplatesContainer />
-    </DynamicModuleLoader>
-  )
+  return <DashboardTemplatesContainer />;
 });
