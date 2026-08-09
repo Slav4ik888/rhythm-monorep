@@ -6,7 +6,6 @@ import { createReducerManager } from './reducer-manager';
 import { api } from 'shared/api';
 import { reducerCompany } from 'entities/company';
 import { reducerUser } from 'entities/user';
-import { reducerHints } from 'entities/hints';
 
 export function createReduxStore(initialState?: StateSchema, asyncReducers?: ReducersMapObject<StateSchema>) {
   const rootReducers: ReducersMapObject<StateSchema> = {
@@ -15,7 +14,6 @@ export function createReduxStore(initialState?: StateSchema, asyncReducers?: Red
       // Entities
       user: reducerUser,
       company: reducerCompany,
-      hints: reducerHints,
     },
     reducerManager = createReducerManager(rootReducers),
     extraArg = {

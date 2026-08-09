@@ -49,8 +49,9 @@
 - [x] 3.3.2 Мигрировать entities/docs (49 строк, низкая сложность, 1 asyncThunk: getPolicy)
   - Zustand-стор + тесты (10/10 passed), getPolicy переписан с createAsyncThunk на прямой API-вызов
   - reducerDocs убран из Redux store, DynamicModuleLoader на странице policy убран
-- [ ] 3.3.3 Мигрировать entities/hints (102 строки, средняя сложность, 1 asyncThunk: dontShowAgain)
-  - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
+- [x] 3.3.3 Мигрировать entities/hints (102 строки, средняя сложность, 1 asyncThunk: dontShowAgain)
+  - Zustand-стор + тесты (16/16 passed), dontShowAgain переписан с createAsyncThunk на прямой API-вызов
+  - reducerHints убран из Redux store, hints?: сделан опциональным в StateSchema
 - [ ] 3.3.4 Мигрировать entities/user (77 строк, средняя сложность, 1 asyncThunk: getAuth)
   - Порядок: unit-тесты на Redux-слайс → Zustand-стор с теми же тестами → замена в компонентах → удалить Redux
 - [ ] 3.3.5 Мигрировать entities/company (118 строк, средняя сложность, 3 asyncThunk)

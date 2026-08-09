@@ -21,7 +21,7 @@ export interface StateSchema {
   user: StateSchemaUser;
   company: StateSchemaCompany;
   docs?: StateSchemaDocs; // Docs переведён на Zustand, Redux-слайс удалён
-  hints: StateSchemaHints;
+  hints?: StateSchemaHints; // Hints переведён на Zustand, Redux-слайс удалён
 
   // Async reducer
   signupPage?: StateSchemaSignupPage;

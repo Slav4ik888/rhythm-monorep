@@ -1,33 +1,27 @@
+// packages/frontend/src/entities/hints/model/hooks/use-hints/index.ts
+
 import { useMemo } from 'react';
-import * as s from '../../selectors';
-import { actions } from '../../slice';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/lib/hooks';
-
-
+import { useHintsStore } from '../../store';
 
 export const useHints = () => {
-  const dispatch = useAppDispatch();
+  const hintsQueue = useHintsStore((state) => state.hintsQueue);
+  const shownHints = useHintsStore((state) => state.shownHints);
+  const currentHintId = useHintsStore((state) => state.currentHintId);
 
-  const hintsQueue    = useSelector(s.selectHintsQueue);
-  const shownHints    = useSelector(s.selectShownHints);
-  const currentHintId = useSelector(s.selectСurrentHintId);
-
-
-  const api = useMemo(() => ({
-    shownNextHint    : () => dispatch(actions.shownNextHint()),
-    closeCurrentHint : () => dispatch(actions.closeCurrentHint()),
-    addHintsToQueue  : (hintIds: string[]) => dispatch(actions.addHintsToQueue(hintIds)),
-  }),
-    [dispatch]
+  const api = useMemo(
+    () => ({
+      shownNextHint: () => useHintsStore.getState().shownNextHint(),
+      closeCurrentHint: () => useHintsStore.getState().closeCurrentHint(),
+      addHintsToQueue: (hintIds: string[]) => useHintsStore.getState().addHintsToQueue(hintIds),
+    }),
+    [],
   );
-
 
   return {
     hintsQueue,
     shownHints,
     currentHintId,
 
-    ...api
-  }
+    ...api,
+  };
 };
