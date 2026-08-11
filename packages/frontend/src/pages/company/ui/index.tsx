@@ -45,7 +45,7 @@ const CompanyPage: FC = memo((): React.ReactElement | null => {
       urlParamsCompanyId !== companyId
     ) {
       setPageLoading({ 'get-params-company': { text: 'Загрузка данных по компании...', name: 'CompanyPage' } });
-      serviceGetParamsCompany({ companyId: urlParamsCompanyId, dashboardSheetId });
+      serviceGetParamsCompany({ companyId: urlParamsCompanyId || '', dashboardSheetId: dashboardSheetId || '' });
     }
     // Если переключились на другую компанию, напр. Демо-примеры
     else if (
@@ -56,7 +56,7 @@ const CompanyPage: FC = memo((): React.ReactElement | null => {
       urlParamsCompanyId !== paramsCompanyId
     ) {
       setPageLoading({ 'get-params-company': { text: 'Загрузка данных по компании...', name: 'CompanyPage' } });
-      serviceGetParamsCompany({ companyId: urlParamsCompanyId, dashboardSheetId });
+      serviceGetParamsCompany({ companyId: urlParamsCompanyId || '', dashboardSheetId: dashboardSheetId || '' });
     }
     // Если по ссылке вошли в свою компанию
     else if (

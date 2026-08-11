@@ -10,14 +10,7 @@ import { updateObject, cloneObj, isNotEmpty } from 'shared/helpers/objects';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { api, API_PATHS } from 'shared/api';
 import cfg from 'app/config';
-import type {
-  ViewItem,
-  ViewItemId,
-  PartialViewItem,
-  ViewItemStyles,
-  ViewItemStylesField,
-  BunchesViewItem,
-} from '../types';
+import type { ViewItem, ViewItemId, PartialViewItem, ViewItemStyles, BunchesViewItem } from '../types';
 import { getViewitemsFromBunches } from './utils/get-viewitems-from-bunches';
 import { getBunchesWithoutChanges } from './utils/get-bunches-without-changes';
 import { getBunchesFromViewItems } from './utils/get-bunches-from-viewitems';
@@ -134,7 +127,7 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
 
   setDashboardBunchesFromCache: ({ companyId, changedBunches }) =>
     set((state) => {
-      const bunches = getBunchesWithoutChanges(changedBunches, LS.getBunches(companyId));
+      const bunches = getBunchesWithoutChanges(changedBunches || [], LS.getBunches(companyId));
       // Обновляем в LS так как возможно изменились bunches
       LS.setBunches(companyId, { ...bunches });
       return {
@@ -147,7 +140,7 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
 
   setEditMode: ({ editMode, companyId }) =>
     set((state) => {
-      LS.setEditMode(companyId, editMode);
+      LS.setEditMode(companyId || '', editMode);
       return {
         editMode,
         selectedId: !editMode ? '' : state.selectedId,
@@ -237,7 +230,7 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
         if (!selectedEntity.styles) {
           selectedEntity.styles = {};
         }
-        (selectedEntity.styles as Record<ViewItemStylesField, string | number>)[field] = value;
+        (selectedEntity.styles as Record<string, string | number>)[field] = value;
         return {
           entities: { ...state.entities, [state.selectedId]: { ...selectedEntity } },
         };
@@ -282,7 +275,7 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
       if (selectedItem) {
         const entity = { ...selectedItem };
         if (!entity.settings) entity.settings = {};
-        entity.settings.charts = updateChartsItem(selectedItem, index, field as any, value);
+        entity.settings.charts = updateChartsItem(selectedItem, index || 0, field as any, value);
         return {
           entities: { ...state.entities, [selectedId]: entity },
         };
@@ -294,13 +287,13 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
     set((state) => {
       const { selectedId } = state;
       const selectedItem = state.entities[selectedId];
-      const datasets = cloneObj(selectedItem?.settings?.charts?.[index]?.datasets || {}) as any;
+      const datasets = cloneObj(selectedItem?.settings?.charts?.[index || 0]?.datasets || {}) as any;
       (datasets as Record<string, unknown>)[field as string] = value;
 
       if (selectedItem) {
         const entity = { ...selectedItem };
         if (!entity.settings) entity.settings = {};
-        entity.settings.charts = updateChartsItem(selectedItem, index, 'datasets' as any, datasets);
+        entity.settings.charts = updateChartsItem(selectedItem, index || 0, 'datasets' as any, datasets);
         return {
           entities: { ...state.entities, [selectedId]: entity },
         };
@@ -394,7 +387,7 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
         );
         LS.setViewBunchesUpdated(companyId, {
           ...LS.getViewBunchesUpdated(companyId),
-          ...getBunchesTimestamps(viewItems, bunchUpdatedMs),
+          ...getBunchesTimestamps((viewItems || []) as ViewItem[], bunchUpdatedMs || 0),
         });
 
         return {
@@ -435,13 +428,13 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
       set((state) => {
         // Удаляем сущности
         const newEntities = { ...state.entities };
-        viewItems.forEach((item) => delete newEntities[item.id]);
+        viewItems?.forEach((item) => delete newEntities[item.id]);
 
         // Сохраняем в LS
         LS.setBunches(companyId, getBunchesFromViewItems(Object.values(newEntities)));
         LS.setViewBunchesUpdated(companyId, {
           ...LS.getViewBunchesUpdated(companyId),
-          ...getBunchesTimestamps(viewItems, bunchUpdatedMs),
+          ...getBunchesTimestamps((viewItems || []) as any[], bunchUpdatedMs || 0),
         });
 
         return {

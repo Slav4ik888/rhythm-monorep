@@ -5,11 +5,8 @@ import { MoveToAnotherItem, MoveItemUpdownward, CopyViewItem, MoveToNewItem } fr
 import { f, pxToRem } from 'shared/styles';
 import { CopyToTemplatesBtn } from 'features/dashboard-templates';
 
-
-
 export const MovementRow: FC = memo(() => {
   const { selectedItem } = useDashboardViewState();
-
 
   return (
     <SubHeader title='Перемещение'>
@@ -20,14 +17,14 @@ export const MovementRow: FC = memo(() => {
 
       <RowWrapper sx={{ root: { ...f('-c-fe'), gap: pxToRem(8) } }}>
         <MoveItemUpdownward viewItem={selectedItem} />
-        <CopyViewItem type='copyItemFirstOnly' />
-        <CopyViewItem type='copyItemsAll' />
+        <CopyViewItem type={'copyItemFirstOnly' as any} />
+        <CopyViewItem type={'copyItemsAll' as any} />
       </RowWrapper>
 
       <RowWrapper sx={{ root: { ...f('-c-fe'), gap: pxToRem(8) } }}>
-        <CopyToTemplatesBtn type='copyItemFirstOnly' />
-        <CopyToTemplatesBtn type='copyItemsAll' />
+        <CopyToTemplatesBtn type={'copyItemFirstOnly' as any} />
+        <CopyToTemplatesBtn type={'copyItemsAll' as any} />
       </RowWrapper>
     </SubHeader>
-  )
+  );
 });

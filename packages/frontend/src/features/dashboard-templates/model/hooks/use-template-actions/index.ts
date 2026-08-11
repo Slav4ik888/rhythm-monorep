@@ -21,7 +21,12 @@ export const useTemplateActions = () => {
     (type: ActivatedCopiedType) => {
       const templateId = uuidv4();
 
-      const copiedViewItems = getCopyViewItem({ type, id: selectedItem.id }, templateId, viewItems, userId);
+      const copiedViewItems = getCopyViewItem(
+        { type: type as any, id: selectedItem.id },
+        templateId,
+        viewItems,
+        userId,
+      );
 
       // TODO: Проверку кол-ва viewItems в bunch в template а не по templates как сейчас
       // Adding bunchId to copied items

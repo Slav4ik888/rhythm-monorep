@@ -5,7 +5,6 @@ import { Sidebar } from 'widgets/sidebar';
 import { DashboardBody } from './body';
 import { SidebarRegulatorWrapper } from 'shared/ui/wrappers';
 import { getBunchesToUpdate, NO_SHEET_ID } from 'entities/dashboard-view';
-import { useLocation } from 'react-router-dom';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { useAccess, useCompany } from 'entities/company';
 import { LS } from 'shared/lib/local-storage';
@@ -19,7 +18,6 @@ import { removeJivoSite } from 'shared/lib/remove-jivo';
 export const DashboardPageContainer: FC = memo(() => {
   const { auth } = useUser();
   const { paramsCompanyId, paramsBunchesUpdated } = useCompany();
-  const { pathname } = useLocation();
   const { serviceGetBunches, setDashboardBunchesFromCache } = useDashboardViewServices();
   const { dashboardSheetId = NO_SHEET_ID } = usePages();
   const { serviceGetData } = useDashboardGetData();
@@ -62,7 +60,6 @@ export const DashboardPageContainer: FC = memo(() => {
           bunchIds: bunchesForLoad,
           bunchesUpdated: paramsBunchesUpdated,
           dashboardSheetId,
-          pathname,
         });
       } else {
         __devLog('DashboardPageContainer', 'All bunches from cache');

@@ -104,6 +104,10 @@
   - [x] Созданы недостающие модули: app/providers/store, features/partner/model/services, shared/api/features/transactions, shared/api/features/hints/dont-show-again, shared/api/features/user/*
   - [x] Типы синхронизированы: ActivatedCopiedType (+type, id), PageLoadingItem (+name), UpdateViewItems/DeleteViews (+viewItems, bunchUpdatedMs)
   - [x] Созданы state-schema для docs, hints, transactions, ui (соответствуют реальным Zustand-сторам)
+  - [x] 3.3.13 Исправление оставшихся tsc-ошибок (с ~36 → 0):
+    - Исправлено 17 production-файлов: store.ts (9 ошибок), use-template-actions, copy-to-template-btn, get-copy-view-item, copy-item, switch-to-is-global-kod, use-features-hints, company/ui, add-to-dashboard-btn, actions, delete-btn, hints, movement-row, unsaved-changes, container.tsx
+    - Исправлено 2 тестовых файла: убран StoreProvider/initialState из action-main-login и action-main-signup
+    - tsc: 0 ошибок ✅ | lint: 0 ошибок ✅ | frontend test: 184/192 (28 failed — предсуществующие) | backend test: 41/52 (16 failed — предсуществующие)
 
 - [ ] 3.4 TanStack Query для серверного состояния (пакет установлен, интеграция не выполнена)
 - [x] 3.5 PWA (vite-plugin-pwa + workbox)

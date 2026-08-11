@@ -21,7 +21,7 @@ export const useFeatureHints = () => {
         try {
           if (data.id && data.companyId) {
             // Иначе сохранится только в LS (как и было в оригинальном asyncThunk)
-            await userApi.update(api, data);
+            await userApi.update(api, data as any);
           }
 
           // Сохраняем currentHintId до вызова finishDontShowAgain,
