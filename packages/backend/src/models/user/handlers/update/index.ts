@@ -1,22 +1,17 @@
-import { Context } from '../../../../app/types/global';
 import { serviceUpdateUser } from '../../services';
 import { PartialUser } from '../../types';
-import { getUserId } from '../../utils';
 
-
-
-export interface UpdatedConfig {
-  userData: PartialUser
+/** Аргументы для updateUserModel */
+export interface UpdateUserArgs {
+  userData: PartialUser;
+  userId: string;
 }
 
-
 /**
- * @requires body as UpdatedConfig
+ * Обновление данных пользователя
+ * @requires userData as PartialUser
  */
-export const updateUserModel = async (ctx: Context): Promise<void> => {
-  const { userData } = ctx.request.body as UpdatedConfig;
-  const userId = getUserId(ctx);
-
+export const updateUserModel = async ({ userData, userId }: UpdateUserArgs): Promise<void> => {
   // TODO: Permissions
   // TODO: Remove fields that are not allowed to be updated
 
@@ -24,6 +19,4 @@ export const updateUserModel = async (ctx: Context): Promise<void> => {
 
   // Update
   await serviceUpdateUser(userData, userId);
-
-  ctx.status = 200;
 };

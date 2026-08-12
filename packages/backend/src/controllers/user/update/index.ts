@@ -1,6 +1,8 @@
 import { Context } from '../../../app/types/global';
 import { createLogTemp, loggerUser as logger } from '../../../libs/loggers';
-import models from '../../../models';
+import { updateUserModel } from '../../../models/user/handlers/update';
+import { getUserId } from '../../../models/user';
+import { PartialUser } from '../../../models/user/types';
 import { responseError } from '../../../views';
 
 export async function userUpdateController(ctx: Context): Promise<any> {
@@ -8,7 +10,12 @@ export async function userUpdateController(ctx: Context): Promise<any> {
     error = responseError(ctx, logger, logTemp);
 
   try {
-    await models.user.update(ctx);
+    const { userData } = ctx.request.body as { userData: PartialUser };
+    const userId = getUserId(ctx);
+
+    await updateUserModel({ userData, userId });
+    ctx.status = 200;
+
     logger.info(`${logTemp} success`);
   } catch (err) {
     error(err);
