@@ -1,32 +1,43 @@
-import { Context } from '../../../../app/types/global';
 import { ERROR_NAME, getErrorText } from '../../../../libs/validators';
 import { serviceDashboardViewGetAllViewItems } from '../../../dashboard-view/services';
-import { getUserId } from '../../../user';
 import { serviceCompanyDeleteSheet } from '../../services';
 import { isSheetNotEmpty } from '../../utils';
 
-export interface DeleteSheet {
+/** Аргументы для удаления листа (рефакторинг: без ctx) */
+export interface DeleteSheetArgs {
   companyId: string;
   sheetId: string;
+  userId: string;
 }
 
-export const companyDeleteSheetModel = async (ctx: Context): Promise<void> => {
-  const { companyId, sheetId } = ctx.request.body as DeleteSheet;
-  const userId = getUserId(ctx);
+/**
+ * Удаляет лист (sheet) компании.
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает аргументы напрямую.
+ */
+export const companyDeleteSheetModel = async (args: DeleteSheetArgs): Promise<void> => {
+  const { companyId, sheetId, userId } = args;
 
-  if (!companyId || !sheetId) return ctx.throw(400, { general: getErrorText(ERROR_NAME.INVALID_DATA) });
+  if (!companyId || !sheetId) {
+    throw Object.assign(new Error(getErrorText(ERROR_NAME.INVALID_DATA)), {
+      statusCode: 400,
+      body: { general: getErrorText(ERROR_NAME.INVALID_DATA) },
+    });
+  }
 
   // TODO: Permissions
 
   // Проверка наличия вложенных ViewItems - Нельзя удалять пока они есть
   const viewItems = await serviceDashboardViewGetAllViewItems(companyId);
-  if (isSheetNotEmpty(viewItems, sheetId))
-    return ctx.throw(400, {
-      general: 'Нельзя удалить вкладку, пока есть вложенные элементы',
+  if (isSheetNotEmpty(viewItems, sheetId)) {
+    throw Object.assign(new Error('Нельзя удалить вкладку, пока есть вложенные элементы'), {
+      statusCode: 400,
+      body: { general: 'Нельзя удалить вкладку, пока есть вложенные элементы' },
     });
+  }
 
-  // Update
+  // Delete
   await serviceCompanyDeleteSheet(companyId, sheetId, userId);
-
-  ctx.body = ctx.request.body;
 };
+
+/** Сигнатура для обратной совместимости с Koa-контроллером */
+export { companyDeleteSheetModel as deleteSheet };

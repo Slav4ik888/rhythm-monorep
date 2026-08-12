@@ -10,6 +10,7 @@ import { PartnerModule } from './controllers/partner/partner.module';
 import { LoggersModule } from './controllers/loggers/loggers.module';
 import { TemplatesModule } from './controllers/templates/templates.module';
 import { GoogleModule } from './controllers/google/google.module';
+import { CompanyModule } from './controllers/company/company.module';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 @Module({
@@ -20,8 +21,9 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
     LoggersModule,
     TemplatesModule,
     GoogleModule,
+    CompanyModule,
     // TODO: добавить остальные модули по мере миграции
-    // AuthModule, UserModule, CompanyModule, DashboardModule, etc.
+    // AuthModule, UserModule, DashboardModule, etc.
   ],
   providers: [
     {
