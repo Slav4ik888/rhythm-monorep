@@ -8,6 +8,7 @@ import { App } from './app';
 import { HelmetProvider } from 'react-helmet-async';
 import cfg from 'app/config';
 import { UIConfiguratorProvider } from 'app/providers/theme';
+import { QueryProvider } from 'app/providers/query-provider';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 
 /* eslint-disable-next-line no-console */
@@ -22,13 +23,11 @@ root.render(
     <BrowserRouter>
       <ErrorBoundary>
         <UIConfiguratorProvider>
-          <App />
+          <QueryProvider>
+            <App />
+          </QueryProvider>
         </UIConfiguratorProvider>
       </ErrorBoundary>
     </BrowserRouter>
   </HelmetProvider>,
 );
-
-// git add . && git commit -m "updated 1.53.0 some fixed" && git push -u origin main
-// деплой весь         /var/www/vtempe/data/rhythm/deploy.sh
-// деплой только фронт /var/www/vtempe/data/rhythm/deploy.sh -frontOnly

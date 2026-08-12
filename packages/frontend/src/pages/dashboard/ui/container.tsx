@@ -1,6 +1,6 @@
 // packages/frontend/src/pages/dashboard/ui/container.tsx
 
-import { FC, memo, useEffect } from 'react';
+import { FC, memo, useEffect, useMemo } from 'react';
 import { Sidebar } from 'widgets/sidebar';
 import { DashboardBody } from './body';
 import { SidebarRegulatorWrapper } from 'shared/ui/wrappers';
@@ -10,62 +10,65 @@ import { useAccess, useCompany } from 'entities/company';
 import { LS } from 'shared/lib/local-storage';
 import { useDashboardViewServices } from 'features/dashboard-view/model/hooks/use-dashboard-view-services';
 import { usePages } from 'shared/lib/hooks';
-import { useDashboardGetData } from 'features/dashboard-data';
 import { useUI } from 'entities/ui';
 import { useUser } from 'entities/user';
 import { removeJivoSite } from 'shared/lib/remove-jivo';
+import { useGetDashboardDataQuery, useGetBunchesQuery } from 'shared/api/hooks';
 
 export const DashboardPageContainer: FC = memo(() => {
   const { auth } = useUser();
   const { paramsCompanyId, paramsBunchesUpdated } = useCompany();
-  const { serviceGetBunches, setDashboardBunchesFromCache } = useDashboardViewServices();
+  const { setDashboardBunchesFromCache } = useDashboardViewServices();
   const { dashboardSheetId = NO_SHEET_ID } = usePages();
-  const { serviceGetData } = useDashboardGetData();
   const { setPageLoading } = useUI();
   const { isDashboardAccessView } = useAccess();
 
+  // Вычисляем, какие bunches нужно загрузить с сервера
+  const bunchesForLoad = useMemo(
+    () => getBunchesToUpdate(paramsBunchesUpdated, LS.getViewBunchesUpdated(paramsCompanyId)),
+    [paramsBunchesUpdated, paramsCompanyId],
+  );
+
+  // TanStack Query: автоматическая загрузка данных из Google Sheets
+  const hasCachedData = !!LS.getDataState(paramsCompanyId)?.startEntities && !!paramsCompanyId;
+  useGetDashboardDataQuery({
+    companyId: paramsCompanyId,
+    dashboardSheetId,
+    // Загружаем только если данных ещё нет в LS и есть доступ
+    enabled: !hasCachedData && paramsCompanyId !== '' && isDashboardAccessView,
+  });
+
+  // TanStack Query: автоматическая загрузка недостающих bunches
+  useGetBunchesQuery({
+    companyId: paramsCompanyId,
+    bunchIds: bunchesForLoad,
+    bunchesUpdated: paramsBunchesUpdated,
+    dashboardSheetId,
+    // Загружаем только если есть bunches для обновления
+    enabled: bunchesForLoad.length > 0 && isDashboardAccessView,
+  });
+
   useEffect(
     () => {
-      // Если нет доступа то нах с мопэда
+      // Если нет доступа — не загружаем
       if (!isDashboardAccessView) return;
 
-      // Если авторизован, убираем Живосайт
+      // Убираем Живосайт для авторизованных
       if (auth) removeJivoSite();
 
-      // 1. GOOGLE-DATA - если нет данных, то загружаем
-      if (!LS.getDataState(paramsCompanyId)?.startEntities && paramsCompanyId) {
-        setPageLoading({
-          'get-g-data': {
-            text: 'Загрузка данных c google-таблицы...',
-            name: 'DashboardPageContainer',
-          },
-        });
-        serviceGetData({ companyId: paramsCompanyId, dashboardSheetId });
-      }
-
-      // 2. VIEW-ITEMS
-      const bunchesForLoad = getBunchesToUpdate(paramsBunchesUpdated, LS.getViewBunchesUpdated(paramsCompanyId));
-
-      // Загружаем из кеша bunches в которых нет изменений
+      // Загружаем из кеша bunches, в которых нет изменений
       setDashboardBunchesFromCache({
-        companyId: paramsCompanyId, // paramsCompany.id,
+        companyId: paramsCompanyId,
         changedBunches: bunchesForLoad,
       });
 
       if (bunchesForLoad.length) {
         __devLog('DashboardPageContainer', 'Bunches for load:', bunchesForLoad.length);
         __devLog('DashboardPageContainer', bunchesForLoad);
-        serviceGetBunches({
-          companyId: paramsCompanyId, // paramsCompany.id,
-          bunchIds: bunchesForLoad,
-          bunchesUpdated: paramsBunchesUpdated,
-          dashboardSheetId,
-        });
       } else {
         __devLog('DashboardPageContainer', 'All bunches from cache');
       }
     },
-    // Повторно обновляем если переключились на другую компанию
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [auth, paramsCompanyId, paramsBunchesUpdated, isDashboardAccessView],
   );
