@@ -1,21 +1,29 @@
-import { Next } from 'koa';
-import { Context } from '../../../app/types/global';
+import { Context, Next } from 'koa';
+import { GoogleGetDataArgs, getData as googleGetDataModel } from '../../../models/google/handlers';
 import { createLogTemp, loggerCompany as logger } from '../../../libs/loggers';
-import models from '../../../models';
 import { responseError } from '../../../views';
+import { checkUserSession } from '../../../middleware/session-caches';
+import { serviceGetCompany } from '../../../models/company';
 
-
-
-export async function googleGetDataController(ctx: Context, next: Next): Promise<any> {
-  const
-    logTemp = createLogTemp(ctx, 'googleGetData'),
-    error   = responseError(ctx, logger, logTemp);
+export async function googleGetDataController(ctx: Context, next: Next): Promise<void> {
+  const logTemp = createLogTemp(ctx, 'googleGetData'),
+    error = responseError(ctx, logger, logTemp);
 
   try {
-    await models.google.getData(ctx, next);
+    const { companyId, dashboardSheetId } = ctx.request.body as GoogleGetDataArgs;
+
+    // Проверка сессии для непубличных дашбордов (сохранена из модели)
+    if (companyId && dashboardSheetId) {
+      const company = await serviceGetCompany(companyId);
+      if (!company?.dashboardPublicAccess?.[dashboardSheetId]) {
+        await checkUserSession(ctx, next);
+      }
+    }
+
+    const data = await googleGetDataModel({ companyId, dashboardSheetId });
+    ctx.body = data;
     logger.info(`${logTemp} success`);
-  }
-  catch (err) {
+  } catch (err) {
     error(err);
   }
 }

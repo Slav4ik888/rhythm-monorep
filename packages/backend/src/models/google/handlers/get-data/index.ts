@@ -1,34 +1,43 @@
-import { Next } from 'koa';
-import { Context } from '../../../../app/types/global';
 import { ERROR_NAME, getErrorText } from '../../../../libs/validators';
-import { checkUserSession } from '../../../../middleware/session-caches';
-import { serviceGetCompany } from '../../../company';
+import { serviceGetCompany } from '../../../company/services';
 import { serviceGoogleGetData } from '../../services';
 
-
-
-interface GoogleGetDataModel {
-  companyId        : string
-  dashboardSheetId : string | undefined // For check доступ (для неавторизованных)
+export interface GoogleGetDataArgs {
+  companyId: string;
+  dashboardSheetId: string | undefined; // For check доступ (для неавторизованных)
 }
 
-export const googleGetDataModel = async (ctx: Context, next: Next): Promise<any> => {
-  const { companyId, dashboardSheetId } = ctx.request.body as GoogleGetDataModel;
+/**
+ * Возвращает данные из Google Sheets.
+ *
+ * Проверка сессии (checkUserSession) вынесена на уровень контроллера.
+ *
+ * @returns string — сырые данные (CSV/HTML) из Google скрипта
+ */
+export const googleGetDataModel = async (args: GoogleGetDataArgs): Promise<string> => {
+  const { companyId, dashboardSheetId } = args;
 
-  if (! companyId) return ctx.throw(400, { general: getErrorText(ERROR_NAME.INVALID_DATA, 'companyId') })
-
-  // TODO: Check permissons for companyId
-
-  const company = await serviceGetCompany(companyId);
-  if (! company?.googleData?.url) return ctx.throw(400, { general: 'В данных по компании отсутствует url для Google Data' })
-
-  // Check доступ (для неавторизованных)
-  if (! company?.dashboardPublicAccess?.[dashboardSheetId]) {
-    // Нет публичного доступа
-    await checkUserSession(ctx, next);
+  if (!companyId) {
+    throw Object.assign(new Error(getErrorText(ERROR_NAME.INVALID_DATA, 'companyId')), {
+      statusCode: 400,
+      body: { general: getErrorText(ERROR_NAME.INVALID_DATA, 'companyId') },
+    });
   }
 
-  const data = await serviceGoogleGetData(company?.googleData?.url);
+  const company = await serviceGetCompany(companyId);
 
-  ctx.body = data;
+  if (!company?.googleData?.url) {
+    throw Object.assign(new Error('В данных по компании отсутствует url для Google Data'), {
+      statusCode: 400,
+      body: { general: 'В данных по компании отсутствует url для Google Data' },
+    });
+  }
+
+  const data = await serviceGoogleGetData(company.googleData.url);
+
+  return data;
 };
+
+/** Сигнатура для обратной совместимости с Koa-контроллером */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export { googleGetDataModel as getData };

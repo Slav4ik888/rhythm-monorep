@@ -2,93 +2,65 @@
 
 ## Дата
 
-12.08.2026 (сессия 10)
+12.08.2026 (сессия 11)
 
 ## Контекст: что сделано в этой сессии
 
-### 3.6 Koa → NestJS + Fastify — Фаза 2: миграция контроллеров (блок 1–4)
+### 3.6 Koa → NestJS + Fastify — Фаза 3: миграция google/get-data
 
-**Мигрированы 4 группы контроллеров с Koa на NestJS + Fastify:**
+**Мигрирован контроллер google/get-data:**
 
-#### 1. params-company/get
+#### 1. google/get-data
 
-- **Модель**: `getParamsCompanyModel` рефакторена — убрана зависимость от Koa ctx, принимает `GetParamsCompanyArgs`
-- **NestJS**: `ParamsCompanyController` (`GET`/`POST /api/paramsCompany/get`) + `ParamsCompanyModule`
-- **Koa-контроллер** обновлён: вызывает новую модель напрямую
+- **Модель**: `googleGetDataModel` рефакторена — убраны зависимости от `ctx`, `next`, `checkUserSession`; принимает `GoogleGetDataArgs`, возвращает `Promise<string>`
+- **Koa-контроллер** обновлён: вызывает новую модель, `checkUserSession` вынесена в контроллер
+- **NestJS**: `GoogleController` (`POST /api/google/getData`) + `GoogleModule`
+- **handlers/index.ts**: добавлен прямой экспорт `googleGetDataModel` + тип `GoogleGetDataArgs`
 
-#### 2. partner/increase-follower
+#### Файлы созданные в этой сессии (2 новых)
 
-- **Модель**: `increaseFollowerModel` рефакторена — принимает `IncreaseFollowerConfig`
-- **Сервисы**: `serviceIncreaseFollower(partnerId)`, `sendNotifications(partnerId)` — убран ctx
-- **NestJS**: `PartnerController` (`POST /api/increaseFollower`) + `PartnerModule`
-- **Koa-контроллер** обновлён
+1. `controllers/google/google.controller.ts`
+2. `controllers/google/google.module.ts`
 
-#### 3. loggers (view/download/clear)
+#### Файлы изменённые (4)
 
-- **Модели**: все три рефакторены — принимают `{ name, pass }`, возвращают `{ statusCode, body/... }`
-- **NestJS**: `LoggersController` (`GET /api/logs/view/:name/:pass`, `/download/:name/:pass`, `/clear/:name/:pass`) с `@Res()` для ручного контроля ответа + `LoggersModule`
-- **Koa-контроллеры** обновлены
-
-#### 4. templates (getBunchesUpdated, getTemplates, update, delete)
-
-- **Модели**: все 4 рефакторены — убрана зависимость от ctx
-- **Сервисы**: `serviceUpdateTemplate(args)` и `serviceDashboardDeleteTemlate(args)` — убран ctx, принимают явные аргументы (+ userId для update)
-- **NestJS**: `TemplatesController` (4 эндпоинта) + `TemplatesModule`
-- **Koa-контроллеры** обновлены
-
-#### Файлы созданные в этой сессии (8 новых)
-
-1. `controllers/params-company/params-company.controller.ts`
-2. `controllers/params-company/params-company.module.ts`
-3. `controllers/partner/partner.controller.ts`
-4. `controllers/partner/partner.module.ts`
-5. `controllers/loggers/loggers.controller.ts`
-6. `controllers/loggers/loggers.module.ts`
-7. `controllers/templates/templates.controller.ts`
-8. `controllers/templates/templates.module.ts`
-
-#### Файлы изменённые (23)
-
-Модели: `params-company/handlers/get`, `partner/handlers/increase-follower`, `partner/services/increase-follower`, `partner/handlers/increase-follower/send-notifications`, `loggers/handlers/view`, `loggers/handlers/download`, `loggers/handlers/clear`, `templates/handlers/get-bunches-updated`, `templates/handlers/get-templates`, `templates/handlers/update`, `templates/handlers/delete`, `templates/services/update`, `templates/services/delete`
-
-Koa-контроллеры: `params-company/get`, `partner/increase-follower`, `loggers/view`, `loggers/download`, `loggers/clear`, `templates/get-bunches-updated`, `templates/get-templates`, `templates/update`, `templates/delete`
-
-Инфраструктура: `app.module.ts` (добавлены 4 новых модуля)
+- Модель: `models/google/handlers/get-data/index.ts` — рефакторинг
+- Индекс: `models/google/handlers/index.ts` — добавлен экспорт типа
+- Koa-контроллер: `controllers/google/get-data/index.ts` — адаптирован под новую модель
+- Инфраструктура: `app.module.ts` — добавлен `GoogleModule`
 
 #### Результаты проверок
 
-- **`npx tsc --noEmit`**: **0 ошибок** (только предсуществующие в node_modules)
+- **`npx tsc --noEmit`**: **0 новых ошибок** (только предсуществующие `Int32Array` в node_modules)
 - **`npm run lint`**: **0 ошибок**
-- **`npm run test -w packages/backend`**: 16 failed, 394 passed (предсуществующие)
-- **`npm run test -w packages/frontend`**: 28 failed, 1441 passed (предсуществующие)
+- **`npm run test -w packages/backend`**: 16 failed, 394 passed (без изменений)
+- **`npm run test -w packages/frontend`**: 28 failed, 1441 passed (без изменений)
 
 ## Следующие шаги
 
-### Приоритет 1: завершить миграцию бэкенда (3.6 — фаза 3)
+### Приоритет 1: завершить миграцию бэкенда (3.6 — фаза 4)
 
 **Оставшиеся контроллеры (по возрастанию сложности):**
 
-5. **google/get-data** — высокой сложности (ctx.throw, checkUserSession)
-6. **company (update, deleteSheet)** — комплексные модели
-7. **user (getAuth, update, logout)** — требуют Firebase auth guard
-8. **auth (login, signup, resetPassword)** — самая высокая сложность
-9. **dashboard (bunch/get, view/\*)** — комплексные модели
+1. **company (update, deleteSheet)** — комплексные модели, используют `checkUserSession` на роутере (+ `@UseGuards(FirebaseAuthGuard)` в NestJS)
+2. **user (getAuth, update, logout)** — требуют Firebase auth guard
+3. **auth (login, signup, resetPassword)** — самая высокая сложность
+4. **dashboard (bunch/get, view/\*)** — комплексные модели
 
 ### Приоритет 2: оставшиеся задачи из плана
 
-10. **2.3 Smoke-тесты** для ключевых страниц
-11. **4.1 Изменение формата получения данных из гугл таблицы**
+5. **2.3 Smoke-тесты** для ключевых страниц
+6. **4.1 Изменение формата получения данных из гугл таблицы**
 
 ## Коммит
 
-`feat: NestJS-миграция фаза 2 — params-company, partner, loggers, templates контроллеры мигрированы`
+`feat: NestJS-миграция фаза 3 — google/get-data контроллер мигрирован`
 
 ## Предупреждения/заметки
 
 - **Koa и NestJS сосуществуют** — можно запускать оба (`npm run dev` для NestJS, `npm run dev:koa` для Koa)
-- **4 модуля зарегистрированы в AppModule**: DocsModule, ParamsCompanyModule, PartnerModule, LoggersModule, TemplatesModule
+- **6 модулей зарегистрированы в AppModule**: DocsModule, ParamsCompanyModule, PartnerModule, LoggersModule, TemplatesModule, GoogleModule
 - **Модели рефакторятся по паттерну**: ctx выбрасывается, ошибки через `throw Object.assign(new Error(...), { statusCode, body })`, данные возвращаются напрямую
-- **LoggersController** использует `@Res()` для ручного контроля ответа (HTML/стримы/JSON)
-- **TemplatesController.update** пока использует `userId` из body или 'system' — нужно будет подключить FirebaseAuthGuard
-- **Сервисы с ctx рефакторятся в последнюю очередь** — `serviceUpdateTemplate` и `serviceDashboardDeleteTemlate` теперь принимают явные аргументы
-- **Осталось 5 групп контроллеров** (google, company, user, auth, dashboard) — самые сложные
+- **checkUserSession в google вынесен в Koa-контроллер** — в NestJS-контроллере пока TODO, позже будет через условный guard
+- **Осталось 4 группы контроллеров** (company, user, auth, dashboard) — самые сложные
+- **Следующая миграция — company (update, deleteSheet)** — используются `checkUserSession` на уровне Koa-роутера, нужно будет подключать `FirebaseAuthGuard` в NestJS
