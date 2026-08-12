@@ -1,30 +1,42 @@
-import { validateAuthByLogin } from './validators';
-import { setCookie, auth } from '../../../libs/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { checkIsUserDisabled } from './services';
-import { Context } from '../../../app/types/global';
-import { serviceFindUserByEmail } from '../../user';
-import { AuthByLogin } from './types';
-import { serviceGetCompany } from '../../company';
+// packages/backend/src/models/auth/login/index.ts
+// Рефакторинг: убран ctx, принимает LoginArgs, возвращает LoginResult
 
-export async function loginModel(ctx: Context): Promise<any> {
-  const data = ctx?.request?.body?.authByLogin || ({} as AuthByLogin);
+import { validateAuthByLogin } from './validators';
+import { auth } from '../../../libs/firebase';
+import { signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
+import { checkIsUserDisabled } from './services';
+import { serviceFindUserByEmail, User } from '../../user';
+
+export interface LoginArgs {
+  authByLogin: AuthByLogin;
+}
+
+export interface LoginResult {
+  user: User;
+  company: Company;
+  userCredential: UserCredential;
+  message: string;
+}
+
+export async function loginModel({ authByLogin }: LoginArgs): Promise<LoginResult> {
+  const data = authByLogin || ({} as AuthByLogin);
   const { email = '', password } = data;
 
-  validateAuthByLogin(ctx, data);
+  validateAuthByLogin(data);
 
-  await checkIsUserDisabled(ctx, email);
+  await checkIsUserDisabled(email);
 
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   const user = await serviceFindUserByEmail(email);
 
   if (!user) {
-    ctx.throw(400, { general: 'Неверная почта или пароль' });
+    throw Object.assign(new Error('Invalid credentials'), {
+      statusCode: 400,
+      body: { general: 'Неверная почта или пароль' },
+    });
   }
 
   const company = await serviceGetCompany(user.companyId);
 
-  await setCookie(ctx, userCredential, user, 'login');
-
-  ctx.body = { user, company, message: 'Login is successfully!' };
+  return { user, company, userCredential, message: 'Login is successfully!' };
 }

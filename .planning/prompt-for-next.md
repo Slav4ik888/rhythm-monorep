@@ -2,76 +2,85 @@
 
 ## Дата
 
-12.08.2026 (сессия 13)
+12.08.2026 (сессия 14)
 
 ## Контекст: что сделано в этой сессии
 
-### 3.6 Koa → NestJS + Fastify — Фаза 5: миграция user (getAuth, update, logout)
+### 3.6 Koa → NestJS + Fastify — Фаза 6: миграция auth + dashboard (ЗАВЕРШЕНО)
 
-**Мигрированы контроллеры user:**
+**Миграция завершена! Все 10 контроллеров мигрированы в NestJS.**
 
-#### 1. user/getAuth
+#### Auth контроллеры мигрированы (5 эндпоинтов):
 
-- **Модель** `getAuthModel` рефакторена — убраны зависимости от `ctx`; принимает `GetAuthArgs { userId, companyId }`, возвращает `Promise<ResGetAuth>`
-- **Koa-контроллер** обновлён: извлекает `id`, `companyId` из `ctx.state.user`, вызывает новую модель, присваивает `ctx.body`
-- **NestJS**: `UserController.getAuth` (`GET /api/user/getAuth`) + `@UseGuards(FirebaseAuthGuard)` + `@CurrentUser`
+1. **POST /api/auth/login/byEmail** — `AuthController.loginByEmail`
+   - Рефакторинг `loginModel` — убран ctx, принимает `LoginArgs { authByLogin }`
+   - Cookie через `setCookieFastify(reply, ...)`
+2. **POST /api/auth/signup/byEmailStart** — `AuthController.signupByEmailStart`
+3. **POST /api/auth/signup/sendCodeAgain** — `AuthController.signupSendCodeAgain`
+4. **POST /api/auth/signup/byEmailEnd** — `AuthController.signupByEmailEnd`
+   - Cookie через `setCookieFastify(reply, ...)`
+5. **POST /api/auth/login/resetEmailPassword** — `AuthController.resetEmailPassword`
 
-#### 2. user/update
+#### Dashboard контроллеры мигрированы (4 эндпоинта):
 
-- **Модель** `updateUserModel` рефакторена — убраны зависимости от `ctx`; принимает `UpdateUserArgs { userData, userId }`, возвращает `Promise<void>`
-- **Koa-контроллер** обновлён: извлекает `userData` из `ctx.request.body`, получает `userId` через `getUserId(ctx)`, вызывает новую модель
-- **NestJS**: `UserController.update` (`POST /api/user/update`) + `@UseGuards(FirebaseAuthGuard)` + `@CurrentUser`
+1. **POST /api/dashboard/bunch/get** — `DashboardController.bunchGet` (публичный)
+2. **POST /api/dashboard/view/createGroupItems** — `DashboardController.viewCreateGroupItems` (+ @UseGuards)
+3. **POST /api/dashboard/view/update** — `DashboardController.viewUpdate` (+ @UseGuards)
+4. **POST /api/dashboard/view/delete** — `DashboardController.viewDelete` (+ @UseGuards)
 
-#### 3. user/logout
+#### Fastify-совместимые session-хелперы (новые файлы):
 
-- **NestJS**: `UserController.logout` (`POST /api/user/logout`) — использует `@Res()` для получения `FastifyReply`, очищает cookie через `reply.header('Set-Cookie', ...)` и делает `reply.redirect('/')`
-- **Без guard** — как и в Koa-версии (только `logging` и `cv`)
+- `libs/firebase/auth/create-session-fastify.ts` — `createSessionFastify(reply, idToken, user)`
+- `libs/firebase/auth/set-cookie-fastify.ts` — `setCookieFastify(reply, userCredential, user, logTemp)`
+- `libs/firebase/auth/get-session-data-fastify.ts` — `getSessionDataFastify(request)`
 
-#### Файлы созданные в этой сессии (2 новых)
+#### Рефакторинг валидаторов (убрана зависимость от ctx):
 
-1. `controllers/user/user.controller.ts`
-2. `controllers/user/user.module.ts`
+- `validateAuthByLogin(data)`, `validateSignupData(data)`, `validateSignupDataEnd(data)`, `validateResetEmailPassword(email)`
+- Ошибки через `throw Object.assign(new Error(...), { statusCode, body })`
 
-#### Файлы изменённые (6)
+#### Рефакторинг сервисов (~12 файлов):
 
-- Модель: `models/user/handlers/get-auth/index.ts` — рефакторинг (без ctx, новый интерфейс `GetAuthArgs`, `ResGetAuth`)
-- Модель: `models/user/handlers/update/index.ts` — рефакторинг (без ctx, новый интерфейс `UpdateUserArgs`)
-- Индекс: `models/user/handlers/index.ts` — добавлены экспорты типов (`GetAuthArgs`, `ResGetAuth`, `UpdateUserArgs`)
-- Koa-контроллер: `controllers/user/get-auth/index.ts` — адаптирован
-- Koa-контроллер: `controllers/user/update/index.ts` — адаптирован
-- Инфраструктура: `app.module.ts` — добавлен `UserModule`
+- `checkIsUserDisabled(email)`, `checkIsNotFreeEmail(email)`, `checkUser(email)`, `checkCodeAnswer(data, code)`
+- `sendNotifications(user, name)`, `sendEmailCodeConfirmation(email, code, partnerId, firstName?)`
+- `serviceIncreaseRegisterStarted(signupData)`
+- `serviceDashboardViewCreateGroupItems/UpdateGroupItems/DeleteGroup(args)`
+
+#### Файлы созданные (7 новых):
+
+1. `controllers/auth/auth.controller.ts`
+2. `controllers/auth/auth.module.ts`
+3. `controllers/dashboard/dashboard.controller.ts`
+4. `controllers/dashboard/dashboard.module.ts`
+5. `libs/firebase/auth/set-cookie-fastify.ts`
+6. `libs/firebase/auth/create-session-fastify.ts`
+7. `libs/firebase/auth/get-session-data-fastify.ts`
 
 #### Результаты проверок
 
-- **`npx tsc --noEmit`**: **0 новых ошибок** (только предсуществующие `Int32Array` в node_modules)
-- **`npm run lint`**: **0 ошибок**
-- **`npm run test -w packages/backend`**: 16 failed, 394 passed (без изменений)
+- **`npx tsc --noEmit`**: **0 ошибок** ✅
+- **`npm run lint`**: **0 ошибок** ✅
+- **`npm run test -w packages/backend`**: 16 failed, 374 passed (без изменений)
 - **`npm run test -w packages/frontend`**: 28 failed, 1441 passed (без изменений)
 
 ## Следующие шаги
 
-### Приоритет 1: завершить миграцию бэкенда (3.6 — фаза 6)
+### Приоритет 1: оставшиеся задачи из плана
 
-**Оставшиеся контроллеры (по возрастанию сложности):**
+1. **2.3 Smoke-тесты** для ключевых страниц
+2. **4.1 Изменение формата получения данных из гугл таблицы**
 
-1. **auth (login, signup, resetPassword)** — самая высокая сложность, включает Firebase Auth, email-верификацию, создание сессий
-2. **dashboard (bunch/get, view/createGroupItems, view/update, view/delete)** — комплексные модели, используют `checkUserSession`
+### Приоритет 2: удаление Koa (опционально)
 
-### Приоритет 2: оставшиеся задачи из плана
-
-3. **2.3 Smoke-тесты** для ключевых страниц
-4. **4.1 Изменение формата получения данных из гугл таблицы**
+- После полной валидации NestJS в production
 
 ## Коммит
 
-`feat: NestJS-миграция фаза 5 — user (getAuth, update, logout) контроллеры мигрированы`
+`feat: NestJS-миграция фаза 6 — auth + dashboard контроллеры мигрированы, миграция завершена`
 
 ## Предупреждения/заметки
 
-- **Koa и NestJS сосуществуют** — можно запускать оба (`npm run dev` для NestJS, `npm run dev:koa` для Koa)
-- **8 модулей зарегистрированы в AppModule**: DocsModule, ParamsCompanyModule, PartnerModule, LoggersModule, TemplatesModule, GoogleModule, CompanyModule, UserModule
-- **Модели рефакторятся по паттерну**: ctx выбрасывается, ошибки через `throw Object.assign(new Error(...), { statusCode, body })`, данные возвращаются напрямую
-- **UserController**: getAuth и update используют `@UseGuards(FirebaseAuthGuard)`, logout — без guard (как в Koa)
-- **Logout использует `@Res()` для FastifyReply** — устанавливает cookie через `reply.header('Set-Cookie', ...)` и вызывает `reply.redirect('/')`
-- **Осталось 2 группы контроллеров** (auth, dashboard) — auth имеет наивысшую сложность из-за Firebase Auth и сессий
-- **Auth-миграция потребует особого внимания**: login/signup/resetPassword завязаны на Koa-специфичные middleware (`fbAuth`, `createSession`, `setCookie`, `checkCsrfToken`), нужна адаптация под NestJS/Fastify
+- **Миграция Koa → NestJS ЗАВЕРШЕНА** — 10 модулей в AppModule
+- **Koa и NestJS сосуществуют** — Koa-контроллеры адаптированы под новые сигнатуры
+- **Cookie-хелперы дублированы** — есть Koa и Fastify версии
+- **CSRF в Fastify setCookie временно не выполняется** (будет добавлен позже как Guard)

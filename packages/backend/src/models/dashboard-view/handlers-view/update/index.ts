@@ -1,4 +1,6 @@
-import { Context } from '../../../../app/types/global';
+// packages/backend/src/models/dashboard-view/handlers-view/update/index.ts
+// Рефакторинг: убран ctx, принимает UpdateViewItem + userId, возвращает результат
+
 import { serviceDashboardUpdateGroupItems } from '../../services';
 import { PartialViewItem } from '../../types';
 
@@ -12,22 +14,23 @@ export interface UpdateViewItem {
   viewItems: PartialViewItemUpdate[];
 }
 
+export interface UpdateViewItemArgs extends UpdateViewItem {
+  userId: string;
+}
+
 /**
  * @requires body.UpdateViewItem
  */
-export const updateGroupViewItemsModel = async (ctx: Context): Promise<void> => {
-  const { viewItems, companyId, bunchUpdatedMs } = ctx.request.body as UpdateViewItem;
+export const updateGroupViewItemsModel = async (args: UpdateViewItemArgs): Promise<UpdateViewItem> => {
+  const { viewItems, companyId, bunchUpdatedMs, userId } = args;
 
   // TODO: Permissions
   // TODO: Remove fields that are not allowed to be updated
+  // TODO: validateUpdateViewItem(userData);
 
-  // TODO: validateUpdateViewItem (ctx, userData);
   if (!companyId || !viewItems || !viewItems?.length || !bunchUpdatedMs) {
-    ctx.throw(400, 'invalid body required field');
+    throw Object.assign(new Error('invalid body required field'), { statusCode: 400 });
   }
 
-  const result = await serviceDashboardUpdateGroupItems(ctx);
-
-  ctx.status = 200;
-  ctx.body = result;
+  return serviceDashboardUpdateGroupItems({ viewItems, companyId, bunchUpdatedMs, userId });
 };

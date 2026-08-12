@@ -1,4 +1,6 @@
-import { Context } from '../../../../app/types/global';
+// packages/backend/src/models/partner/services/increase-register-started/index.ts
+// Рефакторинг: убран ctx, принимает SignupData напрямую
+
 import { DbRef, getRefDoc } from '../../../helpers';
 import { PartnerData } from '../../types';
 import { SignupData } from '../../../auth';
@@ -6,9 +8,10 @@ import { getCurrentMs } from '../../../../shared/utils/dates';
 import { db } from '../../../../libs/firebase';
 
 /** increase register started in DB */
-export const serviceIncreaseRegisterStarted = async (ctx: Context): Promise<undefined> => {
-  const { signupData } = ctx.request.body as { signupData: SignupData };
+export const serviceIncreaseRegisterStarted = async (signupData: SignupData): Promise<undefined> => {
   const { email, partnerId, companyName, firstName } = signupData;
+
+  if (!partnerId) return;
 
   // Set | Update
   const ref = getRefDoc(DbRef.PARTNER, { partnerId });

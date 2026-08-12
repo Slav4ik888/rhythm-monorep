@@ -1,5 +1,7 @@
+// packages/backend/src/models/auth/signup/handlers/by-email-start/send-code/index.ts
+// Рефакторинг: убран ctx, принимает SignupData, возвращает результат
+
 import { validateSignupData } from '../../../validators';
-import { Context } from '../../../../../../app/types/global';
 import { sendEmailCodeConfirmation } from './send-email-code-confirmation';
 import { redisGetSignup, redisSetSignup } from '../../../../../../libs/redis';
 import { generateCheckCode } from './utils/generate-check-code';
@@ -7,11 +9,18 @@ import { SignupData } from '../../../types';
 import { SIGNUP_CODE_DELAY, SIGNUP_CODE_EXPIRED } from '../../../consts';
 import { isCodeExpired } from '../../../utils/is-code-expired';
 
-export async function signupSendCodeModel(ctx: Context): Promise<any> {
-  const { signupData } = ctx.request.body as { signupData: SignupData };
-  const { email, partnerId } = signupData;
+export interface SignupSendCodeArgs {
+  signupData: SignupData;
+}
 
-  validateSignupData(ctx, signupData);
+export interface SignupSendCodeResult {
+  message: string;
+}
+
+export async function signupSendCodeModel({ signupData }: SignupSendCodeArgs): Promise<SignupSendCodeResult> {
+  const { email, partnerId, firstName } = signupData;
+
+  validateSignupData(signupData);
 
   const { code, codeTime } = await redisGetSignup(email);
 
@@ -21,17 +30,20 @@ export async function signupSendCodeModel(ctx: Context): Promise<any> {
     !isCodeExpired(codeTime, SIGNUP_CODE_EXPIRED) && // Код не просрочен
     Date.now() - codeTime < SIGNUP_CODE_DELAY // Время на частоту запросов не вышло
   ) {
-    ctx.throw(400, {
-      general: 'Вы уже запросили код. Попробуйте через несколько минут',
+    throw Object.assign(new Error('Code already requested'), {
+      statusCode: 400,
+      body: {
+        general: 'Вы уже запросили код. Попробуйте через несколько минут',
+      },
     });
   }
 
   const newCode = generateCheckCode(); // Сделать код
 
   await redisSetSignup(email, signupData, newCode); // Сохранить данные (код и signupData) в Redis
-  await sendEmailCodeConfirmation(ctx, newCode, partnerId);
+  await sendEmailCodeConfirmation(email, newCode, partnerId, firstName);
 
-  ctx.body = {
+  return {
     message: `На указанную почту [${email}] отправлен код подтверждения`,
   };
 }

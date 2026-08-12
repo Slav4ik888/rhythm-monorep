@@ -1,6 +1,6 @@
 import { Context } from '../../../../app/types/global';
 import { createLogTemp, loggerDashboardView as logger } from '../../../../libs/loggers';
-import models from '../../../../models';
+import { deleteViewItemModel, DeleteViews } from '../../../../models/dashboard-view/handlers-view/delete';
 import { responseError } from '../../../../views';
 
 export async function dashboardViewDeleteController(ctx: Context): Promise<any> {
@@ -8,7 +8,13 @@ export async function dashboardViewDeleteController(ctx: Context): Promise<any> 
     error = responseError(ctx, logger, logTemp);
 
   try {
-    await models.dashboard.view.delete(ctx);
+    const body = ctx.request.body as DeleteViews;
+    await deleteViewItemModel({
+      ...body,
+      userId: ctx.state.user.id,
+    });
+    ctx.status = 200;
+    ctx.body = {};
     logger.info(`${logTemp} success`);
   } catch (err) {
     error(err);

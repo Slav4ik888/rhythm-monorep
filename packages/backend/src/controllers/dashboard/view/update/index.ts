@@ -1,20 +1,22 @@
 import { Context } from '../../../../app/types/global';
 import { createLogTemp, loggerDashboardView as logger } from '../../../../libs/loggers';
-import models from '../../../../models';
+import { updateGroupViewItemsModel, UpdateViewItem } from '../../../../models/dashboard-view/handlers-view/update';
 import { responseError } from '../../../../views';
 
-
-
 export async function dashboardViewUpdateController(ctx: Context): Promise<any> {
-  const
-    logTemp = createLogTemp(ctx, 'dashboardViewUpdate'),
-    error   = responseError(ctx, logger, logTemp);
+  const logTemp = createLogTemp(ctx, 'dashboardViewUpdate'),
+    error = responseError(ctx, logger, logTemp);
 
   try {
-    await models.dashboard.view.updateGroupItems(ctx);
+    const body = ctx.request.body as UpdateViewItem;
+    const result = await updateGroupViewItemsModel({
+      ...body,
+      userId: ctx.state.user.id,
+    });
+    ctx.status = 200;
+    ctx.body = result;
     logger.info(`${logTemp} success`);
-  }
-  catch (err) {
+  } catch (err) {
     error(err);
   }
 }

@@ -1,5 +1,7 @@
-import { getBunchesModel } from './get'
+import { getBunchesModel } from './get';
 
 export default {
-  get : getBunchesModel,
-}
+  get: getBunchesModel,
+};
+
+export { getBunchesModel, ReqGetBunches, ResGetBunches } from './get';

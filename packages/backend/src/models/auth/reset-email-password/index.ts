@@ -1,22 +1,31 @@
-import { Context } from '../../../app/types/global';
+// packages/backend/src/models/auth/reset-email-password/index.ts
+// Рефакторинг: убран ctx, принимает email, возвращает результат
+
 import { validateResetEmailPassword } from './validators';
 import { checkUser } from './check-user';
 import { sendLink } from './send-link';
 
+export interface ResetEmailPasswordArgs {
+  email: string;
+}
 
+export interface ResetEmailPasswordResult {
+  message: string;
+  success: boolean;
+}
 
-export async function resetEmailPasswordModel(ctx: Context): Promise<any> {
-  const email = ctx.request?.body?.email || '';
+export async function resetEmailPasswordModel({ email }: ResetEmailPasswordArgs): Promise<ResetEmailPasswordResult> {
+  const normalizedEmail = email || '';
 
-  validateResetEmailPassword(ctx, email);
-  await checkUser(ctx, email);
+  validateResetEmailPassword(normalizedEmail);
+  await checkUser(normalizedEmail);
 
-  const result = await sendLink(email);
+  const result = await sendLink(normalizedEmail);
 
-  ctx.status = result ? 200 : 400;
-  ctx.body = {
+  return {
+    success: result,
     message: result
-      ? `Ссылка для восстановления пароля отправлена на почту: ${email}`
-      : `Произошла ошибка, не получилось отправить ссылку, на указанную почту: ${email}`
-  }
+      ? `Ссылка для восстановления пароля отправлена на почту: ${normalizedEmail}`
+      : `Произошла ошибка, не получилось отправить ссылку, на указанную почту: ${normalizedEmail}`,
+  };
 }

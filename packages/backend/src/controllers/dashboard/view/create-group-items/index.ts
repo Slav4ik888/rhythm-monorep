@@ -1,6 +1,9 @@
 import { Context } from '../../../../app/types/global';
 import { createLogTemp, loggerDashboardView as logger } from '../../../../libs/loggers';
-import models from '../../../../models';
+import {
+  createGroupViewItemsModel,
+  CreateGroupViewItems,
+} from '../../../../models/dashboard-view/handlers-view/create-group-items';
 import { responseError } from '../../../../views';
 
 export async function dashboardViewCreateGroupItemsController(ctx: Context): Promise<any> {
@@ -8,7 +11,13 @@ export async function dashboardViewCreateGroupItemsController(ctx: Context): Pro
     error = responseError(ctx, logger, logTemp);
 
   try {
-    await models.dashboard.view.createGroupItems(ctx);
+    const body = ctx.request.body as CreateGroupViewItems;
+    const result = await createGroupViewItemsModel({
+      ...body,
+      userId: ctx.state.user.id,
+    });
+    ctx.status = 200;
+    ctx.body = result;
     logger.info(`${logTemp} success`);
   } catch (err) {
     error(err);

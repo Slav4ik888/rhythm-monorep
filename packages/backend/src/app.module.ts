@@ -12,6 +12,8 @@ import { TemplatesModule } from './controllers/templates/templates.module';
 import { GoogleModule } from './controllers/google/google.module';
 import { CompanyModule } from './controllers/company/company.module';
 import { UserModule } from './controllers/user/user.module';
+import { AuthModule } from './controllers/auth/auth.module';
+import { DashboardModule } from './controllers/dashboard/dashboard.module';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 @Module({
@@ -24,8 +26,8 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
     GoogleModule,
     CompanyModule,
     UserModule,
-    // TODO: добавить остальные модули по мере миграции
-    // AuthModule, DashboardModule, etc.
+    AuthModule,
+    DashboardModule,
   ],
   providers: [
     {

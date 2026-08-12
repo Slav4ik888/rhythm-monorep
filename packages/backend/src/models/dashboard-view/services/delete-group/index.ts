@@ -1,4 +1,6 @@
-import { Context } from '../../../../app/types/global';
+// packages/backend/src/models/dashboard-view/services/delete-group/index.ts
+// Рефакторинг: убран ctx, принимает DeleteViews + userId
+
 import { db } from '../../../../libs/firebase';
 import { DbRef, getRefDoc } from '../../../helpers';
 import { DeleteViews } from '../../handlers-view/delete';
@@ -6,9 +8,13 @@ import { convertToDot } from '../../../../shared/utils/objects';
 import { getBunchesTimestamps } from '../../utils';
 import { FieldValue } from 'firebase-admin/firestore';
 
+export interface ServiceDeleteGroupArgs extends DeleteViews {
+  userId: string;
+}
+
 /** Delete group ViewItems from DB */
-export const serviceDashboardViewDeleteGroup = async (ctx: Context): Promise<undefined> => {
-  const { viewItems, companyId, bunchUpdatedMs } = ctx.request.body as DeleteViews;
+export const serviceDashboardViewDeleteGroup = async (args: ServiceDeleteGroupArgs): Promise<undefined> => {
+  const { viewItems, companyId, bunchUpdatedMs } = args;
 
   // Get a new write batch
   const batch = db.batch();

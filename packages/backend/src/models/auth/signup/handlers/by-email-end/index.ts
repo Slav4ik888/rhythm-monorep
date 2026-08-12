@@ -1,43 +1,55 @@
 // packages/backend/src/models/auth/signup/handlers/by-email-end/index.ts
+// Рефакторинг: убран ctx, принимает SignupDataEnd, возвращает данные + userCredential для контроллера
 
-import { setCookie } from '../../../../../libs/firebase';
 import { createNewCompany, createNewUser, complectionUser } from '../../services';
 import { checkIsNotFreeEmail } from '../../../utils';
-import { Context } from '../../../../../app/types/global';
 import { redisGetSignup } from '../../../../../libs/redis';
 import { validateSignupDataEnd } from '../../validators';
 import { checkCodeAnswer } from './utils';
 import { sendNotifications } from './send-notifications';
 import { serviceIncreaseRegisterEnded } from '../../../../partner';
+import { SignupDataEnd } from '../../types';
+import { UserCredential } from 'firebase/auth';
+import { User } from '../../../../user';
+import { Company } from '../../../../company';
 
-export async function signupByEmailEndModel(ctx: Context): Promise<any> {
-  const { signupDataEnd } = ctx.request.body;
-  // eslint-disable-next-line no-unsafe-optional-chaining
-  const { email, emailCode } = ctx.request.body?.signupDataEnd;
+export interface SignupByEmailEndArgs {
+  signupDataEnd: SignupDataEnd;
+}
 
-  validateSignupDataEnd(ctx, signupDataEnd);
+export interface SignupByEmailEndResult {
+  newUserData: User;
+  newCompanyData: Company;
+  userCredential: UserCredential;
+  message: string;
+}
+
+export async function signupByEmailEndModel({ signupDataEnd }: SignupByEmailEndArgs): Promise<SignupByEmailEndResult> {
+  const { email, emailCode } = signupDataEnd;
+
+  validateSignupDataEnd(signupDataEnd);
 
   const data = await redisGetSignup(email); // Получить данные (код и signupData) с Redis
 
-  await checkCodeAnswer(ctx, data, emailCode);
+  await checkCodeAnswer(data, emailCode);
 
   const { signupData } = data;
-  await checkIsNotFreeEmail(ctx, signupData.email);
+  await checkIsNotFreeEmail(signupData.email);
 
   const { newUserData, userCredential } = await createNewUser(signupData);
   const { newCompanyData, companyId } = await createNewCompany(signupData, newUserData.id);
 
   await complectionUser(newUserData, companyId);
-  await setCookie(ctx, userCredential, newUserData, 'signup');
 
   const { referrerId } = newUserData.partner;
   if (referrerId) await serviceIncreaseRegisterEnded(referrerId, email, companyId);
 
-  await sendNotifications(ctx, newUserData, data.signupData?.firstName);
+  await sendNotifications(newUserData, data.signupData?.firstName);
 
-  ctx.body = {
+  return {
     newUserData,
     newCompanyData,
+    userCredential,
     message: 'Поздравляем с успешной регистрацией!',
   };
 }

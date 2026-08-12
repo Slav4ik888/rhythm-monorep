@@ -111,7 +111,7 @@
 
 - [x] 3.4 TanStack Query для серверного состояния (QueryClientProvider + хуки для auth, company, dashboard-data, dashboard-view; container.tsx мигрирован)
 - [x] 3.5 PWA (vite-plugin-pwa + workbox)
-- [ ] 3.6 Koa → NestJS + Fastify (фаза 1: инфраструктура готова — main.ts, AppModule, FirebaseAuthGuard, LoggingInterceptor, @CurrentUser, docs-контроллер мигрирован; фаза 2: params-company, partner, loggers, templates мигрированы; фаза 3: google/get-data мигрирован; фаза 4: company (update, deleteSheet) мигрирован; фаза 5: user (getAuth, update, logout) мигрирован; Koa сохранён для обратной совместимости; остались auth, dashboard)
+- [x] 3.6 Koa → NestJS + Fastify (фаза 1: инфраструктура готова — main.ts, AppModule, FirebaseAuthGuard, LoggingInterceptor, @CurrentUser, docs-контроллер мигрирован; фаза 2: params-company, partner, loggers, templates мигрированы; фаза 3: google/get-data мигрирован; фаза 4: company (update, deleteSheet) мигрирован; фаза 5: user (getAuth, update, logout) мигрирован; фаза 6: auth (login, signup, resetPassword) мигрирован + dashboard (bunch/get, view/createGroupItems, view/update, view/delete) мигрирован; Koa сохранён для обратной совместимости; 10 модулей зарегистрированы в AppModule: Docs, ParamsCompany, Partner, Loggers, Templates, Google, Company, User, Auth, Dashboard)
 - [x] 3.7 Docker Compose для Firebase эмуляторов
 - [x] 3.8 Husky + lint-staged
 - [x] 3.9 README.dev.md с глоссарием доменных терминов
