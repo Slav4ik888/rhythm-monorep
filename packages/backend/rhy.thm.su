@@ -1,7 +1,7 @@
 server {
     server_name rhy.thm.su;
     charset UTF-8;
-    set $root_path /var/www/vtempe/data/rhythm/build;
+    set $root_path /var/www/vtempe/data/rhythm2/packages/frontend/build;
     disable_symlinks if_not_owner from=$root_path;
     location / {
         root $root_path;

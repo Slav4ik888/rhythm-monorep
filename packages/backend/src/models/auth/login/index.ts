@@ -6,6 +6,8 @@ import { auth } from '../../../libs/firebase';
 import { signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
 import { checkIsUserDisabled } from './services';
 import { serviceFindUserByEmail, User } from '../../user';
+import { AuthByLogin } from './types';
+import { Company, serviceGetCompany } from '../../company';
 
 export interface LoginArgs {
   authByLogin: AuthByLogin;

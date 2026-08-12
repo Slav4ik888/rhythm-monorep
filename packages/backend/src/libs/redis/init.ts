@@ -2,7 +2,10 @@
 
 import { createClient } from 'redis';
 
+// Адрес Redis берём из окружения (REDIS_URL); по умолчанию — локальный инстанс.
+// На проде Redis обычно поднят на том же хосте (localhost:6379).
 export const client = createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379',
   socket: {
     // Таймаут подключения — чтобы запрос не зависал при недоступном Redis
     connectTimeout: 5000,

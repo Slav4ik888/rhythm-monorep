@@ -33,11 +33,7 @@ cd rhythm
 # 2. Установка зависимостей
 npm install
 
-# 3. Настройка .env (см. раздел «Переменные окружения»)
-cp packages/backend/.env.example packages/backend/.env
-cp packages/frontend/.env.example packages/frontend/.env
-
-# 4. Запуск
+# 3. Запуск
 npm run dev -w packages/frontend   # Фронтенд (Vite, порт 3000)
 npm run dev -w packages/backend    # Бэкенд (Koa, порт 7575)
 ```
@@ -88,47 +84,31 @@ rhythm/
 
 ## Переменные окружения
 
-### Backend (`packages/backend/.env`)
+Проект **не использует `.env`-файл**. Настройки читаются напрямую из окружения процесса
+(`process.env`) и задаются через shell, systemd (`Environment=`), PM2 (ecosystem-файл) и т.п.
+
+> ⚠️ Firebase-конфиг (Admin SDK + web-конфиг) и SMTP-доступы пока захардкожены в исходниках
+> (`packages/backend/src/libs/firebase/config/`, `packages/backend/src/libs/emails/email-config.ts`) —
+> это техдолг, который предстоит вынести в переменные окружения.
+
+### Backend
+
+| Переменная  | По умолчанию             | Назначение                                                                                            |
+| ----------- | ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `PORT`      | `7575`                   | порт API-сервера                                                                                      |
+| `NODE_ENV`  | —                        | `development` / `test` / `production`. В production при недоступном Redis сервер завершится с ошибкой |
+| `REDIS_URL` | `redis://localhost:6379` | адрес Redis                                                                                           |
+
+### Frontend
+
+| Переменная     | По умолчанию            | Назначение                                                |
+| -------------- | ----------------------- | --------------------------------------------------------- |
+| `VITE_API_URL` | `http://localhost:7575` | URL бэкенда для dev-прокси Vite (в проде не используется) |
+
+Пример задания переменной локально:
 
 ```bash
-PORT=7575
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-
-# Firebase Admin SDK
-FIREBASE_PROJECT_ID=
-FIREBASE_SERVICE_ACCOUNT=
-FIREBASE_STORAGE_BUCKET=
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# Email (SMTP)
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASSWORD=
-SMTP_FROM=
-
-# Sentry
-SENTRY_DSN=
-```
-
-### Frontend (`packages/frontend/.env`)
-
-```bash
-# Firebase Web SDK
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-
-# API
-VITE_API_URL=http://localhost:7575
-
-VITE_APP_ENV=development
+REDIS_URL=redis://localhost:6379 npm run dev -w packages/backend
 ```
 
 ---

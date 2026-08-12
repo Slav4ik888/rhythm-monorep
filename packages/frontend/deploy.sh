@@ -11,6 +11,9 @@ NC='\033[0m' # No Color
 # Флаги
 FRONT_ONLY=false
 
+# Путь к монорепозиторию на сервере (один репозиторий: frontend + backend + shared)
+REPO_DIR="/var/www/vtempe/data/rhythm2"
+
 log() {
   echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
@@ -66,20 +69,16 @@ parse_arguments() {
   done
 }
 
-# Функция деплоя бэкенда
-deploy_backend() {
-  log "🔧 Деплой серверной части..."
-  run_command "cd /var/www/vtempe/data/rhythm-server"
-  run_command "git pull"
-  run_command "npm run build"
+# Функция сборки бэкенда (NestJS → packages/backend/server/)
+build_backend() {
+  log "🔧 Сборка бэкенда..."
+  run_command "cd $REPO_DIR && npm run build -w packages/backend"
 }
 
-# Функция деплоя фронтенда
-deploy_frontend() {
-  log "🎨 Деплой клиентской части..."
-  run_command "cd /var/www/vtempe/data/rhythm"
-  run_command "git pull"
-  run_command "npm run build:prod"
+# Функция сборки фронтенда (Vite → packages/frontend/build/)
+build_frontend() {
+  log "🎨 Сборка фронтенда..."
+  run_command "cd $REPO_DIR && npm run build -w packages/frontend"
 }
 
 # Функция перезапуска сервиса
@@ -91,15 +90,19 @@ restart_service() {
 # Полный деплой
 full_deploy() {
   log "🚀 Запуск полного процесса деплоя..."
-  deploy_backend
-  deploy_frontend
+  run_command "cd $REPO_DIR"
+  run_command "git pull"
+  build_backend
+  build_frontend
   restart_service
 }
 
 # Деплой только фронтенда
 frontend_only_deploy() {
   log "🎨 Запуск деплоя только фронтенд части..."
-  deploy_frontend
+  run_command "cd $REPO_DIR"
+  run_command "git pull"
+  build_frontend
   log "ℹ️  Фронтенд собран, но сервис не перезапускался (требуется только при изменениях бэкенда)"
 }
 
@@ -122,5 +125,5 @@ main "$@"
 
 # Сделайте скрипт исполняемым и запустите:
 # chmod +x deploy.sh
-# /var/www/vtempe/data/rhythm/deploy.sh
-# /var/www/vtempe/data/rhythm/deploy.sh -frontOnly
+# $REPO_DIR/packages/frontend/deploy.sh
+# $REPO_DIR/packages/frontend/deploy.sh -frontOnly

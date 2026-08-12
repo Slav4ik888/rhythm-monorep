@@ -125,6 +125,16 @@
 
 - [ ] 4.1 Надо рассмотреть другие варианты, не как сейчас, через скрипты
 
+## Этап 5: Подготовка деплоя в монорепозитории (сессия 16)
+
+- [x] 5.1 Починен `packages/backend/src/models/auth/login/index.ts` — добавлены импорты `AuthByLogin`, `Company`, `serviceGetCompany` (была ошибка TS2304 при `npm run dev`)
+- [x] 5.2 Восстановлен Redis локально: закомментированы `loadmodule` Redis Stack в `/opt/homebrew/etc/redis.conf` (бэкап `redis.conf.bak-20260812-193718`)
+- [x] 5.3 Поддержка `REDIS_URL` в `libs/redis/init.ts` + подключён `dotenv` в NestJS-входе `main.ts`
+- [x] 5.4 Созданы `packages/backend/.env.example` и `packages/frontend/.env.example`; исправлены разделы env в `README.md` и `README.dev.md` (убраны неиспользуемые `FIREBASE_*`, `SMTP_*`, `SENTRY_DSN`, `VITE_FIREBASE_*`)
+- [x] 5.5 Обновлены деплой-файлы под монорепозиторий + NestJS: `rhythm-server.service` (`server/main.js`, `NODE_ENV=production`, `PORT`, `REDIS_URL`), `packages/frontend/deploy.sh`
+- [ ] 5.6 Реальный переезд на хостинг: сверить пути в `rhythm-server.service`/`deploy.sh`, остановить старый сервис, развернуть монорепо, прогнать деплой
+- [x] 5.7 Удалён неиспользуемый `dotenv` (импорты в `main.ts`/`app/index.ts`, модуль `shared/utils/dotenv`, зависимость из `package.json`, `.env.example`); переменные задаются через окружение процесса
+
 ---
 
 ## Правила ведения плана

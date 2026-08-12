@@ -2,74 +2,46 @@
 
 ## Дата
 
-12.08.2026 (сессия 15)
+12.08.2026 (сессия 16)
 
 ## Контекст: что сделано в этой сессии
 
-### 2.3 Smoke-тесты для ключевых страниц (ЗАВЕРШЕНО) + починка тест-инфраструктуры фронтенда
+### 1. Починен запуск бэкенда (`npm run dev`)
 
-#### Созданы smoke-тесты (3 файла):
+- `packages/backend/src/models/auth/login/index.ts` — добавлены недостающие импорты `AuthByLogin` (из `./types`), `Company` и `serviceGetCompany` (из `../../company`). Была ошибка TS2304.
 
-1. `pages/not-found/tests/not-found-page.test.tsx` — проверяет сообщение 404 и кнопку «Перейти на главную»
-2. `pages/not-access/tests/not-access-page.test.tsx` — проверяет сообщение 403 и кнопку «Перейти на главную»
-3. `pages/policy/tests/policy-page.test.tsx` — проверяет заголовок «Политика конфиденциальности» + асинхронную загрузку markdown-контента (мок `getPolicy`)
+### 2. Восстановлен Redis (локально)
 
-#### Новый хелпер:
+- Причина: в `/opt/homebrew/etc/redis.conf` были `loadmodule` Redis Stack (redisbloom/redisearch/redisjson/redistimeseries), но `.so` не установлены → Redis падал на старте.
+- Закомментированы 4 директивы, бэкап `redis.conf.bak-20260812-193718`. Redis запущен через `brew services` (автостарт), `PONG`.
 
-- `shared/lib/tests/render-page/index.tsx` — `renderPage(ui)`:
-  - собирает светлую тему как в приложении (customPalette + gradients + borders, т.к. в MUI v9 нет `theme.borders` по умолчанию, а MDButton его читает)
-  - оборачивает в `ThemeProvider` + `MemoryRouter` (для `useNavigate` в лейаутах)
+### 3. Переменные окружения — приведены в порядок
 
-#### Починена тест-инфраструктура фронтенда (главный побочный результат):
+- Выяснено: `.env` в проекте фактически не использовался (файлов не было). Переменные читаются напрямую из `process.env` (без dotenv): `PORT`, `NODE_ENV`, `REDIS_URL`.
+- `REDIS_URL` теперь реально читается в `libs/redis/init.ts` (fallback `redis://localhost:6379`).
+- **Удалён неиспользуемый `dotenv` полностью**: импорты в `main.ts` и `app/index.ts`, модуль `shared/utils/dotenv`, зависимость из `packages/backend/package.json`, файлы `.env.example`. Lock-файл синхронизирован через `npm install`.
+- Исправлены разделы env в `README.md` и `README.dev.md`: вместо `.env`-блоков — таблицы переменных + пояснение, что они задаются через окружение процесса (shell/systemd `Environment=`/PM2). Убраны неиспользуемые `FIREBASE_*`, `SMTP_*`, `SENTRY_DSN`, `VITE_FIREBASE_*`.
 
-1. **React 18/19 mismatch** — в корневом `node_modules` лежал React 18.3.1 (из-за `@testing-library/react@16.0.0` с peer `^18`), а в `packages/frontend` — React 19.0.8. `@testing-library/react` рендерил через React DOM 18 → `$$typeof` mismatch → «Objects are not valid as a React child». Исправлено через `moduleNameMapper` в `config/jest/jest.config.js` (форс react/react-dom на локальный React 19).
-2. **TextEncoder/TextDecoder** — полифил из `node:util` в `config/jest/setup-tests.ts` (нужен react-router v7).
-3. **window.matchMedia** — мок в `setup-tests.ts` (нужен `isDarkMode` в `useUI`).
+### 4. Подготовка деплоя под монорепозиторий + NestJS
 
-#### Результаты проверок:
-
-- **`npm run lint`**: 0 ошибок ✅
-- **`npx tsc -p packages/frontend/tsconfig.json --noEmit`**: 0 ошибок ✅
-- **`npm run test -w packages/frontend`**: 1468 passed, **5 failed** (было 28 failed / 1441 passed — починилось 23 render-теста + 3 новых smoke)
-  - Оставшиеся 5 — предсуществующие, не связаны с сессией: 4 валидатора (`validate-auth-by-login`, `validate-auth-by-login-schema`, `validate-user-schema`, `validate-fix-date-schema`) + `app/config/config.test.ts` (захардкоженная `ASSEMBLY_DATE` 2026-08-07 ≠ сегодняшняя дата)
-- **`npm run test -w packages/backend`**: 16 failed, 374 passed (без изменений, бэкенд не трогали)
-
-### 4.1 Анализ: получение данных из Google Sheets (без реализации)
-
-Текущий поток:
-
-- `Company.googleData = { url: string }` — URL Google Apps Script веб-приложения
-- `POST /api/google/getData` → `serviceGetCompany(companyId)` → `serviceGoogleGetData(url)` → `axios.get(url, { timeout: 4min })`
-- фронт: `getEntities(data)` (`transform-gs-data`) превращает `{ sheetName: [[...rows]] }` в `startEntities`/`startDates`
-- пользователь вручную вставляет URL скрипта в профиле компании (`company-profile`)
-
-Рассмотрены варианты (нужно решение владельца):
-
-| Вариант                                                                           | Плюсы                                                                            | Минусы                                                                                                                                                                            |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Google Sheets API v4** (`sheets.spreadsheets.values.batchGet`, service account) | без пользовательского скрипта, официальный API, типизировано                     | нужен `googleapis` + service account + шерить таблицу на service account; меняется модель данных (`spreadsheetId` + диапазоны вместо `url`); теряется агрегирующая логика скрипта |
-| **Публичный JSON/CSV (gviz)**                                                     | без service account, просто                                                      | только публичные таблицы (вопрос приватности); ограничение по диапазонам                                                                                                          |
-| **Оставить скрипт (статус-кво)**                                                  | работает, таблица остаётся приватной, скрипт может агрегировать/трансформировать | пользователь сам пишет и деплоит скрипт                                                                                                                                           |
+- `rhythm-server.service` — переписан на `server/main.js` (NestJS) + `Environment=NODE_ENV=production`, `PORT=7575`, `REDIS_URL=redis://localhost:6379`.
+- `packages/frontend/deploy.sh` — переписан под монорепо (`REPO_DIR`, `npm run build -w packages/...`).
+- Команда PM2 в `README.dev.md` поправлена (`server/main.js` вместо `build/index.js`).
 
 ## Следующие шаги
 
-### Приоритет 1
-
-1. **4.1** — выбрать вариант (см. таблицу выше) и реализовать. Рекомендация: Google Sheets API v4 через service account (Firebase Admin уже даёт credentials, `google-auth-library` уже в зависимостях транзитивно).
-2. Исправить оставшиеся 5 падающих фронтенд-тестов (4 валидатора + `ASSEMBLY_DATE`).
-
-### Приоритет 2 (опционально)
-
-- Удаление Koa после полной валидации NestJS в production.
-- Бампить `@testing-library/react` до `^16.1.0` (поддержка React 19 в peer) и дедуплицировать React 19 в корне (root `overrides`), чтобы убрать костыль с `moduleNameMapper`.
+1. **Переезд на хостинг** в `/var/www/vtempe/data/rhythm2`: сверить пути в `rhythm-server.service`, `deploy.sh` и Nginx-конфиге `rhy.thm.su`, остановить старый сервис, развернуть монорепо, прогнать деплой. Redis на хостинге не трогать (остаётся `localhost:6379`).
+2. Техдолг: вынести захардкоженные секреты в env — Firebase Admin SDK (`libs/firebase/config/private/admin-key.ts`), Firebase web-конфиг (`firebase-config.ts`), SMTP (`libs/emails/email-config.ts`). ⚠️ Приватный ключ Firebase сейчас в git.
+3. Удаление Koa после полной валидации NestJS в production.
+4. Пункт 3.11 из PLAN.md: дедуплицировать React 19 в jest (убрать костыль `moduleNameMapper`).
 
 ## Коммит
 
-`test: smoke-тесты страниц (not-found, not-access, policy) + починка React 18/19 и jsdom-полифилов в jest`
+`fix: починен login-модель, восстановлен Redis, REDIS_URL из env, удалён dotenv, деплой под монорепо (NestJS)`
 
 ## Предупреждения/заметки
 
-- **React 18/19 mismatch решён костылём** через `moduleNameMapper` в `jest.config.js` — правильнее бампить `@testing-library/react` до `^16.1.0` и добавить root `overrides` `react/react-dom: 19.0.8`.
-- **Миграция Koa → NestJS ЗАВЕРШЕНА** — 10 модулей в AppModule, Koa сохранён для обратной совместимости.
-- **CSRF в Fastify setCookie временно не выполняется** (будет добавлен позже как Guard).
-- **Оставшиеся 5 фронтенд-тестов** — предсуществующие, не связаны с этой сессией.
+- **`NODE_ENV=production` обязателен на проде** — иначе при недоступном Redis кэш молча отключается, а в production при неудачном подключении сервер падает.
+- Redis на проде должен быть запущен ДО старта бэкенда.
+- Пути в деплой-файлах и Nginx-конфиге (`rhy.thm.su`) указывают на `/var/www/vtempe/data/rhythm2` — сверить с реальным сервером.
+- Остались предсуществующие падающие тесты: backend 16 failed (валидаторы), frontend 5 failed (валидаторы + `config.test.ts` с датой сборки).
