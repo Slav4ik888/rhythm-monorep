@@ -34,7 +34,10 @@
 
 - [x] 2.1 Unit-тесты на критическую бизнес-логику бэкенда
 - [x] 2.2 Unit-тесты на фронтенд (стора, хуки, хелперы)
-- [ ] 2.3 Smoke-тесты для ключевых страниц
+- [x] 2.3 Smoke-тесты для ключевых страниц (not-found, not-access, policy)
+  - Хелпер `shared/lib/tests/render-page` (светлая тема как в приложении + MemoryRouter)
+  - Починена тест-инфраструктура фронтенда: React 18/19 mismatch (moduleNameMapper), полифилы TextEncoder/matchMedia
+  - Результат: 3 smoke-теста проходят; render-тесты починились (28 → 5 падений, оставшиеся 5 — предсуществующие валидаторы и тест с захардкоженной датой сборки)
 - [x] 2.4 `npm test -w packages/backend` — проходит
 - [x] 2.5 `npm test -w packages/frontend` — проходит
 
@@ -116,6 +119,7 @@
 - [x] 3.8 Husky + lint-staged
 - [x] 3.9 README.dev.md с глоссарием доменных терминов
 - [x] 3.10 Обновление MUI до актуальной версии (v7.2.0 → v9.3.1, @mui/lab v9 beta, tsc 0 ошибок, линтер 1714 → 89 ошибок)
+- [ ] 3.11 Дедуплицировать React 19 и убрать костыль в jest (техдолг из сессии 15): бампнуть `@testing-library/react` до `^16.1.0` (peer с поддержкой React 19) + добавить root `overrides` `react/react-dom: 19.0.8` — после этого убрать `moduleNameMapper` для react/react-dom из `packages/frontend/config/jest/jest.config.js`
 
 ## Этап 4: Изменение формата получения данных из гугл таблицы
 

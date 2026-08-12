@@ -67,6 +67,13 @@ const config = {
     'src/(.*)': '<rootDir>/../../src/$1',
     'entities/(.*)': '<rootDir>/../../src/entities/$1',
     'app/(.*)': '<rootDir>/../../src/app/$1',
+    // В корневом node_modules лежит React 18 (из-за @testing-library/react@16.0.0 с peer ^18),
+    // а в packages/frontend — React 19. Принудительно резолвим react/react-dom на локальный React 19,
+    // иначе @testing-library/react рендерит через React DOM 18 и падает с $$typeof mismatch.
+    '^react$': '<rootDir>/../../node_modules/react',
+    '^react/(.*)$': '<rootDir>/../../node_modules/react/$1',
+    '^react-dom$': '<rootDir>/../../node_modules/react-dom',
+    '^react-dom/(.*)$': '<rootDir>/../../node_modules/react-dom/$1',
   },
   resolver: undefined,
 
