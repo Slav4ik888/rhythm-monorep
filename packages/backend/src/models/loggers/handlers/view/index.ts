@@ -1,37 +1,43 @@
-import { Next } from 'koa';
-import { Context } from '../../../../app/types/global';
 import fs from 'fs';
 import path from 'path';
 import { PASS } from '../../../../logs/pass';
 import { capitalize } from '../../../../shared/utils/strings';
 
-
-
 const hostname = 'https://rhy.thm.su'; // || 'http://localhost:7575';
 
-export const logsViewModel = async (ctx: Context, next: Next): Promise<any> => {
-  const { name, pass } = ctx.params;
+export interface LogsViewArgs {
+  name: string;
+  pass: string;
+}
+
+export interface LogsViewResult {
+  html: string;
+  statusCode: number;
+}
+
+/**
+ * Возвращает HTML-страницу для просмотра логов.
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает { name, pass },
+ * возвращает { html, statusCode }.
+ */
+export const logsViewModel = async (args: LogsViewArgs): Promise<LogsViewResult> => {
+  const { name, pass } = args;
   const logPath = path.join(__dirname, `../../../../logs/${name}.log`);
 
   try {
     if (pass !== PASS) {
-      ctx.status = 403;
-      ctx.body = 'Access denied';
-      return;
+      return { html: 'Access denied', statusCode: 403 };
     }
 
-    if (! fs.existsSync(logPath)) {
-      ctx.status = 404;
-      ctx.body = 'Log file not found';
-      return;
+    if (!fs.existsSync(logPath)) {
+      return { html: 'Log file not found', statusCode: 404 };
     }
 
     // Проверка размера файла
     const stats = fs.statSync(logPath);
-    if (stats.size > 50 * 1024 * 1024) { // 50MB limit
-      ctx.status = 413;
-      ctx.body = 'Log file too large';
-      return;
+    if (stats.size > 50 * 1024 * 1024) {
+      // 50MB limit
+      return { html: 'Log file too large', statusCode: 413 };
     }
 
     const content = fs.readFileSync(logPath, 'utf8');
@@ -39,8 +45,7 @@ export const logsViewModel = async (ctx: Context, next: Next): Promise<any> => {
     // Отображаем как HTML с подсветкой
     const title = capitalize(name, { first: true });
 
-    ctx.type = 'html';
-    ctx.body = `
+    const html = `
       <!DOCTYPE html>
       <html lang="ru">
       <head>
@@ -109,9 +114,9 @@ export const logsViewModel = async (ctx: Context, next: Next): Promise<any> => {
       </body>
       </html>
     `;
-  }
-  catch (error) {
-    ctx.status = 500;
-    ctx.body = 'Error reading log file';
+
+    return { html, statusCode: 200 };
+  } catch (error) {
+    return { html: 'Error reading log file', statusCode: 500 };
   }
 };

@@ -1,6 +1,5 @@
-import { Context } from '../../../../app/types/global';
 import { BunchAction } from '../../../../shared/lib/structures/bunch';
-import { serviceUpdateTemplate } from '../../services';
+import { serviceUpdateTemplate, ServiceUpdateTemplateArgs } from '../../services/update';
 import { PartialTemplate, Template } from '../../types';
 
 /** v.2025-07-01 */
@@ -16,20 +15,22 @@ export interface UpdateTemplate {
 
 /**
  * @requires body.AddNewViews
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает явные аргументы + userId.
  */
-export const updateTemplateModel = async (ctx: Context): Promise<void> => {
-  const { template, bunchUpdatedMs, bunchAction } = ctx.request.body as UpdateTemplate;
+export const updateTemplateModel = async (args: ServiceUpdateTemplateArgs): Promise<UpdateTemplate> => {
+  const { template, bunchUpdatedMs, bunchAction } = args;
 
   // TODO: Permissions
   // TODO: Remove fields that are not allowed to be updated
-
-  // TODO: validateNewView(ctx, userData);
+  // TODO: validateNewView(userData);
 
   if (!template || !bunchUpdatedMs || !bunchAction) {
-    ctx.throw(400, 'invalid body required field');
+    throw Object.assign(new Error('invalid body required field'), {
+      statusCode: 400,
+      body: { general: 'invalid body required field' },
+    });
   }
 
-  const updated = await serviceUpdateTemplate(ctx);
-
-  ctx.body = updated;
+  const updated = await serviceUpdateTemplate(args);
+  return updated;
 };

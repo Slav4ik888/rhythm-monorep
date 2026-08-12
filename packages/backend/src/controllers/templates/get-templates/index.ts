@@ -1,21 +1,19 @@
 import { Context } from '../../../app/types/global';
 import { createLogTemp, loggerDashboardTemplates as logger } from '../../../libs/loggers';
-import models from '../../../models';
+import { getTemplatesModel } from '../../../models/templates/handlers/get-templates';
 import { responseError } from '../../../views';
-
-
 
 /** Get templates`s Bunch[] */
 export async function templatesGetTemplatesController(ctx: Context): Promise<any> {
-  const
-    logTemp = createLogTemp(ctx, 'templatesGetTemplates'),
-    error   = responseError(ctx, logger, logTemp);
+  const logTemp = createLogTemp(ctx, 'templatesGetTemplates'),
+    error = responseError(ctx, logger, logTemp);
 
   try {
-    await models.templates.getTemplates(ctx);
+    const { bunchIds } = ctx.request.body as any;
+    const result = await getTemplatesModel({ bunchIds });
+    ctx.body = result;
     logger.info(`${logTemp} success`);
-  }
-  catch (err) {
+  } catch (err) {
     error(err);
   }
 }

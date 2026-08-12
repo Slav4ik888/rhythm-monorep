@@ -1,13 +1,12 @@
-import { Context } from '../../../../app/types/global';
 import { DbRef, getRefDoc } from '../../../helpers';
 import { convertToDot } from '../../../../shared/utils/objects';
-import { IncreaseFollowerConfig } from '../../handlers/increase-follower';
 import { PartnerData } from '../../types';
 
-/** increase followers in DB */
-export const serviceIncreaseFollower = async (ctx: Context): Promise<undefined> => {
-  const { partnerId } = ctx.request.body as IncreaseFollowerConfig;
-
+/**
+ * Увеличивает счётчик followers для партнёра в БД.
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает partnerId напрямую.
+ */
+export const serviceIncreaseFollower = async (partnerId: string): Promise<void> => {
   // Set | Update
   const ref = getRefDoc(DbRef.PARTNER, { partnerId });
 

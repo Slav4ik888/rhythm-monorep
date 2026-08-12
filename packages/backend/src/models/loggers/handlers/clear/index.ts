@@ -1,32 +1,42 @@
-import { Next } from 'koa';
-import { Context } from '../../../../app/types/global';
 import fs from 'fs';
 import path from 'path';
 import { PASS } from '../../../../logs/pass';
 
+export interface LogsClearArgs {
+  name: string;
+  pass: string;
+}
 
+export interface LogsClearResult {
+  statusCode: number;
+  body: any;
+}
 
-export const logsClearModel = async (ctx: Context, next: Next): Promise<any> => {
-  const { name, pass } = ctx.params;
+/**
+ * Очищает лог-файл.
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает { name, pass },
+ * возвращает { statusCode, body }.
+ */
+export const logsClearModel = async (args: LogsClearArgs): Promise<LogsClearResult> => {
+  const { name, pass } = args;
   const logPath = path.join(__dirname, `../../../../logs/${name}.log`);
 
   try {
     if (pass !== PASS) {
-      ctx.status = 403;
-      ctx.body = 'Access denied';
-      return;
+      return { statusCode: 403, body: 'Access denied' };
     }
 
     // Создаем пустой файл (перезаписываем)
     fs.writeFileSync(logPath, '');
 
-    ctx.body = {
-      message: 'Log file successfully cleared',
-      timestamp: new Date().toISOString()
+    return {
+      statusCode: 200,
+      body: {
+        message: 'Log file successfully cleared',
+        timestamp: new Date().toISOString(),
+      },
     };
-  }
-  catch (error) {
-    ctx.status = 500;
-    ctx.body = 'Error reading log file';
+  } catch (error) {
+    return { statusCode: 500, body: 'Error reading log file' };
   }
 };

@@ -1,15 +1,15 @@
-import { Context } from '../../../../app/types/global';
 import { db } from '../../../../libs/firebase';
 import { DbRef, getRefCol, getRefDoc } from '../../../helpers';
 import { convertToDot } from '../../../../shared/utils/objects';
 import { FieldValue } from 'firebase-admin/firestore';
 import { DeleteTemplate } from '../../handlers/delete';
 
-
-
-/** Delete Temlate from DB */
-export const serviceDashboardDeleteTemlate = async (ctx: Context): Promise<DeleteTemplate> => {
-  const { templateId, bunchId, bunchUpdatedMs } = ctx.request.body as DeleteTemplate;
+/**
+ * Delete Temlate from DB.
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает явные аргументы.
+ */
+export const serviceDashboardDeleteTemlate = async (args: DeleteTemplate): Promise<DeleteTemplate> => {
+  const { templateId, bunchId, bunchUpdatedMs } = args;
 
   // Get a new write batch
   const batch = db.batch();
@@ -17,7 +17,7 @@ export const serviceDashboardDeleteTemlate = async (ctx: Context): Promise<Delet
   const ref = getRefDoc(DbRef.TEMPLATE, { bunchId });
 
   const updateObject = {
-    [templateId]: FieldValue.delete()
+    [templateId]: FieldValue.delete(),
   };
 
   batch.update(ref, updateObject);
@@ -29,5 +29,5 @@ export const serviceDashboardDeleteTemlate = async (ctx: Context): Promise<Delet
   // Commit the batch
   await batch.commit();
 
-  return ctx.request.body as DeleteTemplate
+  return args;
 };

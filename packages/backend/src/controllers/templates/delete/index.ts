@@ -1,20 +1,20 @@
 import { Context } from '../../../app/types/global';
 import { createLogTemp, loggerDashboardView as logger } from '../../../libs/loggers';
-import models from '../../../models';
+import { deleteTemlateModel } from '../../../models/templates/handlers/delete';
 import { responseError } from '../../../views';
 
-
-
 export async function templatesDeleteController(ctx: Context): Promise<any> {
-  const
-    logTemp = createLogTemp(ctx, 'templatesDelete'),
-    error   = responseError(ctx, logger, logTemp);
+  const logTemp = createLogTemp(ctx, 'templatesDelete'),
+    error = responseError(ctx, logger, logTemp);
 
   try {
-    await models.templates.delete(ctx);
+    const { templateId, bunchId, bunchUpdatedMs } = ctx.request.body as any;
+    const result = await deleteTemlateModel({ templateId, bunchId, bunchUpdatedMs });
+
+    ctx.status = 200;
+    ctx.body = result;
     logger.info(`${logTemp} success`);
-  }
-  catch (err) {
+  } catch (err) {
     error(err);
   }
 }

@@ -1,42 +1,51 @@
-import { Next } from 'koa';
-import { Context } from '../../../../app/types/global';
 import fs from 'fs';
 import path from 'path';
 import { PASS } from '../../../../logs/pass';
 
+export interface LogsDownloadArgs {
+  name: string;
+  pass: string;
+}
 
+export interface LogsDownloadResult {
+  statusCode: number;
+  body?: string | fs.ReadStream;
+  contentType?: string;
+  contentDisposition?: string;
+}
 
-export const logsDownloadModel = async (ctx: Context, next: Next): Promise<any> => {
-  const { name, pass } = ctx.params;
+/**
+ * Отдаёт лог-файл для скачивания.
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает { name, pass },
+ * возвращает { statusCode, body, contentType, contentDisposition }.
+ */
+export const logsDownloadModel = async (args: LogsDownloadArgs): Promise<LogsDownloadResult> => {
+  const { name, pass } = args;
   const logPath = path.join(__dirname, `../../../../logs/${name}.log`);
 
   try {
     if (pass !== PASS) {
-      ctx.status = 403;
-      ctx.body = 'Access denied';
-      return;
+      return { statusCode: 403, body: 'Access denied' };
     }
 
-    if (! fs.existsSync(logPath)) {
-      ctx.status = 404;
-      ctx.body = 'Log file not found';
-      return;
+    if (!fs.existsSync(logPath)) {
+      return { statusCode: 404, body: 'Log file not found' };
     }
 
     // Проверка размера файла
     const stats = fs.statSync(logPath);
-    if (stats.size > 50 * 1024 * 1024) { // 50MB limit
-      ctx.status = 413;
-      ctx.body = 'Log file too large';
-      return;
+    if (stats.size > 50 * 1024 * 1024) {
+      // 50MB limit
+      return { statusCode: 413, body: 'Log file too large' };
     }
 
-    ctx.set('Content-Type', 'text/plain');
-    ctx.set('Content-Disposition', 'attachment; filename="errors.log"');
-    ctx.body = fs.createReadStream(logPath);
-  }
-  catch (error) {
-    ctx.status = 500;
-    ctx.body = 'Error reading log file';
+    return {
+      statusCode: 200,
+      body: fs.createReadStream(logPath),
+      contentType: 'text/plain',
+      contentDisposition: 'attachment; filename="errors.log"',
+    };
+  } catch (error) {
+    return { statusCode: 500, body: 'Error reading log file' };
   }
 };

@@ -1,13 +1,11 @@
-import { Context } from '../../../../app/types/global';
+import { BunchesUpdated } from '../../../../shared/lib/structures/bunch';
 import { serviceGetBunchesUpdated } from '../../services';
 
-
-
 /**
- * Get all templates Bunches
+ * Get all templates Bunches.
+ * Рефакторинг: убрана зависимость от Koa ctx — возвращает данные напрямую.
  */
-export async function getBunchesUpdatedModel(ctx: Context): Promise<any> {
+export async function getBunchesUpdatedModel(): Promise<BunchesUpdated> {
   const result = await serviceGetBunchesUpdated();
-
-  ctx.body = result;
+  return result;
 }

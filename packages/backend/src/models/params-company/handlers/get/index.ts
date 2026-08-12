@@ -1,25 +1,24 @@
 // packages/backend/src/models/params-company/handlers/get/index.ts
 
-import { Context } from '../../../../app/types/global';
 import { ERROR_NAME, getErrorText } from '../../../../libs/validators';
 import { Company, serviceGetCompany } from '../../../company';
 
-interface GetCompanyModel {
+export interface GetParamsCompanyArgs {
   companyId: string;
   dashboardSheetId: string | undefined; // к какой странице запрашивается доступ
 }
 
-export const getParamsCompanyModel = async (ctx: Context): Promise<Company> => {
-  // Поддержка и GET (query-параметры), и POST (body)
-  const body = (ctx.request.body || {}) as GetCompanyModel;
-  const query = (ctx.query || {}) as unknown as GetCompanyModel;
-  const companyId = body.companyId || query.companyId;
-  const dashboardSheetId = body.dashboardSheetId || query.dashboardSheetId;
+/**
+ * Получает параметры компании по companyId.
+ * Рефакторинг: убрана зависимость от Koa ctx — принимает явные аргументы,
+ * выбрасывает ошибку вместо ctx.throw.
+ */
+export const getParamsCompanyModel = async (args: GetParamsCompanyArgs): Promise<Company> => {
+  const { companyId } = args;
 
   if (!companyId) {
-    return ctx.throw(400, {
-      general: `${getErrorText(ERROR_NAME.INVALID_DATA, 'companyId')} [${companyId}]`,
-    });
+    const message = `${getErrorText(ERROR_NAME.INVALID_DATA, 'companyId')} [${companyId}]`;
+    throw Object.assign(new Error(message), { statusCode: 400, body: { general: message } });
   }
 
   // TODO: Получать не целиком данные компании а только для проверки полномочий доступа
@@ -27,7 +26,5 @@ export const getParamsCompanyModel = async (ctx: Context): Promise<Company> => {
   // для неавторизованных отдавать только необходимые поля
 
   const company = await serviceGetCompany(companyId);
-
-  if (ctx.state.callback) return company;
-  else ctx.body = company;
+  return company;
 };
