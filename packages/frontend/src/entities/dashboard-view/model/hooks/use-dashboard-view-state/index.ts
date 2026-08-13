@@ -37,10 +37,9 @@ export const useDashboardViewState = (config: Config = {}) => {
   const selectedItem = entities[selectedId] || {};
 
   // ParentsViewItems
-  const parentsViewItems: ParentsViewItems | undefined = (() => {
-    if (!entities || !Object.keys(entities).length) return undefined;
-    return getParents(viewItems);
-  })();
+  // Всегда объект (даже пустой {} для пустого дашборда), а не undefined:
+  // DashboardRender обращается к parents[parentId], и undefined вызывает краш.
+  const parentsViewItems: ParentsViewItems = getParents(viewItems);
 
   // Children
   const effectiveParentId = parentId || selectedId;

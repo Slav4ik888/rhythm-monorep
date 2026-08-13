@@ -135,6 +135,14 @@
 - [ ] 5.6 Реальный переезд на хостинг: сверить пути в `rhythm-server.service`/`deploy.sh`, остановить старый сервис, развернуть монорепо, прогнать деплой
 - [x] 5.7 Удалён неиспользуемый `dotenv` (импорты в `main.ts`/`app/index.ts`, модуль `shared/utils/dotenv`, зависимость из `package.json`, `.env.example`); переменные задаются через окружение процесса
 
+## Этап 6: Отладка запуска и роутов (сессия 17)
+
+- [x] 6.1 Починен запуск Vite: устаревший кэш оптимизации зависимостей `packages/frontend/node_modules/.vite` ссылался на удалённый `@reduxjs/toolkit` (миграция Redux → Zustand) → `ENOENT`. Кэш очищен (`rm -rf packages/frontend/node_modules/.vite`), Vite пересобрал deps, ошибка ушла.
+- [x] 6.2 Починен 404 на `POST /api/getData`: в NestJS-контроллере `google.controller.ts` маршрут был `@Post('/google/getData')` (лишний префикс `google`), тогда как фронтенд и Koa используют `/getData`. Исправлено на `@Post('/getData')`. Проверено: `POST /api/getData` → 400 (валидация), `POST /api/google/getData` → 404.
+- [x] 6.3 Полная сверка маршрутов NestJS ↔ фронтенд (`API_PATHS`). Исправлен `PATCH /api/dashboard/view/update`: в NestJS был `@Post`, а фронтенд (`store.ts`, `use-dashboard-view-queries.ts`) и Koa-роутер используют PATCH → заменён на `@Patch`. Остальные маршруты согласованы. Отмечены подозрительные места: `hints/dontShowAgain` (не используется, хинты идут через `user/update`), `getTemplates` в `shared/api/features/dashboard-templates` (GET/companyId — неверная сигнатура, живой код использует POST+bunchIds), `user.sendEmailConfirmation` (мёртвый). `hints`/`getTemplates` по решению пользователя не трогаем — возможно, не мёртвый код, доберёмся позже.
+- [x] 6.4 Выпилен мёртвый код `transactions`: удалены `entities/transactions/` (стор + `store.spec.ts`), `features/transactions/` (заглушка `=> ({})`), `shared/api/features/transactions/`; убран `transactions.sendTransactions` из `API_PATHS` (frontend `api-paths.ts` и backend `router/paths.ts`). Бэкенд-эндпоинта `/sendTransactions` никогда не было. tsc frontend 0 ошибок, lint 0 ошибок.
+- [x] 6.5 Починен краш дашборда `Cannot read properties of undefined (reading 'no_parentId')`: хук `use-dashboard-view-state` возвращал `parentsViewItems = undefined` при пустом `entities` (дашборд без элементов / до загрузки viewItems), а `DashboardRender` обращается к `parents[parentId]`. Исправлено: `parentsViewItems` теперь всегда объект (`getParents(viewItems)`, для пустого — `{}`); убран лишний `!` в `body-content/index.tsx`. lint/tsc 0 ошибок.
+
 ---
 
 ## Правила ведения плана

@@ -341,7 +341,7 @@ export const DashboardBodyContent = memo(() => {
         <PageLoader loading={isRendering} text='Отрисовка графиков...' />
       ) : (
         <DashboardRender
-          parents={parentsViewItems!}
+          parents={parentsViewItems}
           sheetId={dashboardSheetId || NO_SHEET_ID}
           parentId='no_parentId'
           onSelect={handleSelectViewItem}

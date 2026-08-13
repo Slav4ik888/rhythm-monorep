@@ -7,8 +7,10 @@ import { googleGetDataModel, GoogleGetDataArgs } from '../../models/google/handl
 
 @Controller('api')
 export class GoogleController {
+  // Маршрут без префикса модуля — как в Koa-роутере (prefix '/api' + '/getData')
+  // и во фронтенде (API_PATHS.google.getData = '/getData')
   // eslint-disable-next-line class-methods-use-this
-  @Post('/google/getData')
+  @Post('/getData')
   async getData(@Body() body: GoogleGetDataArgs): Promise<string> {
     try {
       // TODO: добавить условный guard для проверки сессии (как checkUserSession в Koa)

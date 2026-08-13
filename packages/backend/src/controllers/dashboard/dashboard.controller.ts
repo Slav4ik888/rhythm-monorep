@@ -2,7 +2,7 @@
 // NestJS-контроллер для dashboard (миграция с Koa)
 // Заменяет controllers/dashboard/bunch/get, view/createGroupItems, view/update, view/delete
 
-import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Post, Patch, Body, HttpException, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
 import { getBunchesModel, ReqGetBunches, ResGetBunches } from '../../models/dashboard-view/handlers-bunch/get';
 import {
   createGroupViewItemsModel,
@@ -56,8 +56,10 @@ export class DashboardController {
   }
 
   // PATCH /api/dashboard/view/update — обновление элементов дашборда
+  // Фронтенд вызывает PATCH (entities/dashboard-view/model/store.ts,
+  // shared/api/hooks/use-dashboard-view-queries.ts), как и Koa-роутер (router.patch).
   // eslint-disable-next-line class-methods-use-this
-  @Post('/dashboard/view/update')
+  @Patch('/dashboard/view/update')
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)
   async viewUpdate(@Body() body: UpdateViewItem, @CurrentUser() user: any): Promise<UpdateViewItem> {
