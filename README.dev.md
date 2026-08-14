@@ -26,7 +26,7 @@ npm install
 
 # 3. Запуск
 npm run dev -w packages/frontend   # Фронтенд (Vite, порт 3000)
-npm run dev -w packages/backend    # Бэкенд (Koa, порт 7575)
+npm run dev -w packages/backend    # Бэкенд (NestJS, порт 7575)
 ```
 
 После запуска:
@@ -53,14 +53,14 @@ rhythm/
 │   │   ├── public/        # Статические файлы
 │   │   ├── vite.config.ts
 │   │   └── package.json
-│   ├── backend/           # API-сервер (Koa + TypeScript)
+│   ├── backend/           # API-сервер (NestJS + Fastify + TypeScript)
 │   │   ├── src/
-│   │   │   ├── controllers/  # Auth, Company, Dashboard, User, Partner, ...
+│   │   │   ├── controllers/  # Auth, Company, Dashboard, User, Partner, ... (NestJS)
 │   │   │   ├── models/       # Бизнес-логика, работа с Firestore
-│   │   │   ├── middleware/    # Аутентификация, логирование, роутинг
+│   │   │   ├── guards/       # FirebaseAuthGuard (верификация сессии)
+│   │   │   ├── interceptors/ # Логирование запросов
 │   │   │   ├── libs/         # Firebase, Redis, Email, Валидаторы
-│   │   │   ├── views/        # Шаблоны ответов
-│   │   │   └── index.ts      # Точка входа
+│   │   │   └── main.ts       # Точка входа
 │   │   └── package.json
 │   └── shared/            # Общие типы и валидаторы
 │       └── package.json
@@ -75,14 +75,14 @@ rhythm/
 
 ### Стек технологий
 
-| Слой               | Технология                                                                                      |
-| ------------------ | ----------------------------------------------------------------------------------------------- |
-| **Фронтенд**       | React 18, TypeScript (strict), Vite, MUI 7, Redux Toolkit, React Router 6, Chart.js, Highcharts |
-| **Бэкенд**         | Koa, TypeScript (strict), Firebase Admin SDK, Redis, Winston                                    |
-| **База данных**    | Firebase Firestore                                                                              |
-| **Аутентификация** | Firebase Auth (email/пароль)                                                                    |
-| **Деплой**         | VPS + PM2 + Nginx                                                                               |
-| **Качество кода**  | ESLint, Prettier, Husky, lint-staged                                                            |
+| Слой               | Технология                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| **Фронтенд**       | React 19, TypeScript (strict), Vite, MUI 9, Zustand, React Router 7, Chart.js, Highcharts |
+| **Бэкенд**         | NestJS + Fastify, TypeScript (strict), Firebase Admin SDK, Redis, Winston                 |
+| **База данных**    | Firebase Firestore                                                                        |
+| **Аутентификация** | Firebase Auth (email/пароль)                                                              |
+| **Деплой**         | VPS + systemd + Nginx                                                                     |
+| **Качество кода**  | ESLint, Prettier, Husky, lint-staged                                                      |
 
 ---
 
@@ -163,19 +163,19 @@ rhythm/
 ### Frontend (React / Vite)
 
 - Функциональные компоненты, хуки
-- Управление состоянием: Redux Toolkit (локальное), TanStack Query (серверное — в будущем)
+- Управление состоянием: Zustand (локальное), TanStack Query (серверное)
 - Обработка состояний компонентов: **loading, empty, error, disabled** — всегда
 - Доступность (WCAG AA): семантическая вёрстка, клавиатурная навигация, контрастность
 - Адаптивность: mobile-first
 - Lazy loading: страницы (React.lazy + Suspense), компоненты (React.lazy), изображения (loading="lazy")
 - SVG как React-компонент: `import Foo from './foo.svg?react'`
 
-### Backend (Node.js / Koa)
+### Backend (Node.js / NestJS + Fastify)
 
 - Все данные от клиента валидируются на бэке (AJV)
 - Единый формат ошибок API
 - Rate limiting на эндпоинтах
-- Middleware верификации Firebase-токена на каждом защищённом эндпоинте
+- Верификация Firebase-токена на каждом защищённом эндпоинте (FirebaseAuthGuard)
 
 ### База данных (Firestore)
 
@@ -189,7 +189,7 @@ rhythm/
 ```bash
 # Запуск
 npm run dev -w packages/frontend    # Фронтенд (Vite, порт 3000)
-npm run dev -w packages/backend     # Бэкенд (Koa, порт 7575)
+npm run dev -w packages/backend     # Бэкенд (NestJS, порт 7575)
 
 # Сборка
 npm run build -w packages/frontend  # Фронтенд (production)
@@ -263,26 +263,40 @@ partners/{partnerId}
 
 ## API эндпоинты
 
-Базовый URL: `https://api.rhy.thm.su`
+Базовый URL: `https://rhy.thm.su/api` (локально — `http://localhost:7575/api`).
 
-| Метод | Эндпоинт                     | Описание                                    |
-| ----- | ---------------------------- | ------------------------------------------- |
-| POST  | `/auth/login`                | Вход                                        |
-| POST  | `/auth/signup`               | Регистрация                                 |
-| POST  | `/auth/reset-email-password` | Сброс пароля                                |
-| GET   | `/company/get`               | Получение данных компании                   |
-| POST  | `/company/update`            | Обновление данных компании                  |
-| POST  | `/company/delete-sheet`      | Удаление листа                              |
-| GET   | `/dashboard/view`            | Просмотр дашборда                           |
-| POST  | `/dashboard/bunch`           | Операции с группами элементов               |
-| GET   | `/docs/get-policy`           | Получение политики                          |
-| GET   | `/google/get-data`           | Получение данных из Google Sheets           |
-| GET   | `/loggers/view`              | Просмотр логов                              |
-| GET   | `/loggers/download`          | Скачивание логов                            |
-| POST  | `/loggers/clear`             | Очистка логов                               |
-| GET   | `/params-company/get`        | Получение параметров компании               |
-| POST  | `/partner/increase-follower` | Увеличение счётчика последователей партнёра |
-| POST  | `/templates/delete`          | Удаление шаблона                            |
+Все маршруты объявлены в NestJS с префиксом `api` (`@Controller('api')`), поэтому фактический
+путь всегда начинается с `/api`. Nginx проксирует `location /api/` → `127.0.0.1:7575` без
+срезания префикса.
+
+| Метод | Эндпоинт                               | Описание                                    |
+| ----- | -------------------------------------- | ------------------------------------------- |
+| POST  | `/api/auth/login/byEmail`              | Вход по email                               |
+| POST  | `/api/auth/signup/byEmailStart`        | Начало регистрации (по email)               |
+| POST  | `/api/auth/signup/sendCodeAgain`       | Повторная отправка кода подтверждения       |
+| POST  | `/api/auth/signup/byEmailEnd`          | Завершение регистрации                      |
+| POST  | `/api/auth/login/resetEmailPassword`   | Сброс пароля                                |
+| GET   | `/api/user/getAuth`                    | Получение данных пользователя и компании    |
+| POST  | `/api/user/update`                     | Обновление данных пользователя              |
+| POST  | `/api/user/logout`                     | Выход (очистка cookie + редирект)           |
+| POST  | `/api/company/update`                  | Обновление данных компании                  |
+| POST  | `/api/company/deleteSheet`             | Удаление листа                              |
+| GET   | `/api/paramsCompany/get`               | Получение параметров компании               |
+| POST  | `/api/paramsCompany/get`               | Получение параметров компании               |
+| POST  | `/api/dashboard/bunch/get`             | Получение групп элементов дашборда          |
+| POST  | `/api/dashboard/view/createGroupItems` | Создание элементов дашборда                 |
+| PATCH | `/api/dashboard/view/update`           | Обновление элементов дашборда               |
+| POST  | `/api/dashboard/view/delete`           | Удаление элементов дашборда                 |
+| GET   | `/api/templates/getBunchesUpdated`     | Получение обновлённых групп шаблонов        |
+| POST  | `/api/templates/getTemplates`          | Получение шаблонов                          |
+| POST  | `/api/templates/update`                | Обновление шаблона                          |
+| POST  | `/api/templates/delete`                | Удаление шаблона                            |
+| GET   | `/api/getPolicy`                       | Получение политики конфиденциальности       |
+| POST  | `/api/getData`                         | Получение данных из Google Sheets           |
+| POST  | `/api/increaseFollower`                | Увеличение счётчика последователей партнёра |
+| GET   | `/api/logs/view/:name/:pass`           | Просмотр логов                              |
+| GET   | `/api/logs/download/:name/:pass`       | Скачивание логов                            |
+| GET   | `/api/logs/clear/:name/:pass`          | Очистка логов                               |
 
 ---
 

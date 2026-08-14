@@ -35,7 +35,7 @@ npm install
 
 # 3. Запуск
 npm run dev -w packages/frontend   # Фронтенд (Vite, порт 3000)
-npm run dev -w packages/backend    # Бэкенд (Koa, порт 7575)
+npm run dev -w packages/backend    # Бэкенд (NestJS, порт 7575)
 ```
 
 После запуска:
@@ -62,14 +62,14 @@ rhythm/
 │   │   ├── public/        # Статические файлы
 │   │   ├── vite.config.ts
 │   │   └── package.json
-│   ├── backend/           # API-сервер (Koa + TypeScript)
+│   ├── backend/           # API-сервер (NestJS + Fastify + TypeScript)
 │   │   ├── src/
-│   │   │   ├── controllers/  # Auth, Company, Dashboard, User, Partner, ...
+│   │   │   ├── controllers/  # Auth, Company, Dashboard, User, Partner, ... (NestJS)
 │   │   │   ├── models/       # Бизнес-логика, работа с Firestore
-│   │   │   ├── middleware/    # Аутентификация, логирование, роутинг
+│   │   │   ├── guards/       # FirebaseAuthGuard (верификация сессии)
+│   │   │   ├── interceptors/ # Логирование запросов
 │   │   │   ├── libs/         # Firebase, Redis, Email, Валидаторы
-│   │   │   ├── views/        # Шаблоны ответов
-│   │   │   └── index.ts      # Точка входа
+│   │   │   └── main.ts       # Точка входа
 │   │   └── package.json
 │   └── shared/            # Общие типы и валидаторы
 │       └── package.json
@@ -151,10 +151,10 @@ npm run lint:fix
 ## Стек технологий
 
 - **Фронтенд:** React 19, TypeScript, Vite, MUI 9, Zustand, React Router 7, Chart.js, Highcharts
-- **Бэкенд:** Koa, TypeScript, Firebase Admin SDK, Redis, Winston
+- **Бэкенд:** NestJS + Fastify, TypeScript, Firebase Admin SDK, Redis, Winston
 - **База данных:** Firebase Firestore
 - **Аутентификация:** Firebase Auth (email/пароль)
-- **Деплой:** VPS + PM2 + Nginx
+- **Деплой:** VPS + systemd + Nginx
 
 ---
 

@@ -119,7 +119,8 @@
 - [x] 3.8 Husky + lint-staged
 - [x] 3.9 README.dev.md с глоссарием доменных терминов
 - [x] 3.10 Обновление MUI до актуальной версии (v7.2.0 → v9.3.1, @mui/lab v9 beta, tsc 0 ошибок, линтер 1714 → 89 ошибок)
-- [ ] 3.11 Дедуплицировать React 19 и убрать костыль в jest (техдолг из сессии 15): бампнуть `@testing-library/react` до `^16.1.0` (peer с поддержкой React 19) + добавить root `overrides` `react/react-dom: 19.0.8` — после этого убрать `moduleNameMapper` для react/react-dom из `packages/frontend/config/jest/jest.config.js`
+- [x] 3.11 Дедуплицировать React 19 и убрать костыль в jest (техдолг из сессии 15): бампнуть `@testing-library/react` до `^16.1.0` (peer с поддержкой React 19) + добавить root `overrides` `react/react-dom: 19.0.8` — после этого убрать `moduleNameMapper` для react/react-dom из `packages/frontend/config/jest/jest.config.js`
+  - Выполнено в сессии 22: `@testing-library/react` → `^16.1.0` (установился 16.3.2), root `overrides` дополнены `react: 19.0.8` / `react-dom: 19.0.8`, костыль `moduleNameMapper` (4 записи react/react-dom) удалён из `jest.config.js`. `npm ls react react-dom` — всё на 19.0.8 (18.3.1 больше не резолвится). Тесты без новых падений (те же 4 предсуществующих валидатора).
 
 ## Этап 4: Изменение формата получения данных из гугл таблицы
 
@@ -203,18 +204,19 @@
 - [x] 10.11 `admin-sdk.ts`: креды Firebase Admin SDK читаются через `GOOGLE_APPLICATION_CREDENTIALS` (JSON-файл сервисного аккаунта), fallback на `FIREBASE_*` для локального dev. Причина: systemd 241 в `EnvironmentFile` съедает обратный слэш из `\n`, портя privateKey (`Failed to parse private key: 528`). В юнит добавлен `Environment=GOOGLE_APPLICATION_CREDENTIALS=/etc/rhythm/firebase-adminsdk.json`.
 - [x] 10.12 Переезд завершён: nginx + SSL для `rhy.thm.su`, бэкенд NestJS на 7575 (Redis OK), фронт по HTTPS. Финальный 401 на `POST /api/getData` — протухшая session-cookie от старых запусков, перелогин решил.
 
-## Этап 11: Удаление Koa после валидации NestJS (сессия 22+)
+## Этап 11: Удаление Koa после валидации NestJS (сессия 22)
 
-Koa в проде больше не используется (старт — `node server/main.js`, NestJS). Остался как мёртвый код и fallback.
+Koa в проде больше не используется (старт — `node server/main.js`, NestJS). Удалён как мёртвый код и fallback.
 
-- [ ] 11.1 Удалить Koa-входы и приложение: `src/index.ts`, `src/app/index.ts`, `src/app/types/global.d.ts` (тип `Context` от Koa).
-- [ ] 11.2 Удалить `src/middleware/` целиком (router, cors, logging, check-version, session-caches) — заменены NestJS (guards/interceptors).
-- [ ] 11.3 Удалить старые Koa-контроллеры в `src/controllers/*/` (файлы `index.ts`, принимающие `ctx`), оставив `*.controller.ts` (NestJS).
-- [ ] 11.4 Удалить Koa-зависимые `src/views/` (`responseError(ctx, ...)`) и адаптировать/убрать вызовы.
-- [ ] 11.5 Удалить Koa-версии в `libs/firebase/auth/` (`fb-auth`, `get-cookies`, `get-session-data`, `check-csrf-token`, `set-cookie`, `create-session`), оставив fastify-версии.
-- [ ] 11.6 Убрать Koa-зависимые логгеры `create-log-temp` и `get-user-data-temp` (принимают Koa `ctx`): заменить на версию без ctx или удалить; проверить `libs/emails/send-group-mail.ts` (там `createLogTemp(undefined, ...)`).
-- [ ] 11.7 Удалить из `packages/backend/package.json`: скрипты `dev:koa`/`start:koa`, зависимости `koa`, `koa-bodyparser`, `koa-router`, `@types/koa`, `@types/koa-bodyparser`, `@types/koa-router`.
-- [ ] 11.8 Валидация: `npm run lint`, `npm run build -w packages/backend`, тесты — без новых падений.
+- [x] 11.1 Удалить Koa-входы и приложение: `src/index.ts`, `src/app/index.ts`, `src/app/types/global.d.ts` (тип `Context` от Koa).
+- [x] 11.2 Удалить `src/middleware/` целиком (router, cors, logging, check-version, session-caches) — заменены NestJS (guards/interceptors).
+- [x] 11.3 Удалить старые Koa-контроллеры в `src/controllers/*/` (файлы `index.ts`, принимающие `ctx`), оставив `*.controller.ts` (NestJS) и `*.module.ts`.
+- [x] 11.4 Удалить Koa-зависимые `src/views/` (`responseError(ctx, ...)` и мёртвые `get-errors`/`get-status`/`not-authorized`), оставив `err-code.ts` (ERR_CODE) и `get-error-message` (getErrorMessage) — их используют модели.
+- [x] 11.5 Удалить Koa-версии в `libs/firebase/auth/` (`fb-auth`, `get-cookies`, `get-session-data`, `check-csrf-token`, `set-cookie`, `create-session`, `index.ts`), оставив fastify-версии (`set-cookie-fastify`, `create-session-fastify`, `get-session-data-fastify`). Из `libs/firebase/index.ts` убран `export * from './auth'`.
+- [x] 11.6 Удалены Koa-зависимые логгеры `create-log-temp` и `get-user-data-temp` (принимали Koa `ctx`); `libs/loggers/index.ts` теперь только `export * from './winston'`. `libs/emails/send-group-mail.ts` больше не использует `createLogTemp`. Также удалены Koa/мёртвые модели с `Context`: `models/user/utils/get-user-id`, `models/company/utils/get-company-id`, `models/company/handlers/get`, `models/dashboard-view/services/dev-save-bunches`.
+- [x] 11.7 Удалено из `packages/backend/package.json`: скрипты `dev:koa`/`start:koa`, зависимости `koa`, `koa-bodyparser`, `koa-router`, `@types/koa`, `@types/koa-bodyparser`, `@types/koa-router`. Обновлён корневой `package-lock.json` (−62 пакета); удалён вложенный `packages/backend/package-lock.json` (не используется npm workspace, содержал koa).
+- [x] 11.8 Валидация: `npm run lint` — 0 ошибок; `npm run build -w packages/backend` — exit 0; backend test — 16 failed (все предсуществующие валидаторы, новых нет); frontend test — 4 failed (предсуществующие валидаторы).
+- [x] 11.9 Обновлены таблицы API-эндпоинтов под фактические NestJS-маршруты (camelCase + префикс `/api`) в `README.dev.md` и `.clinerules/promt-for-dev.md`; базовый URL — `https://rhy.thm.su/api`. Обновлён стек в `README.md`/`README.dev.md`: Koa → NestJS + Fastify, PM2 → systemd, структура бэкенда (guards/interceptors/main.ts).
 
 ---
 

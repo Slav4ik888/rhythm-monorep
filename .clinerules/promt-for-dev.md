@@ -167,24 +167,34 @@ npm run test -w packages/frontend   # Все тесты фронтенда
 - `/not-access` — нет доступа (403)
 - `/not-found` — страница не найдена (404)
 
-### API эндпоинты (базовый URL: `https://api.rhy.thm.su`)
+### API эндпоинты (базовый URL: `https://rhy.thm.su/api`)
 
-- `POST /auth/login` — вход
-- `POST /auth/signup` — регистрация
-- `POST /auth/reset-email-password` — сброс пароля
-- `GET /company/get` — получение данных компании
-- `POST /company/update` — обновление данных компании
-- `POST /company/delete-sheet` — удаление листа
-- `GET /dashboard/view` — просмотр дашборда
-- `POST /dashboard/bunch` — операции с группами элементов дашборда
-- `GET /docs/get-policy` — получение политики
-- `GET /google/get-data` — получение данных из Google Sheets
-- `GET /loggers/view` — просмотр логов
-- `GET /loggers/download` — скачивание логов
-- `POST /loggers/clear` — очистка логов
-- `GET /params-company/get` — получение параметров компании
-- `POST /partner/increase-follower` — увеличение счётчика последователей партнёра
-- `POST /templates/delete` — удаление шаблона
+- `POST /api/auth/login/byEmail` — вход по email
+- `POST /api/auth/signup/byEmailStart` — начало регистрации (по email)
+- `POST /api/auth/signup/sendCodeAgain` — повторная отправка кода подтверждения
+- `POST /api/auth/signup/byEmailEnd` — завершение регистрации
+- `POST /api/auth/login/resetEmailPassword` — сброс пароля
+- `GET /api/user/getAuth` — получение данных пользователя и компании
+- `POST /api/user/update` — обновление данных пользователя
+- `POST /api/user/logout` — выход
+- `POST /api/company/update` — обновление данных компании
+- `POST /api/company/deleteSheet` — удаление листа
+- `GET /api/paramsCompany/get` — получение параметров компании
+- `POST /api/paramsCompany/get` — получение параметров компании
+- `POST /api/dashboard/bunch/get` — получение групп элементов дашборда
+- `POST /api/dashboard/view/createGroupItems` — создание элементов дашборда
+- `PATCH /api/dashboard/view/update` — обновление элементов дашборда
+- `POST /api/dashboard/view/delete` — удаление элементов дашборда
+- `GET /api/templates/getBunchesUpdated` — получение обновлённых групп шаблонов
+- `POST /api/templates/getTemplates` — получение шаблонов
+- `POST /api/templates/update` — обновление шаблона
+- `POST /api/templates/delete` — удаление шаблона
+- `GET /api/getPolicy` — получение политики
+- `POST /api/getData` — получение данных из Google Sheets
+- `POST /api/increaseFollower` — увеличение счётчика последователей партнёра
+- `GET /api/logs/view/:name/:pass` — просмотр логов
+- `GET /api/logs/download/:name/:pass` — скачивание логов
+- `GET /api/logs/clear/:name/:pass` — очистка логов
 
 ---
 

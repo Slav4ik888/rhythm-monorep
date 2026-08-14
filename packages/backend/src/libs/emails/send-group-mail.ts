@@ -1,6 +1,6 @@
 // packages/backend/src/libs/emails/send-group-mail.ts
 
-import { createLogTemp, loggerMail as logger } from '../loggers';
+import { loggerMail as logger } from '../loggers';
 import { sendMail } from './send-mail';
 import { SendEmailOptions } from './types';
 
@@ -10,13 +10,12 @@ export async function sendGroupMail(
   mailList: string[],
   email: string, // Sender email
 ) {
-  const { subject, locals, template } = config,
-    // TODO: добавить инфо про Sender email
-    logTemp = createLogTemp(undefined, 'sendGroupMail');
+  const { subject, locals, template } = config;
+  // TODO: добавить инфо про Sender email
 
   try {
     await Promise.all(mailList.map((to) => sendMail({ to, subject, locals, template })));
-    logger.info(`${logTemp} success`);
+    logger.info('[f]: sendGroupMail success');
   } catch (err) {
     logger.error(err);
   }

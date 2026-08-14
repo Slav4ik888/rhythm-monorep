@@ -1,1 +1,1 @@
-export { responseError, getErrorMessage, ErrorFunction, NotAutorized, ERR_CODE } from './errors'
+export { getErrorMessage, ERR_CODE } from './errors';
