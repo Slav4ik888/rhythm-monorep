@@ -174,6 +174,17 @@
   - Новый хелпер `getBunchesForLoad` (entities/dashboard-view): помимо устаревших по timestamp возвращает bunch с пустым/отсутствующим содержимым в LS — самоисцеление уже «протухшего» кэша. Используется в `container.tsx`. Добавлен unit-тест (5 кейсов).
 - [x] 8.6 Диагностические `console.log [DASHBOARD-DEBUG]` удалены из исходников после подтверждения фикса пользователем (дашборд чужой компании отрисовывается).
 
+## Этап 9: Исправление tsc-ошибки `onError` в TanStack Query v5 (сессия 20)
+
+- [x] 9.1 **Починена предсуществующая tsc-ошибка** в `shared/api/hooks/use-dashboard-data-query.ts`:
+  - `useQuery` в TanStack Query v5 больше не принимает `onError`/`onSuccess`/`onSettled` (TS2769 `No overload matches this call`).
+  - Обработка ошибки (снятие спиннера `setPageLoading`, `failGetData`, `setWarningMessage`) перенесена из `onError` в `try/catch` внутри `queryFn` с последующим `throw` — чтобы `queryClient` по-прежнему помечал запрос как `error` и отрабатывал `retry`/`isError`.
+  - Убран неиспользуемый `isLoading` из `useDashboardDataStore` (мёртвый код, введён в сессии 18).
+  - Импортирован тип `CustomAxiosError` из `app/providers/store` для типизации ошибки в `catch` (вместо `any`).
+  - `tsc --noEmit` (frontend): **0 ошибок** ✅ (было 1).
+- [x] 9.2 Валидация: `npm run lint` — 0 ошибок ✅; `tsc` frontend — 0 ошибок; frontend test — 4 failed (предсуществующие валидаторы `fix-date`, `user`, `auth-by-login`, `auth-by-login-schema`); backend test — 16 failed (предсуществующие валидаторы). Новых падений нет.
+- [x] 9.3 Обновлены `VERSION` → `2.20.0`, `ASSEMBLY_DATE` → `2026-08-14`.
+
 ---
 
 ## Правила ведения плана
