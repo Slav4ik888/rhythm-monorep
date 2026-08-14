@@ -5,26 +5,18 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import cfg from 'app/config';
 import { getAllObjValue, isNoEmptyFields } from 'shared/helpers/objects';
 
-
-
-const Alert = forwardRef<HTMLDivElement, AlertProps>((
-  props,
-  ref,
-) => <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />);
-
-
+const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => (
+  <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />
+));
 
 export const MessageBar: FC = memo(() => {
-  const
-    { message, errors, clearMessage, setWarningMessage } = useUI(),
+  const { message, errors, clearMessage, setWarningMessage } = useUI(),
     [isSnack, setIsSnack] = useState(false);
-
 
   // Global show errors
   useEffect(() => {
-    isNoEmptyFields(errors) && setWarningMessage((getAllObjValue(errors)));
+    isNoEmptyFields(errors) && setWarningMessage(getAllObjValue(errors));
   }, [errors, setWarningMessage]);
-
 
   useEffect(() => {
     message?.message && setIsSnack(true);
@@ -35,39 +27,37 @@ export const MessageBar: FC = memo(() => {
     setIsSnack(false);
   };
 
-
-  if (! message?.message) return null;
-
+  if (!message?.message) return null;
 
   return (
     <MuiSnackbar
-      open             = {isSnack}
-      anchorOrigin     = {{ vertical: 'bottom', horizontal: 'center' }}
-      autoHideDuration = {message.timeout || cfg.DEFAULT_MESSAGE_TIMEOUT}
-      onClose          = {handleCloseMessageBar}
-      sx               = {{
-        '& .MuiAlert-filledInfo': {
+      open={isSnack}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      autoHideDuration={message.timeout || cfg.DEFAULT_MESSAGE_TIMEOUT}
+      onClose={handleCloseMessageBar}
+      sx={{
+        '& .MuiAlert-colorInfo': {
           color: '#fff',
           backgroundColor: '#0d7fc7', // '#75c563',
           // '&:hover': {
           //   backgroundColor: fade('#75c563', 0.85),
           // },
         },
-        '& .MuiAlert-filledSuccess': {
+        '& .MuiAlert-colorSuccess': {
           color: '#146900',
           backgroundColor: '#a9e09d', // '#75c563',
           // '&:hover': {
           //   backgroundColor: fade('#75c563', 0.85),
           // },
         },
-        '& .MuiAlert-filledWarning': {
+        '& .MuiAlert-colorWarning': {
           color: '#863800',
           backgroundColor: '#ffc592', // '#bb7000',
           // '&:hover': {
           //   backgroundColor: fade('#f5776e', 0.85),
           // },
         },
-        '& .MuiAlert-filledError': {
+        '& .MuiAlert-colorError': {
           color: '#8e0000',
           backgroundColor: '#eca0a0',
           // '&:hover': {
@@ -78,11 +68,11 @@ export const MessageBar: FC = memo(() => {
     >
       <Alert
         // variant="outlined"
-        severity = {message.type}
-        onClose  = {handleCloseMessageBar}
-        sx       = {{
+        severity={message.type}
+        onClose={handleCloseMessageBar}
+        sx={{
           '& .MuiAlert-icon': {
-            mr: { xs: 3, sm: 4 }
+            mr: { xs: 3, sm: 4 },
           },
           fontSize: { xs: '0.9rem', sm: '1rem' },
           alignItems: 'center',

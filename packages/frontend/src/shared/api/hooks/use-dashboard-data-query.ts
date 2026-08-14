@@ -24,6 +24,10 @@ export const useGetDashboardDataQuery = (params: ReqGetGoogleData & { enabled?: 
     queryKey: queryKeys.dashboard.data(companyId, dashboardSheetId),
     queryFn: async ({ signal }): Promise<ResGetGoogleData> => {
       useDashboardDataStore.getState().startLoading();
+      // Показываем спиннер (как при ручном обновлении через кнопку Refresh)
+      useUIStore
+        .getState()
+        .setPageLoading({ 'get-g-data': { text: 'Загрузка данных c google-таблицы...', name: 'getData' } });
 
       const { data } = await api.post(API_PATHS.google.getData, { companyId, dashboardSheetId }, { signal });
 
@@ -47,5 +51,13 @@ export const useGetDashboardDataQuery = (params: ReqGetGoogleData & { enabled?: 
     enabled: queryEnabled ?? (!!companyId && !!dashboardSheetId),
     staleTime: 2 * 60 * 1000, // Данные из Google Sheets — 2 минуты
     retry: 2,
+    onError: (err: any) => {
+      // Снимаем спиннер и сообщаем об ошибке (как в ручном getData-сервисе)
+      useUIStore.getState().setPageLoading();
+      useDashboardDataStore
+        .getState()
+        .failGetData(err?.response?.data || { general: 'Ошибка загрузки данных гугл-таблицы' });
+      useUIStore.getState().setWarningMessage(err?.response?.data?.general || 'Ошибка загрузки данных гугл-таблицы');
+    },
   });
 };

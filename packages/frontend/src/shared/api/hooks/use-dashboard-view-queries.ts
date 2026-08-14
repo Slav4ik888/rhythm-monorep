@@ -47,7 +47,9 @@ export const useGetBunchesQuery = ({ companyId, bunchIds, bunchesUpdated, enable
         bunches = LS.getBunches(compId);
       } else {
         const { data } = await api.post(API_PATHS.dashboard.bunch.get, { companyId, bunchIds }, { signal });
-        bunches = data as BunchesViewItem;
+        // Бэкенд отдаёт `{ bunches: BunchesViewItem }` (ResGetBunches), а не сам объект bunches.
+        // Берём именно поле bunches — иначе viewItems распакуются некорректно и дашборд останется пустым.
+        bunches = (data as { bunches?: BunchesViewItem })?.bunches || {};
         compId = companyId;
       }
 

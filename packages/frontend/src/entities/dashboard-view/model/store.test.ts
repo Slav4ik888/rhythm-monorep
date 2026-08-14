@@ -230,6 +230,30 @@ describe('dashboardView Zustand store', () => {
       expect(state.activatedCopied).toBeUndefined();
       expect(state.bright).toBe(false);
     });
+
+    it('не затирает уже загруженные (изменённые) bunches при повторном вызове', () => {
+      // Имитируем уже загруженные с сервера (изменённые) элементы
+      useDashboardViewStore.setState({
+        entities: { 'vi-server': createMockViewItem({ id: 'vi-server', type: 'chart' }) },
+      });
+
+      (LS.getBunches as jest.Mock).mockReturnValue({
+        'bunch-001': {
+          'vi-cached': createMockViewItem({ id: 'vi-cached', type: 'icon' }),
+        },
+      });
+
+      useDashboardViewStore.getState().setDashboardBunchesFromCache({
+        changedBunches: ['bunch-changed'],
+        companyId: 'comp-1',
+      });
+
+      const state = useDashboardViewStore.getState();
+      // Элемент, загруженный с сервера, не должен быть затёрт
+      expect(state.entities['vi-server']).toBeDefined();
+      // Элемент из кэша должен добавиться
+      expect(state.entities['vi-cached']).toBeDefined();
+    });
   });
 
   // ============================================================

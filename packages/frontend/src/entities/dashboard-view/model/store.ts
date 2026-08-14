@@ -131,7 +131,10 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
       // Обновляем в LS так как возможно изменились bunches
       LS.setBunches(companyId, { ...bunches });
       return {
-        entities: updateEntities({}, getViewitemsFromBunches(bunches)),
+        // Мержим с текущими entities, а НЕ заменяем: при повторном вызове
+        // (напр. после смены auth) замена затирала уже загруженные с сервера
+        // (изменённые) bunches — дашборд оставался пустым.
+        entities: updateEntities(state.entities, getViewitemsFromBunches(bunches)),
         activatedMovementId: '',
         activatedCopied: undefined,
         bright: false,

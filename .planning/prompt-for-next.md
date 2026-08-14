@@ -2,52 +2,62 @@
 
 ## Дата
 
-13.08.2026 (сессия 17)
+13.08.2026 (сессия 18)
 
 ## Контекст: что сделано в этой сессии
 
-### 1. Починен запуск фронтенда (Vite)
+### 1. Починены стили всплывающих уведомлений (MessageBar)
 
-- Ошибка `ENOENT ... @reduxjs/toolkit/dist/redux-toolkit.modern.mjs` при старте Vite.
-- Причина: после миграции Redux → Zustand пакет `@reduxjs/toolkit` удалён, но устаревший кэш оптимизации Vite `packages/frontend/node_modules/.vite/deps/_metadata.json` всё ещё на него ссылался.
-- Решение: `rm -rf packages/frontend/node_modules/.vite`. Vite пересобрал deps, ошибка ушла.
-- ⚠️ Обнаружен «гибридный» `packages/frontend/node_modules` (React 19.0.8 + MUI 9.3.1) против корневого `node_modules` (React 18.3.1, неполный `@mui`) — это техдолг PLAN 3.11. При странных ошибках React — чистая переустановка.
+- Проблема: после апгрейда до MUI 9 (`@mui/material@9.3.1`) всплывающие уведомления стали чёрными и у ошибок, и у успешных сообщений.
+- Причина 1: в MUI 9 сменились CSS-классы `Alert`: было `MuiAlert-filledSuccess/Error/Warning/Info`, стало `MuiAlert-colorSuccess/Error/Warning/Info` (вариант вынесен в отдельный класс `MuiAlert-filled`). Селекторы `sx` в `widgets/message-bar/index.tsx` перестали совпадать.
+- Причина 2: в кастомной теме (`light/dark-custom-palette.ts`) `success.light`, `error.light`, `warning.light`, `info.light` = `'#000000'`. MUI 9 берёт фон `filled`-варианта Alert именно из `*.light`, поэтому фон был чёрным.
+- Решение: обновил селекторы в `message-bar` на `& .MuiAlert-colorInfo/Success/Warning/Error`. Цвета восстановлены: success — зелёный `#a9e09d`, error — розовый `#eca0a0`, warning `#ffc592`, info `#0d7fc7`.
 
-### 2. Починен 404 на POST /api/getData + сверка всех маршрутов
+### 2. NestJS google-контроллер: условная проверка доступа + обработка ошибок
 
-- Фронтенд зовёт `POST /api/getData` (axios `baseURL: '/api'` + `API_PATHS.google.getData = '/getData'`), Koa-роутер тоже `/api/getData` (prefix `/api` + `/getData`).
-- NestJS-контроллер `google.controller.ts` был `@Post('/google/getData')` → `POST /api/google/getData` (лишний префикс `google`). Исправлено на `@Post('/getData')`.
-- Проведена полная сверка маршрутов NestJS ↔ фронтенд. Исправлен `PATCH /api/dashboard/view/update`: в NestJS был `@Post`, фронтенд и Koa используют PATCH → `@Patch`. ⚠️ Урок: в NestJS нельзя складывать `@Patch` + `@Post` на одном обработчике (пишут в один metadata-ключ, остаётся верхний) — для поддержки обоих нужны два отдельных метода.
+- `packages/backend/src/controllers/google/google.controller.ts`:
+  - Добавлена условная проверка доступа (паритет с Koa-контроллером `controllers/google/get-data`): если `company.dashboardPublicAccess[dashboardSheetId]` — сессия не требуется; иначе проверяется Firebase session cookie (аналог `checkUserSession`, через `admin.auth().verifySessionCookie`). Ранее был только TODO.
+  - Улучшена обработка ошибки: при `err.response.status` (axios-ошибка внешнего Google Apps Script) возвращается 502 с «Не удалось получить данные из Google Таблицы. Проверьте корректность ссылки на таблицу.» вместо 500 с сырым `Request failed with status code 404`.
+  - Порядок в `catch`: `HttpException` → `err.statusCode` (ошибки модели) → `err.response.status` (axios/гугл) → 500.
 
-### 3. Выпилен мёртвый код transactions
+### 3. Диагностика «404 при разлогине»
 
-- Удалены `entities/transactions/` (Zustand-стор + `store.spec.ts`), `features/transactions/` (заглушка `async () => ({})`), `shared/api/features/transactions/` (реальный вызов `POST /api/sendTransactions`, нигде не подключён).
-- Убран `transactions.sendTransactions` из `API_PATHS` (frontend `api-paths.ts` и backend `router/paths.ts`).
-- Бэкенд-эндпоинта `/sendTransactions` никогда не было. tsc frontend 0 ошибок, lint 0 ошибок, entities-тесты без падений по transactions (2 падения — предсуществующий валидатор `fix-date`).
+- Текст `Request failed with status code 404` — это `message` axios-ошибки **бэкенда** при обращении к `company.googleData.url` (Google Apps Script), обёрнутый NestJS-контроллером в 500. Это НЕ ошибка авторизации (маршрут существует, авторизация в NestJS-контроллере не требовалась).
+- «Долгая загрузка» = реальный запрос бэкенда к гугл-скрипту (таймаут 4 мин).
+- ⚠️ Наиболее вероятная причина расхождения «авторизован работает / разлогинен 404»: при разлогине запрашивается ДРУГАЯ компания (демо/чужой публичный дашборд), у которой ссылка на гугл-таблицу не настроена или деплой скрипта удалён → гугл-скрипт отдаёт 404. Для своей компании `company.googleData.url` один и тот же и не зависит от авторизации (бэкенд дергает его без кук).
 
-### 4. Починен краш дашборда (parentsViewItems undefined)
+### 4. Пустой дашборд после очистки кэша (корневая причина — `data.bunches`)
 
-- Ошибка `TypeError: Cannot read properties of undefined (reading 'no_parentId')` при открытии `/.../dashboard`.
-- Причина: хук `entities/dashboard-view/model/hooks/use-dashboard-view-state` при пустом `entities` возвращал `parentsViewItems = undefined`, а `DashboardRender` делает `parents[parentId]` (строка 24) → краш.
-- Исправлено: `parentsViewItems` всегда `getParents(viewItems)` (для пустого — `{}`); убран лишний `!` в `widgets/dashboard-view/body-content/index.tsx`.
-- ⚠️ Паттерн-антипаттерн из миграции Redux→Zustand: производные селекторы не должны возвращать `undefined` вместо пустых структур (`{}`, `[]`), если потребитель этого не ожидает.
+- Проблема: после очистки кэша (`ClearCacheBtn` → `LS.clearStorage()` + reload) и загрузки новых данных гугл-таблицы дашборд не отрисовывается (лог `[DashboardBodyContent] {}` — `viewItems` пуст). Из localStorage всё отрисовывалось.
+- **Корневая причина:** в `useGetBunchesQuery` (`shared/api/hooks/use-dashboard-view-queries.ts`) после миграции на TanStack Query ответ `/dashboard/bunch/get` читался как `bunches = data`, но бэкенд возвращает `{ bunches: BunchesViewItem }` (`ResGetBunches`). `getViewitemsFromBunches` распаковывал вложенный объект неправильно (элементы без `id` отбрасывались в `updateEntities`) → `viewItems` пустые. Из LS (`LS.getBunches`, формат `{ bunchId: { itemId: ViewItem } }`) всё работало, поэтому баг проявлялся только после очистки кэша (когда layout грузится с сервера).
+- Решение: `bunches = (data as { bunches?: BunchesViewItem })?.bunches || {}` — как в старом Redux-сервисе `services/get-bunches` (там было `const { data: { bunches: bu } } = ...`).
+
+### 5. Дополнительно: мерж в `setDashboardBunchesFromCache`
+
+- `setDashboardBunchesFromCache` делал `updateEntities({}, ...)` (замена), а не `updateEntities(state.entities, ...)` (мерж). При повторном вызове эффекта (после смены `auth`) мог затереть уже загруженные bunches. Исправлено на мерж + добавлен тест.
+
+### 6. Спиннер при автоматической загрузке гугл-данных
+
+- Проблема: когда данных гугл-таблицы нет, авто-запрос (`useGetDashboardDataQuery` в `container.tsx`) уходит, но спиннер не показывается (в отличие от ручного нажатия «Обновить данные»).
+- Решение: в `useGetDashboardDataQuery` добавлен `setPageLoading` в начале `queryFn` и `onError` (снятие спиннера + `failGetData` + `setWarningMessage`), как в ручном `getData`-сервисе.
 
 ## Следующие шаги
 
-1. Переезд на хостинг в `/var/www/vtempe/data/rhythm2` (PLAN 5.6): сверить пути в `rhythm-server.service`/`deploy.sh`/Nginx-конфиге `rhy.thm.su`, остановить старый сервис, развернуть монорепо, прогнать деплой. Redis на хостинге не трогать (остаётся `localhost:6379`).
-2. Техдолг: вынести захардкоженные секреты в env — Firebase Admin SDK (`libs/firebase/config/private/admin-key.ts`), Firebase web-конфиг (`firebase-config.ts`), SMTP (`libs/emails/email-config.ts`). ⚠️ Приватный ключ Firebase сейчас в git.
-3. Удаление Koa после полной валидации NestJS в production.
-4. PLAN 3.11: дедуплицировать React 19 и убрать костыль `moduleNameMapper` в jest. С учётом найденного гибридного `node_modules` — начать с чистой переустановки (`rm -rf node_modules packages/*/node_modules packages/frontend/package-lock.json && npm install`).
-5. Разобраться с `hints/dontShowAgain` и `getTemplates` (в `shared/api/features/dashboard-templates`): по решению пользователя это, возможно, НЕ мёртвый код — что-то нарушилось при миграции, добраться позже. Также `user.sendEmailConfirmation` в `API_PATHS` — кандидат на выпил.
+1. Проверить с пользователем сценарий «разлогинен + публичный доступ»: у какой компании (companyId в URL) открывается дашборд и что лежит в её `googleData.url`. Если это другая/демо-компания — настроить ссылку или убедиться, что деплой гугл-скрипта активен и открыт для всех («Anyone with the link»).
+2. Переезд на хостинг (PLAN 5.6) — по-прежнему не выполнен: сверить пути `rhythm-server.service`/`deploy.sh`/Nginx `rhy.thm.su`, остановить старый сервис, развернуть монорепо, прогнать деплой.
+3. Техдолг: вынести захардкоженные секреты в env — Firebase Admin SDK (`libs/firebase/config/private/admin-key.ts`), Firebase web-конфиг, SMTP.
+4. Удаление Koa после полной валидации NestJS в production (сейчас `google` существует в двух реализациях — Koa `controllers/google/get-data` и NestJS `google.controller.ts`; поведение выровнено).
+5. PLAN 3.11: дедуплицировать React 19, убрать костыль `moduleNameMapper`; гибридный `node_modules` (React 19 + MUI 9 в `packages/frontend/node_modules` vs корневой React 18).
+6. `hints/dontShowAgain`, `getTemplates`, `user.sendEmailConfirmation` — по решению пользователя пока не трогаем.
 
 ## Коммит
 
-`fix: очищен устаревший кэш Vite, исправлены маршруты NestJS (getData, PATCH dashboard/view/update), выпилен мёртвый код transactions, починен краш дашборда (parentsViewItems undefined)`
+`fix: стили уведомлений под MUI 9, проверка доступа в google-контроллере, починен пустой дашборд (data.bunches + мерж bunches), спиннер авто-загрузки гугл-данных`
 
 ## Предупреждения/заметки
 
-- **`NODE_ENV=production` обязателен на проде** — иначе при недоступном Redis кэш молча отключается, а в production при неудачном подключении сервер падает.
-- Redis на проде должен быть запущен ДО старта бэкенда.
-- Пути в деплой-файлах и Nginx-конфиге (`rhy.thm.su`) указывают на `/var/www/vtempe/data/rhythm2` — сверить с реальным сервером.
-- Остались предсуществующие падающие тесты: backend 16 failed (валидаторы), frontend 5 failed (валидаторы + `config.test.ts` с датой сборки). Мои правки в этой сессии тестов не добавляли и не ломали.
-- В `README.dev.md` и `.clinerules` эндпоинт гугла записан как `GET /google/get-data`, а фактически в коде — `POST /api/getData`. Расхождение документации.
+- **Предсуществующие падающие тесты** (НЕ связаны с этой сессией): backend 16 failed (валидаторы), frontend 4 failed (валидаторы `fix-date` + `user`). Мои правки тестов не добавляли и не ломали.
+- `tsc -p packages/backend/tsconfig.prod.json` даёт 2 ошибки только из `node_modules/@google-cloud/storage` (`Type 'Int32Array' is not generic`) — не относятся к коду проекта.
+- `lint` — 0 ошибок ✅.
+- В `.clinerules` и `README.dev.md` эндпоинт гугла по-прежнему записан как `GET /google/get-data`, а фактически — `POST /api/getData`. Расхождение документации не исправлено (см. прошлые сессии).
+- MUI 9: классы `Alert` теперь `MuiAlert-color*` + `MuiAlert-filled` — при любых правках стилей уведомлений ориентироваться на них, а не на `MuiAlert-filled*`.
