@@ -1,20 +1,23 @@
 import admin from 'firebase-admin';
-import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // Firebase Admin SDK (Service Account).
-// Секреты вынесены в переменные окружения, чтобы не хранить их в репозитории
-// (см. README — раздел «Переменные окружения»).
-// privateKey приходит с литеральными `\n` — приводим их к реальным переносам строк.
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID || '',
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
-  privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-};
-
-initializeApp({
-  credential: cert(serviceAccount),
-});
+// В production креды читаются из JSON-файла сервисного аккаунта, путь к которому
+// задаёт systemd через GOOGLE_APPLICATION_CREDENTIALS (см. rhythm-server.service).
+// Так privateKey не зависит от того, как systemd/dotenv трактуют `\n` (systemd
+// в EnvironmentFile съедает обратный слэш, из-за чего ключ портился).
+// Локально (dev/test) креды берутся из переменных окружения FIREBASE_* через dotenv.
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  admin.initializeApp();
+} else {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID || '',
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
+      privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+    }),
+  });
+}
 
 const db = getFirestore();
 

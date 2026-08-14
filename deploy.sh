@@ -93,6 +93,13 @@ build_frontend() {
   run_command "cd $REPO_DIR && npm run build -w packages/frontend"
 }
 
+# Синхронизация systemd-юнита из репозитория в системный каталог.
+# Юнит живёт в /etc/systemd/system/ (не в каталоге проекта), чтобы не зависеть от папки репозитория.
+sync_service_file() {
+  log "⚙️  Синхронизация systemd-юнита..."
+  run_command "cp $REPO_DIR/packages/backend/rhythm-server.service /etc/systemd/system/rhythm-server.service"
+}
+
 # Функция перезапуска сервиса (daemon-reload на случай обновления unit-файла)
 restart_service() {
   log "🔄 Перезапуск сервиса..."
@@ -106,6 +113,7 @@ full_deploy() {
   install_dependencies
   build_backend
   build_frontend
+  sync_service_file
   restart_service
 }
 

@@ -21,12 +21,16 @@ Environment=NODE_ENV=production
 Environment=PORT=7575
 Environment=REDIS_URL=redis://localhost:6379
 Environment=SITE_URL=https://rhy.thm.su
-# Секреты (Firebase Admin SDK, web-конфиг Firebase, SMTP) хранятся отдельно в файле:
+# Секреты (web-конфиг Firebase, SMTP, пароль логов) хранятся отдельно в файле:
 #   /etc/rhythm/rhythm-server.env
-# Класть туда ТОЛЬКО секреты (FIREBASE_*, SMTP_*, LOGS_PASS); NODE_ENV/PORT/REDIS_URL/SITE_URL уже заданы выше.
-# Формат: KEY=value (без кавычек), privateKey — на одной строке с литеральными \n.
-# Права: root:root 600. Файл обязателен — без него сервис не стартует.
+# Класть туда ТОЛЬКО: FIREBASE_API_KEY/AUTH_DOMAIN/STORAGE_BUCKET/MESSAGING_SENDER_ID/APP_ID,
+# SMTP_USER/SMTP_PASS, LOGS_PASS. NODE_ENV/PORT/REDIS_URL/SITE_URL уже заданы выше.
+# Креды Admin SDK (privateKey) НЕ сюда — их читает GOOGLE_APPLICATION_CREDENTIALS ниже.
+# Формат: KEY=value (без кавычек). Права: root:root 600.
 EnvironmentFile=/etc/rhythm/rhythm-server.env
+# JSON-файл сервисного аккаунта Firebase (privateKey внутри, с реальными \n в JSON-строке).
+# privateKey нельзя держать в EnvironmentFile: systemd съедает обратный слэш в \n и портит ключ.
+Environment=GOOGLE_APPLICATION_CREDENTIALS=/etc/rhythm/firebase-adminsdk.json
 
 [Install]
 WantedBy=multi-user.target
