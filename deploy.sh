@@ -84,6 +84,9 @@ install_dependencies() {
 # Функция сборки бэкенда (NestJS → packages/backend/server/)
 build_backend() {
   log "🔧 Сборка бэкенда..."
+  # Полная очистка server/ перед сборкой: tsc не удаляет файлы из outDir,
+  # поэтому без очистки там остаются мёртвые файлы (например, старые Koa-контроллеры).
+  run_command "cd $REPO_DIR && rm -rf packages/backend/server"
   run_command "cd $REPO_DIR && npm run build -w packages/backend"
 }
 

@@ -15,6 +15,7 @@ import { UserModule } from './controllers/user/user.module';
 import { AuthModule } from './controllers/auth/auth.module';
 import { DashboardModule } from './controllers/dashboard/dashboard.module';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { CheckVersionInterceptor } from './interceptors/check-version.interceptor';
 
 @Module({
   imports: [
@@ -34,13 +35,16 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CheckVersionInterceptor,
+    },
   ],
 })
 export class AppModule implements NestModule {
   // eslint-disable-next-line class-methods-use-this
   configure(_consumer: MiddlewareConsumer) {
     // TODO: мигрировать Koa-middleware в NestJS:
-    // - check-version (cv)  — будет добавлен как Guard или Interceptor
-    // - session-caches (checkUserSession) — будет добавлен как Guard
+    // - session-caches (checkUserSession) — частично покрыто FirebaseAuthGuard + checkAccess в google.controller
   }
 }

@@ -51,10 +51,28 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          // index.html НЕ прекэшируем: он раздаётся nginx с `Cache-Control: no-cache, no-store`,
+          // а навигацию обслуживаем через NetworkFirst (см. runtimeCaching ниже). Иначе после
+          // деплоя у пользователей остаётся старая index.html со ссылками на уже удалённые чанки
+          // → «Expected a JavaScript module but got MIME text/html» (nginx fallback на index.html).
+          globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
+          globIgnores: ['**/index.html'],
+          // Отключаем дефолтный fallback vite-plugin-pwa на прекэшированный index.html —
+          // навигацию обслуживает NetworkFirst-роут ниже (свежая версия из сети).
+          navigateFallback: null,
           runtimeCaching: [
             {
-              urlPattern: /^https:\/\/api\.rhy\.thm\.su\/.*/i,
+              // Навигация (полная загрузка страницы): сначала сеть (свежая версия), кэш — только офлайн.
+              urlPattern: ({ request }) => request.mode === 'navigate',
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'navigations',
+                networkTimeoutSeconds: 5,
+              },
+            },
+            {
+              // Кэш API-ответов (данные гугл-таблиц и т.п.)
+              urlPattern: /\/api\/.*/i,
               handler: 'NetworkFirst',
               options: {
                 cacheName: 'api-cache',
