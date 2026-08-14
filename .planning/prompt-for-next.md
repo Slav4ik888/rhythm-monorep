@@ -17,6 +17,7 @@
 - Добавлен `dotenv` + `src/config/load-env.ts` (подгружает `.env` только вне production); `import './config/load-env'` в `main.ts`.
 - Создан `packages/backend/.env.example` (шаблон без секретов); реальные секреты восстановлены в gitignored `packages/backend/.env`.
 - `rhythm-server.service`: `Environment=SITE_URL=...` + `EnvironmentFile=-/etc/rhythm/rhythm-server.env`.
+- `deploy.sh` перенесён из `packages/frontend/` в корень репозитория; добавлен шаг `npm install`, `service` заменён на `systemctl daemon-reload && systemctl restart`, исправлен `git pull` (теперь из `$REPO_DIR`).
 - `SITE_URL` в `app/config/index.ts` теперь env-переопределяем (`process.env.SITE_URL || 'https://rhy.thm.su'`).
 - Тесты: заглушки Firebase/SMTP в `config/jest/setup-tests.ts` (валидный RSA-ключ генерируется на лету), чтобы `cert()` не падал при импорте.
 - Обновлены `README.md` и `README.dev.md` (разделы env + деплой: systemd вместо PM2).

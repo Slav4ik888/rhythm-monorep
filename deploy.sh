@@ -69,6 +69,18 @@ parse_arguments() {
   done
 }
 
+# Обновление кода из git (обязательно из каталога монорепозитория)
+git_pull() {
+  log "⬇️  Обновление кода (git pull)..."
+  run_command "cd $REPO_DIR && git pull"
+}
+
+# Установка зависимостей (монорепо: корневой package.json + workspaces)
+install_dependencies() {
+  log "📦 Установка зависимостей..."
+  run_command "cd $REPO_DIR && npm install"
+}
+
 # Функция сборки бэкенда (NestJS → packages/backend/server/)
 build_backend() {
   log "🔧 Сборка бэкенда..."
@@ -81,17 +93,17 @@ build_frontend() {
   run_command "cd $REPO_DIR && npm run build -w packages/frontend"
 }
 
-# Функция перезапуска сервиса
+# Функция перезапуска сервиса (daemon-reload на случай обновления unit-файла)
 restart_service() {
   log "🔄 Перезапуск сервиса..."
-  run_command "service rhythm-server restart"
+  run_command "systemctl daemon-reload && systemctl restart rhythm-server"
 }
 
 # Полный деплой
 full_deploy() {
   log "🚀 Запуск полного процесса деплоя..."
-  run_command "cd $REPO_DIR"
-  run_command "git pull"
+  git_pull
+  install_dependencies
   build_backend
   build_frontend
   restart_service
@@ -100,8 +112,8 @@ full_deploy() {
 # Деплой только фронтенда
 frontend_only_deploy() {
   log "🎨 Запуск деплоя только фронтенд части..."
-  run_command "cd $REPO_DIR"
-  run_command "git pull"
+  git_pull
+  install_dependencies
   build_frontend
   log "ℹ️  Фронтенд собран, но сервис не перезапускался (требуется только при изменениях бэкенда)"
 }
@@ -109,21 +121,20 @@ frontend_only_deploy() {
 # Основной процесс
 main() {
   parse_arguments "$@"
-  
+
   if [ "$FRONT_ONLY" = true ]; then
     frontend_only_deploy
   else
     full_deploy
   fi
-  
+
   log "🎉 Деплой успешно завершен!"
 }
 
 # Запускаем основной процесс
 main "$@"
 
-
-# Сделайте скрипт исполняемым и запустите:
-# chmod +x deploy.sh
-# $REPO_DIR/packages/frontend/deploy.sh
-# $REPO_DIR/packages/frontend/deploy.sh -frontOnly
+# Скрипт лежит в корне монорепозитория. Сделать исполняемым и запустить:
+#   chmod +x deploy.sh
+#   /var/www/vtempe/data/rhythm2/deploy.sh
+#   /var/www/vtempe/data/rhythm2/deploy.sh -frontOnly

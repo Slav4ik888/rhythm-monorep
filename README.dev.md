@@ -340,7 +340,7 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 ### Деплой на VPS
 
 Бэкенд запускается через systemd (`rhythm-server.service`), фронтенд раздаётся Nginx из
-`packages/frontend/build/`. Полный сценарий — в `packages/frontend/deploy.sh`.
+`packages/frontend/build/`. Полный сценарий — в `deploy.sh` (корень репозитория).
 
 ```bash
 # 1. Разово: создать файл секретов на сервере (права 600)
