@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { PASS } from '../../../../logs/pass';
+import { PASS } from '../../pass';
 import { capitalize } from '../../../../shared/utils/strings';
 
 const hostname = 'https://rhy.thm.su'; // || 'http://localhost:7575';

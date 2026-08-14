@@ -22,3 +22,6 @@ process.env.FIREBASE_APP_ID = process.env.FIREBASE_APP_ID || '1:123456789:web:te
 // SMTP — заглушки (в тестах используется StubTransport, реальная отправка не происходит).
 process.env.SMTP_USER = process.env.SMTP_USER || 'test@example.com';
 process.env.SMTP_PASS = process.env.SMTP_PASS || 'test';
+
+// Логи — заглушка пароля доступа к /loggers/*
+process.env.LOGS_PASS = process.env.LOGS_PASS || 'test-pass';

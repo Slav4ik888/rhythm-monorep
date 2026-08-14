@@ -21,9 +21,12 @@ Environment=NODE_ENV=production
 Environment=PORT=7575
 Environment=REDIS_URL=redis://localhost:6379
 Environment=SITE_URL=https://rhy.thm.su
-# Секреты (Firebase Admin SDK, web-конфиг Firebase, SMTP) хранятся отдельно:
-# /etc/rhythm/rhythm-server.env (права root:root 600). Префикс «-» — не падать, если файла нет.
-EnvironmentFile=-/etc/rhythm/rhythm-server.env
+# Секреты (Firebase Admin SDK, web-конфиг Firebase, SMTP) хранятся отдельно в файле:
+#   /etc/rhythm/rhythm-server.env
+# Класть туда ТОЛЬКО секреты (FIREBASE_*, SMTP_*, LOGS_PASS); NODE_ENV/PORT/REDIS_URL/SITE_URL уже заданы выше.
+# Формат: KEY=value (без кавычек), privateKey — на одной строке с литеральными \n.
+# Права: root:root 600. Файл обязателен — без него сервис не стартует.
+EnvironmentFile=/etc/rhythm/rhythm-server.env
 
 [Install]
 WantedBy=multi-user.target

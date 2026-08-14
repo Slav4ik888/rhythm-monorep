@@ -199,6 +199,7 @@
 - [x] 10.7 Тесты: заглушки Firebase/SMTP в `config/jest/setup-tests.ts` (валидный RSA-ключ генерируется на лету), чтобы `cert()` не падал при импорте.
 - [x] 10.8 Обновлены `README.md` / `README.dev.md` (разделы env + деплой: systemd вместо PM2).
 - [x] 10.9 Валидация: `npm run lint` — 0 ошибок; `npm run build -w packages/backend` — exit 0; тесты — без новых падений (16 backend + 4 frontend предсуществующих валидаторов).
+- [x] 10.10 Вынесен пароль доступа к логам (`src/logs/pass.ts` → `LOGS_PASS`): создан `models/loggers/pass.ts` (читает env), обновлены импорты в `clear`/`download`/`view`, удалён gitignored `src/logs/pass.ts`, `LOGS_PASS` добавлен в `.env`/`.env.example`/README/`setup-tests.ts`. Устраняет TS2307 `Cannot find module 'logs/pass'` при сборке на сервере.
 
 ---
 

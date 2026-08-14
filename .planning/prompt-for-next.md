@@ -16,11 +16,12 @@
 - Убраны gitignore-правила для `src/libs/firebase/config/` и `src/libs/emails/email-config.ts` — конфиги теперь коммитятся (в них только чтение из process.env).
 - Добавлен `dotenv` + `src/config/load-env.ts` (подгружает `.env` только вне production); `import './config/load-env'` в `main.ts`.
 - Создан `packages/backend/.env.example` (шаблон без секретов); реальные секреты восстановлены в gitignored `packages/backend/.env`.
-- `rhythm-server.service`: `Environment=SITE_URL=...` + `EnvironmentFile=-/etc/rhythm/rhythm-server.env`.
+- `rhythm-server.service`: `Environment=SITE_URL=...` + `EnvironmentFile=/etc/rhythm/rhythm-server.env` (файл обязателен, без `-`).
 - `deploy.sh` перенесён из `packages/frontend/` в корень репозитория; добавлен шаг `npm install`, `service` заменён на `systemctl daemon-reload && systemctl restart`, исправлен `git pull` (теперь из `$REPO_DIR`).
 - `SITE_URL` в `app/config/index.ts` теперь env-переопределяем (`process.env.SITE_URL || 'https://rhy.thm.su'`).
 - Тесты: заглушки Firebase/SMTP в `config/jest/setup-tests.ts` (валидный RSA-ключ генерируется на лету), чтобы `cert()` не падал при импорте.
 - Обновлены `README.md` и `README.dev.md` (разделы env + деплой: systemd вместо PM2).
+- Вынесен пароль доступа к логам: `src/logs/pass.ts` (gitignored) → `LOGS_PASS` из env (`models/loggers/pass.ts`); иначе сборка на сервере падала с TS2307.
 
 ### Валидация
 
@@ -43,4 +44,5 @@
 - **Секреты были удалены из исходников** (`private/admin-key.ts`, `firebase-config.ts`, `email-config.ts`). Реальные значения восстановлены в `packages/backend/.env` (gitignored) — НЕ коммитить. Если `.env` потеряется, значения перевыпускаются в Firebase Console (Service accounts) и Google Account (app-password).
 - `dotenv` вернулся в зависимости (в сессии 5.7 его удаляли как «неиспользуемый»); теперь нужен для dev-загрузки `.env`. В production `.env` не читается (systemd).
 - `FIREBASE_PRIVATE_KEY` в env — на одной строке с литеральными `\n` (для systemd `EnvironmentFile` и dotenv).
+- На сервере юнит загружен из `/var/www/vtempe/data/rhythm-server/rhythm-server.service` (старый каталог, НЕ из репозитория) — его надо обновить и создать `/etc/rhythm/rhythm-server.env` (включая `LOGS_PASS`) до рестарта.
 - `packages/frontend/dev-dist/sw.js` — авто-регенерация PWA при запуске dev-сервера (не коммитить вручную).

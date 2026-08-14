@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { PASS } from '../../../../logs/pass';
+import { PASS } from '../../pass';
 
 export interface LogsDownloadArgs {
   name: string;

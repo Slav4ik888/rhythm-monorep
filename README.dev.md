@@ -314,6 +314,7 @@ partners/{partnerId}
 | `FIREBASE_APP_ID`              | —                        | Firebase web-конфиг: appId                                                                            |
 | `SMTP_USER`                    | —                        | логин SMTP для отправки писем                                                                         |
 | `SMTP_PASS`                    | —                        | пароль SMTP                                                                                           |
+| `LOGS_PASS`                    | —                        | пароль доступа к логам (`/loggers/*`)                                                                 |
 
 ### Frontend
 
