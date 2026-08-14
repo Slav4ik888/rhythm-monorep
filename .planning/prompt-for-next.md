@@ -6,43 +6,39 @@
 
 ## Контекст: что сделано в этой сессии
 
-### Вынос секретов в env (разблокирован переезд на хостинг, PLAN 5.6)
+### Переезд на хостинг завершён (PLAN 5.6) + вынос секретов в env
 
 - Секреты больше не захардкожены и не лежат в загитигноренных файлах:
-  - `libs/firebase/config/admin-sdk.ts` → `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY` (privateKey с `.replace(/\\n/g, '\n')`).
-  - `libs/firebase/config/fire.ts` → `FIREBASE_API_KEY`/`FIREBASE_AUTH_DOMAIN`/`FIREBASE_STORAGE_BUCKET`/`FIREBASE_MESSAGING_SENDER_ID`/`FIREBASE_APP_ID`.
-  - `libs/emails/email-config.ts` → `SMTP_USER`/`SMTP_PASS`.
-- Удалена папка `libs/firebase/config/private/` (хардкод Admin SDK + web-конфига).
-- Убраны gitignore-правила для `src/libs/firebase/config/` и `src/libs/emails/email-config.ts` — конфиги теперь коммитятся (в них только чтение из process.env).
-- Добавлен `dotenv` + `src/config/load-env.ts` (подгружает `.env` только вне production); `import './config/load-env'` в `main.ts`.
-- Создан `packages/backend/.env.example` (шаблон без секретов); реальные секреты восстановлены в gitignored `packages/backend/.env`.
-- `rhythm-server.service`: `Environment=SITE_URL=...` + `EnvironmentFile=/etc/rhythm/rhythm-server.env` (файл обязателен, без `-`).
-- `deploy.sh` перенесён из `packages/frontend/` в корень репозитория; добавлен шаг `npm install`, `service` заменён на `systemctl daemon-reload && systemctl restart`, исправлен `git pull` (теперь из `$REPO_DIR`).
-- `SITE_URL` в `app/config/index.ts` теперь env-переопределяем (`process.env.SITE_URL || 'https://rhy.thm.su'`).
-- Тесты: заглушки Firebase/SMTP в `config/jest/setup-tests.ts` (валидный RSA-ключ генерируется на лету), чтобы `cert()` не падал при импорте.
-- Обновлены `README.md` и `README.dev.md` (разделы env + деплой: systemd вместо PM2).
-- Вынесен пароль доступа к логам: `src/logs/pass.ts` (gitignored) → `LOGS_PASS` из env (`models/loggers/pass.ts`); иначе сборка на сервере падала с TS2307.
+  - Firebase Admin SDK → `GOOGLE_APPLICATION_CREDENTIALS` (JSON-файл `/etc/rhythm/firebase-adminsdk.json`); fallback на `FIREBASE_*` для локального dev через dotenv.
+  - Firebase web-конфиг → `FIREBASE_API_KEY/AUTH_DOMAIN/STORAGE_BUCKET/MESSAGING_SENDER_ID/APP_ID`.
+  - SMTP → `SMTP_USER/SMTP_PASS`; логи → `LOGS_PASS`.
+- Причина выбора JSON для Admin SDK: systemd 241 в `EnvironmentFile` съедает обратный слэш из `\n`, портя privateKey (`Failed to parse private key: 528`). privateKey нельзя держать в env-файле.
+- Удалены `libs/firebase/config/private/` и `src/logs/pass.ts` (хардкод); убраны gitignore-правила для конфигов.
+- Добавлен `dotenv` + `src/config/load-env.ts` (`.env` только вне production).
+- `deploy.sh` перенесён в корень; добавлены `npm install`, синхронизация юнита в `/etc/systemd/system/`, `systemctl` вместо `service`.
+- nginx: `rhy.thm.su` (конфиг `packages/backend/rhy.thm.su`), SSL через certbot, `/api/` → `127.0.0.1:7575`.
+- Тесты: заглушки Firebase/SMTP/LOGS в `setup-tests.ts`.
 
 ### Валидация
 
-- `npm run lint` — 0 ошибок ✅. `npm run build -w packages/backend` — exit 0 ✅.
-- Тесты — без новых падений: backend 16 failed (предсуществующие валидаторы), frontend 4 failed (предсуществующие валидаторы).
+- `npm run lint` — 0 ошибок. `npm run build -w packages/backend` — exit 0.
+- Бэкенд в проде: `[NestJS] Listening on port 7575`, `Redis is started!`, все маршруты замаплены.
+- Финальный 401 на `POST /api/getData` — протухшая session-cookie от старых запусков; перелогин решил.
 
 ## Следующие шаги
 
-1. **Локально:** проверить, что `packages/backend/.env` заполнен реальными значениями (восстановлены в этой сессии) — `npm run dev -w packages/backend` должен стартовать без ошибок Firebase.
-2. **Сервер (PLAN 5.6):** создать `/etc/rhythm/rhythm-server.env` (по шаблону `.env.example`, chmod 600) → `git pull` → `npm install` → сборка → `systemctl daemon-reload && systemctl restart rhythm-server`. Проверить Redis (в prod без него бэкенд падает, `libs/redis/init.ts`) и nginx (`rhy.thm.su`).
-3. После валидации NestJS в проде — удалить Koa (PLAN 3.6).
-4. Дедупликация React 19 (PLAN 3.11).
+1. Обновить таблицы эндпоинтов в `README.dev.md` и `.clinerules` под фактические NestJS-маршруты (camelCase с префиксом `/api`: `/api/getPolicy`, `/api/getData`, `/api/user/getAuth` и т.д. — сейчас в доке kebab-case без `/api`).
+2. После валидации NestJS в проде — удалить Koa (PLAN 3.6).
+3. Дедупликация React 19 (PLAN 3.11).
+4. (опц.) почистить `/etc/rhythm/rhythm-server.env` от неиспользуемых `FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`.
 
 ## Коммит
 
-`refactor: вынос секретов (Firebase Admin SDK/web-конфиг/SMTP) в переменные окружения — конфиги читают process.env, добавлен .env.example и dotenv для dev`
+`refactor: вынос секретов в env (GOOGLE_APPLICATION_CREDENTIALS + EnvironmentFile) и завершён переезд на хостинг (systemd, nginx+SSL, Redis)`
 
 ## Предупреждения/заметки
 
-- **Секреты были удалены из исходников** (`private/admin-key.ts`, `firebase-config.ts`, `email-config.ts`). Реальные значения восстановлены в `packages/backend/.env` (gitignored) — НЕ коммитить. Если `.env` потеряется, значения перевыпускаются в Firebase Console (Service accounts) и Google Account (app-password).
-- `dotenv` вернулся в зависимости (в сессии 5.7 его удаляли как «неиспользуемый»); теперь нужен для dev-загрузки `.env`. В production `.env` не читается (systemd).
-- `FIREBASE_PRIVATE_KEY` в env — на одной строке с литеральными `\n` (для systemd `EnvironmentFile` и dotenv).
-- На сервере юнит загружен из `/var/www/vtempe/data/rhythm-server/rhythm-server.service` (старый каталог, НЕ из репозитория) — его надо обновить и создать `/etc/rhythm/rhythm-server.env` (включая `LOGS_PASS`) до рестарта.
-- `packages/frontend/dev-dist/sw.js` — авто-регенерация PWA при запуске dev-сервера (не коммитить вручную).
+- systemd 241 в `EnvironmentFile` портит `\n` → privateKey только через JSON (`GOOGLE_APPLICATION_CREDENTIALS`), НЕ в env-файле.
+- Кука сессии (`rhythm=userId/sessionCookie`) после долгих простоев/переезда может протухать — лечится перелогином.
+- Юнит живёт в `/etc/systemd/system/rhythm-server.service` (не в каталоге проекта); `deploy.sh` его синхронизирует.
+- `packages/frontend/dev-dist/sw.js` — авто-регенерация PWA (не коммитить).

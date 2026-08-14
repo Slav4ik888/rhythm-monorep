@@ -344,8 +344,10 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 `packages/frontend/build/`. Полный сценарий — в `deploy.sh` (корень репозитория).
 
 ```bash
-# 1. Разово: создать файл секретов на сервере (права 600)
-#    /etc/rhythm/rhythm-server.env — по шаблону packages/backend/.env.example
+# 1. Разово: создать файлы секретов на сервере (права root:root 600)
+#    /etc/rhythm/rhythm-server.env      — web-конфиг Firebase, SMTP, LOGS_PASS
+#                                         (по шаблону packages/backend/.env.example)
+#    /etc/rhythm/firebase-adminsdk.json — JSON сервисного аккаунта Firebase (Admin SDK)
 
 # 2. Деплой (в каталоге монорепозитория)
 cd /var/www/vtempe/data/rhythm2
@@ -358,6 +360,22 @@ npm run build -w packages/frontend     # Vite → packages/frontend/build/
 systemctl daemon-reload
 systemctl restart rhythm-server
 ```
+
+### Серверная инфраструктура (prod)
+
+- **systemd-юнит живёт в `/etc/systemd/system/rhythm-server.service`** (НЕ в каталоге проекта,
+  чтобы не зависеть от папки репозитория). Источник — `packages/backend/rhythm-server.service`.
+  При каждом полном деплое `deploy.sh` сам копирует его в `/etc/systemd/system/` (шаг
+  `sync_service_file`) и выполняет `daemon-reload`.
+- **Секреты** хранятся вне репозитория, в каталоге `/etc/rhythm/`:
+  - `rhythm-server.env` — `FIREBASE_*` (web-конфиг), `SMTP_USER/SMTP_PASS`, `LOGS_PASS`
+    (читает systemd через `EnvironmentFile=`).
+  - `firebase-adminsdk.json` — JSON сервисного аккаунта Firebase Admin SDK (читает
+    `GOOGLE_APPLICATION_CREDENTIALS`). privateKey нельзя держать в `EnvironmentFile`: systemd
+    (≥240) съедает обратный слэш из `\n` и портит ключ.
+- **Nginx** — конфиг `packages/backend/rhy.thm.su` (`/api/` → `127.0.0.1:7575`, SPA-fallback на
+  `/index.html`). На сервере ставится в `/etc/nginx/sites-available/` + symlink в
+  `sites-enabled/` (или через панель ISPmanager).
 
 ### Docker Compose (Firebase эмуляторы)
 

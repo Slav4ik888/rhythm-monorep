@@ -132,7 +132,7 @@
 - [x] 5.3 Поддержка `REDIS_URL` в `libs/redis/init.ts` + подключён `dotenv` в NestJS-входе `main.ts`
 - [x] 5.4 Созданы `packages/backend/.env.example` и `packages/frontend/.env.example`; исправлены разделы env в `README.md` и `README.dev.md` (убраны неиспользуемые `FIREBASE_*`, `SMTP_*`, `SENTRY_DSN`, `VITE_FIREBASE_*`)
 - [x] 5.5 Обновлены деплой-файлы под монорепозиторий + NestJS: `rhythm-server.service` (`server/main.js`, `NODE_ENV=production`, `PORT`, `REDIS_URL`), `deploy.sh` (перенесён в корень репозитория)
-- [ ] 5.6 Реальный переезд на хостинг: сверить пути в `rhythm-server.service`/`deploy.sh`, остановить старый сервис, развернуть монорепо, прогнать деплой
+- [x] 5.6 Реальный переезд на хостинг (завершён в сессии 21): монорепо развёрнут в `/var/www/vtempe/data/rhythm2`, юнит перенесён в `/etc/systemd/system/`, nginx + SSL для `rhy.thm.su`, секреты через `/etc/rhythm/` (EnvironmentFile + GOOGLE_APPLICATION_CREDENTIALS). Бэкенд NestJS слушает 7575 (Redis OK), фронт отдаётся по HTTPS.
 - [x] 5.7 Удалён неиспользуемый `dotenv` (импорты в `main.ts`/`app/index.ts`, модуль `shared/utils/dotenv`, зависимость из `package.json`, `.env.example`); переменные задаются через окружение процесса
 
 ## Этап 6: Отладка запуска и роутов (сессия 17)
@@ -200,6 +200,21 @@
 - [x] 10.8 Обновлены `README.md` / `README.dev.md` (разделы env + деплой: systemd вместо PM2).
 - [x] 10.9 Валидация: `npm run lint` — 0 ошибок; `npm run build -w packages/backend` — exit 0; тесты — без новых падений (16 backend + 4 frontend предсуществующих валидаторов).
 - [x] 10.10 Вынесен пароль доступа к логам (`src/logs/pass.ts` → `LOGS_PASS`): создан `models/loggers/pass.ts` (читает env), обновлены импорты в `clear`/`download`/`view`, удалён gitignored `src/logs/pass.ts`, `LOGS_PASS` добавлен в `.env`/`.env.example`/README/`setup-tests.ts`. Устраняет TS2307 `Cannot find module 'logs/pass'` при сборке на сервере.
+- [x] 10.11 `admin-sdk.ts`: креды Firebase Admin SDK читаются через `GOOGLE_APPLICATION_CREDENTIALS` (JSON-файл сервисного аккаунта), fallback на `FIREBASE_*` для локального dev. Причина: systemd 241 в `EnvironmentFile` съедает обратный слэш из `\n`, портя privateKey (`Failed to parse private key: 528`). В юнит добавлен `Environment=GOOGLE_APPLICATION_CREDENTIALS=/etc/rhythm/firebase-adminsdk.json`.
+- [x] 10.12 Переезд завершён: nginx + SSL для `rhy.thm.su`, бэкенд NestJS на 7575 (Redis OK), фронт по HTTPS. Финальный 401 на `POST /api/getData` — протухшая session-cookie от старых запусков, перелогин решил.
+
+## Этап 11: Удаление Koa после валидации NestJS (сессия 22+)
+
+Koa в проде больше не используется (старт — `node server/main.js`, NestJS). Остался как мёртвый код и fallback.
+
+- [ ] 11.1 Удалить Koa-входы и приложение: `src/index.ts`, `src/app/index.ts`, `src/app/types/global.d.ts` (тип `Context` от Koa).
+- [ ] 11.2 Удалить `src/middleware/` целиком (router, cors, logging, check-version, session-caches) — заменены NestJS (guards/interceptors).
+- [ ] 11.3 Удалить старые Koa-контроллеры в `src/controllers/*/` (файлы `index.ts`, принимающие `ctx`), оставив `*.controller.ts` (NestJS).
+- [ ] 11.4 Удалить Koa-зависимые `src/views/` (`responseError(ctx, ...)`) и адаптировать/убрать вызовы.
+- [ ] 11.5 Удалить Koa-версии в `libs/firebase/auth/` (`fb-auth`, `get-cookies`, `get-session-data`, `check-csrf-token`, `set-cookie`, `create-session`), оставив fastify-версии.
+- [ ] 11.6 Убрать Koa-зависимые логгеры `create-log-temp` и `get-user-data-temp` (принимают Koa `ctx`): заменить на версию без ctx или удалить; проверить `libs/emails/send-group-mail.ts` (там `createLogTemp(undefined, ...)`).
+- [ ] 11.7 Удалить из `packages/backend/package.json`: скрипты `dev:koa`/`start:koa`, зависимости `koa`, `koa-bodyparser`, `koa-router`, `@types/koa`, `@types/koa-bodyparser`, `@types/koa-router`.
+- [ ] 11.8 Валидация: `npm run lint`, `npm run build -w packages/backend`, тесты — без новых падений.
 
 ---
 
