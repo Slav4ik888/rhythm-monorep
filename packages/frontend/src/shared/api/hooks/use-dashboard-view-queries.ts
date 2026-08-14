@@ -55,7 +55,14 @@ export const useGetBunchesQuery = ({ companyId, bunchIds, bunchesUpdated, enable
 
       LS.setBunches(compId, { ...LS.getBunches(compId), ...bunches });
       if (bunchesUpdated) {
-        LS.setViewBunchesUpdated(compId, { ...LS.getViewBunchesUpdated(compId), ...bunchesUpdated });
+        // Отмечаем «свежими» только реально загруженные bunch (bunchIds),
+        // а не все из paramsBunchesUpdated — иначе можно пометить свежими bunch,
+        // чьё содержимое в LS отсутствует/пустое (рассинхрон → пустой дашборд).
+        const fetchedTimestamps: Record<string, number> = {};
+        bunchIds.forEach((bunchId) => {
+          if (bunchesUpdated[bunchId] !== undefined) fetchedTimestamps[bunchId] = bunchesUpdated[bunchId];
+        });
+        LS.setViewBunchesUpdated(compId, { ...LS.getViewBunchesUpdated(compId), ...fetchedTimestamps });
       }
 
       const state = store.getState();

@@ -152,6 +152,28 @@
 - [x] 7.5 Добавлен спиннер при автоматической загрузке данных гугл-таблицы: `useGetDashboardDataQuery` теперь показывает `PageLoader` в начале запроса (`setPageLoading` с ключом `get-g-data`) и корректно снимает его / показывает ошибку через `onError` (ранее спиннер был только при ручном нажатии «Обновить данные»).
 - [x] 7.6 **Починен «пустой дашборд после очистки кэша» (корневая причина).** В `useGetBunchesQuery` (`shared/api/hooks/use-dashboard-view-queries.ts`) после миграции на TanStack Query ответ `/dashboard/bunch/get` читался как `bunches = data`, но бэкенд возвращает `{ bunches: BunchesViewItem }` (`ResGetBunches`). Из-за этого `getViewitemsFromBunches` распаковывал вложенный объект неправильно (элементы без `id` отбрасывались в `updateEntities`), и `viewItems` оставались пустыми — дашборд не отрисовывался. При этом из localStorage (`LS.getBunches`, корректный формат `{ bunchId: { itemId: ViewItem } }`) всё работало — поэтому симптом проявлялся только после очистки кэша. Исправлено на `bunches = (data as { bunches?: BunchesViewItem })?.bunches || {}` (как было в старом Redux-сервисе `services/get-bunches`, который делал `data.bunches`).
 
+## Этап 8: Диагностика «чужой дашборд не отрисовывается» (сессия 19)
+
+- [x] 8.1 Расставлены диагностические `console.log` с префиксом `[DASHBOARD-DEBUG]` по всему пути загрузки/сохранения/отрисовки дашборда, чтобы локализовать проблему: «пользователь с companyId `89MM9qHJLJlY5DZp1T9S` открыл чужой дашборд `jOiXJDIY0nJeiIuBMtI4` (доступ позволяет), нажал «Обновить данные» — ничего не отрисовалось; подозрение, что в LS данные сохраняются/читаются не по companyId из адресной строки». Логи добавлены в:
+  - `pages/company/ui/index.tsx` — `urlParamsCompanyId`, `ownCompanyId`, `paramsCompanyId`, `_isParamsCompanyIdLoaded`, `isDashboardAccessView`
+  - `pages/dashboard/ui/container.tsx` — `paramsCompanyId`, `paramsBunchesUpdated`, `LS.getViewBunchesUpdated`, `LS.getBunches`, `LS.getDataState`, `hasCachedData`, `bunchesForLoad`
+  - `pages/dashboard/ui/body/index.tsx` — `paramsCompanyId` при вызове `setInitial`
+  - `shared/api/hooks/use-dashboard-view-queries.ts` (`useGetBunchesQuery`) — `companyId`/`compId`, `bunchIds`, ключи ответа `bunches`, LS после сохранения
+  - `shared/api/hooks/use-dashboard-data-query.ts` (`useGetDashboardDataQuery`) — `companyId`/`dashboardSheetId`, ключи ответа и `startEntities`/`startDates`
+  - `features/dashboard-data/get-data/model/services/get-data/index.ts` (`getData` — кнопка «Обновить») — `companyId`, ключи ответа и `startEntities`
+  - `entities/dashboard-data/model/store.ts` (`finishGetData`) — `companyId`, ключи `startEntities`/`startDates`, LS после `setDataState`
+  - `entities/dashboard-view/model/store.ts` (`setDashboardBunchesFromCache`, `fetchBunches`) — `companyId`/`compId`, `changedBunches`, ключи bunches
+  - `entities/dashboard-view/model/utils/get-initial-state/index.ts` и `entities/dashboard-data/utils/get-initial-state/index.ts` — `companyId` и прочитанное из LS
+  - `entities/company/model/store.ts` (`finishGetParamsCompany`) — `paramsCompany.id` и ключи `bunchesUpdated`
+- [x] 8.2 Обновлены `VERSION` → `2.19.0`, `ASSEMBLY_DATE` → `2026-08-14` (тест `config.test.ts` снова зелёный)
+- [x] 8.3 **Локализована причина по логам пользователя.** Данные гугл-таблицы в LS есть (233 сущности), а layout пуст: `localBunches` содержит 1 пустой bunch, но `viewBunchesUpdated` содержит 13 «свежих» меток → `bunchesForLoad = 0` → `DashboardBodyContent {}` (`viewItems` пуст). Итог — рассинхрон `bunches` vs `viewBunchesUpdated` в LS.
+- [x] 8.4 **Корневая причина:** (1) `setDashboardBunchesFromCache` делал `LS.setBunches(companyId, {...filtered})` — затирал «изменённые» bunch из LS; (2) `useGetBunchesQuery` писал `viewBunchesUpdated` целиком из `paramsBunchesUpdated`, а не только по реально загруженным `bunchIds`. Вместе это оставляло LS в состоянии «метки свежие, а содержимое удалено/пустое».
+- [x] 8.5 **Исправлено:**
+  - `setDashboardBunchesFromCache` больше не пишет отфильтрованный набор обратно в LS (только читает из кэша и мержит в entities).
+  - `useGetBunchesQuery` отмечает «свежими» в `viewBunchesUpdated` только реально загруженные `bunchIds`.
+  - Новый хелпер `getBunchesForLoad` (entities/dashboard-view): помимо устаревших по timestamp возвращает bunch с пустым/отсутствующим содержимым в LS — самоисцеление уже «протухшего» кэша. Используется в `container.tsx`. Добавлен unit-тест (5 кейсов).
+- [x] 8.6 Диагностические `console.log [DASHBOARD-DEBUG]` удалены из исходников после подтверждения фикса пользователем (дашборд чужой компании отрисовывается).
+
 ---
 
 ## Правила ведения плана

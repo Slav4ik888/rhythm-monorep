@@ -4,7 +4,7 @@ import { FC, memo, useEffect, useMemo } from 'react';
 import { Sidebar } from 'widgets/sidebar';
 import { DashboardBody } from './body';
 import { SidebarRegulatorWrapper } from 'shared/ui/wrappers';
-import { getBunchesToUpdate, NO_SHEET_ID } from 'entities/dashboard-view';
+import { getBunchesForLoad, NO_SHEET_ID } from 'entities/dashboard-view';
 import { __devLog } from 'shared/lib/tests/__dev-log';
 import { useAccess, useCompany } from 'entities/company';
 import { LS } from 'shared/lib/local-storage';
@@ -23,14 +23,21 @@ export const DashboardPageContainer: FC = memo(() => {
   const { setPageLoading } = useUI();
   const { isDashboardAccessView } = useAccess();
 
-  // Вычисляем, какие bunches нужно загрузить с сервера
+  // Вычисляем, какие bunches нужно загрузить с сервера.
+  // Учитываем и те, чьё содержимое пустое/отсутствует в LS (рассинхрон с viewBunchesUpdated).
   const bunchesForLoad = useMemo(
-    () => getBunchesToUpdate(paramsBunchesUpdated, LS.getViewBunchesUpdated(paramsCompanyId)),
+    () =>
+      getBunchesForLoad(
+        paramsBunchesUpdated,
+        LS.getViewBunchesUpdated(paramsCompanyId),
+        LS.getBunches(paramsCompanyId),
+      ),
     [paramsBunchesUpdated, paramsCompanyId],
   );
 
   // TanStack Query: автоматическая загрузка данных из Google Sheets
   const hasCachedData = !!LS.getDataState(paramsCompanyId)?.startEntities && !!paramsCompanyId;
+
   useGetDashboardDataQuery({
     companyId: paramsCompanyId,
     dashboardSheetId,

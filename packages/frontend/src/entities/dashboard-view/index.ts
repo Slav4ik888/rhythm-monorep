@@ -63,6 +63,7 @@ export {
   getChildren,
   isClickInsideViewItem,
   getBunchesToUpdate,
+  getBunchesForLoad,
   getParents,
   getFirstItemInBranchWithGlobalKod,
 } from './model/utils';

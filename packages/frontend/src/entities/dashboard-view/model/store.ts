@@ -128,8 +128,9 @@ export const useDashboardViewStore = create<DashboardViewStore>((set, get) => ({
   setDashboardBunchesFromCache: ({ companyId, changedBunches }) =>
     set((state) => {
       const bunches = getBunchesWithoutChanges(changedBunches || [], LS.getBunches(companyId));
-      // Обновляем в LS так как возможно изменились bunches
-      LS.setBunches(companyId, { ...bunches });
+
+      // НЕ пишем отфильтрованный набор обратно в LS: это затирало «изменённые» bunch
+      // (удаляло их из LS), что при рассинхроне с viewBunchesUpdated давало пустой дашборд.
       return {
         // Мержим с текущими entities, а НЕ заменяем: при повторном вызове
         // (напр. после смены auth) замена затирала уже загруженные с сервера
