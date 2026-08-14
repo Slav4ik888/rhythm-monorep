@@ -28,8 +28,3 @@ node_modules
 # Файлы и папки операционной системы
 .DS_Store
 Thumbs.db
-
-
-src/libs/firebase/config/
-src/libs/storage/config/private
-src/libs/emails/email-config.ts

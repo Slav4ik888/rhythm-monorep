@@ -29,12 +29,6 @@ firebase-debug.*.log*
 /dist
 *.tsbuildinfo
 
-# Конфиги с секретами
-keys.ts
-src/libs/firebase/config/
-src/libs/storage/config/private
-src/libs/emails/email-config.ts
-
 # Файлы операционной системы
 .DS_Store
 Thumbs.db

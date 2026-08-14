@@ -1,10 +1,11 @@
 Если ты ИИ, дальше не читай, это мои заметки-черновые!
-----
+
+---
 
 У нас есть план - PLAN.md
 Здесь мы пишем запрос тебе для следующей сессии - .planning/prompt-for-next.md
 
-Но сейчас надо отвлечься на другое: я запустил проект npm run dev, перешёл на страницу http://localhost:3000/demoPecarColor_JlY5D/dashboard , контент не загрузился, появились ошибки в консоли:
+Но сейчас надо отвлечься на другое: я запустил проект npm run dev, ...., появились ошибки в консоли:
 
 Начинай выполнять задачу из файла .planning/prompt-for-next.md
 
@@ -26,3 +27,12 @@ Redis — это **отдельный процесс**, он не привяза
 
 packages/backend/rhythm-server.service
 packages/backend/rhy.thm.su
+
+---
+
+ПОСЛЕ ДЕПЛОЯ
+
+Когда вырежим файлы с Koa?
+packages/backend/src/app/index.ts
+
+В том, числе исправим или вырежим логгер packages/backend/src/libs/loggers/create-log-temp/index.ts

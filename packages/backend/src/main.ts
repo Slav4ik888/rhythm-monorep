@@ -3,6 +3,7 @@
 // Заменяет src/index.ts (Koa)
 
 import 'reflect-metadata';
+import './config/load-env';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';

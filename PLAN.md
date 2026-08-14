@@ -185,6 +185,21 @@
 - [x] 9.2 Валидация: `npm run lint` — 0 ошибок ✅; `tsc` frontend — 0 ошибок; frontend test — 4 failed (предсуществующие валидаторы `fix-date`, `user`, `auth-by-login`, `auth-by-login-schema`); backend test — 16 failed (предсуществующие валидаторы). Новых падений нет.
 - [x] 9.3 Обновлены `VERSION` → `2.20.0`, `ASSEMBLY_DATE` → `2026-08-14`.
 
+## Этап 10: Вынос секретов в env (сессия 21)
+
+- [x] 10.1 Секреты вынесены в переменные окружения (разблокирован переезд PLAN 5.6):
+  - `libs/firebase/config/admin-sdk.ts` → `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY` (privateKey с `.replace(/\\n/g, '\n')`).
+  - `libs/firebase/config/fire.ts` → `FIREBASE_API_KEY`/`FIREBASE_AUTH_DOMAIN`/`FIREBASE_STORAGE_BUCKET`/`FIREBASE_MESSAGING_SENDER_ID`/`FIREBASE_APP_ID`.
+  - `libs/emails/email-config.ts` → `SMTP_USER`/`SMTP_PASS`.
+- [x] 10.2 Удалена папка `libs/firebase/config/private/` (хардкод Admin SDK + web-конфига).
+- [x] 10.3 Убраны gitignore-правила для `src/libs/firebase/config/` и `src/libs/emails/email-config.ts` — конфиги теперь коммитятся (в них только чтение из env).
+- [x] 10.4 Добавлен `dotenv` + `src/config/load-env.ts` (подгрузка `.env` только вне production); `import './config/load-env'` в `main.ts`.
+- [x] 10.5 Создан `packages/backend/.env.example` (шаблон без секретов); локальный `packages/backend/.env` восстановлен из бывших private/*.ts (gitignored).
+- [x] 10.6 `rhythm-server.service`: `Environment=SITE_URL=...` + `EnvironmentFile=-/etc/rhythm/rhythm-server.env`; `SITE_URL` в `app/config/index.ts` стал env-переопределяемым.
+- [x] 10.7 Тесты: заглушки Firebase/SMTP в `config/jest/setup-tests.ts` (валидный RSA-ключ генерируется на лету), чтобы `cert()` не падал при импорте.
+- [x] 10.8 Обновлены `README.md` / `README.dev.md` (разделы env + деплой: systemd вместо PM2).
+- [x] 10.9 Валидация: `npm run lint` — 0 ошибок; `npm run build -w packages/backend` — exit 0; тесты — без новых падений (16 backend + 4 frontend предсуществующих валидаторов).
+
 ---
 
 ## Правила ведения плана

@@ -20,6 +20,10 @@ ExecStart=/root/.nvm/versions/node/v20.19.2/bin/node /var/www/vtempe/data/rhythm
 Environment=NODE_ENV=production
 Environment=PORT=7575
 Environment=REDIS_URL=redis://localhost:6379
+Environment=SITE_URL=https://rhy.thm.su
+# Секреты (Firebase Admin SDK, web-конфиг Firebase, SMTP) хранятся отдельно:
+# /etc/rhythm/rhythm-server.env (права root:root 600). Префикс «-» — не падать, если файла нет.
+EnvironmentFile=-/etc/rhythm/rhythm-server.env
 
 [Install]
 WantedBy=multi-user.target

@@ -84,20 +84,32 @@ rhythm/
 
 ## Переменные окружения
 
-Проект **не использует `.env`-файл**. Настройки читаются напрямую из окружения процесса
-(`process.env`) и задаются через shell, systemd (`Environment=`), PM2 (ecosystem-файл) и т.п.
+Секреты (Firebase Admin SDK, web-конфиг Firebase, SMTP) хранятся **вне репозитория** и читаются
+из переменных окружения (`process.env`).
 
-> ⚠️ Firebase-конфиг (Admin SDK + web-конфиг) и SMTP-доступы пока захардкожены в исходниках
-> (`packages/backend/src/libs/firebase/config/`, `packages/backend/src/libs/emails/email-config.ts`) —
-> это техдолг, который предстоит вынести в переменные окружения.
+- **Локально:** скопируй `packages/backend/.env.example` → `packages/backend/.env` и заполни значения.
+  В dev/test-режиме `.env` подхватывается автоматически (см. `packages/backend/src/config/load-env.ts`).
+- **На сервере:** переменные задаются через systemd (`EnvironmentFile=/etc/rhythm/rhythm-server.env`,
+  см. `packages/backend/rhythm-server.service`). В production `.env` не читается.
 
 ### Backend
 
-| Переменная  | По умолчанию             | Назначение                                                                                            |
-| ----------- | ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `PORT`      | `7575`                   | порт API-сервера                                                                                      |
-| `NODE_ENV`  | —                        | `development` / `test` / `production`. В production при недоступном Redis сервер завершится с ошибкой |
-| `REDIS_URL` | `redis://localhost:6379` | адрес Redis                                                                                           |
+| Переменная                     | По умолчанию             | Назначение                                                                                            |
+| ------------------------------ | ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `PORT`                         | `7575`                   | порт API-сервера                                                                                      |
+| `NODE_ENV`                     | `development`            | `development` / `test` / `production`. В production при недоступном Redis сервер завершится с ошибкой |
+| `REDIS_URL`                    | `redis://localhost:6379` | адрес Redis                                                                                           |
+| `SITE_URL`                     | `https://rhy.thm.su`     | публичный URL сайта (CORS, ссылки в письмах)                                                          |
+| `FIREBASE_PROJECT_ID`          | —                        | Firebase Admin SDK: projectId                                                                         |
+| `FIREBASE_CLIENT_EMAIL`        | —                        | Firebase Admin SDK: clientEmail (service account)                                                     |
+| `FIREBASE_PRIVATE_KEY`         | —                        | Firebase Admin SDK: privateKey (переносы строк — литеральные `\n`)                                    |
+| `FIREBASE_API_KEY`             | —                        | Firebase web-конфиг: apiKey                                                                           |
+| `FIREBASE_AUTH_DOMAIN`         | —                        | Firebase web-конфиг: authDomain                                                                       |
+| `FIREBASE_STORAGE_BUCKET`      | —                        | Firebase web-конфиг: storageBucket                                                                    |
+| `FIREBASE_MESSAGING_SENDER_ID` | —                        | Firebase web-конфиг: messagingSenderId                                                                |
+| `FIREBASE_APP_ID`              | —                        | Firebase web-конфиг: appId                                                                            |
+| `SMTP_USER`                    | —                        | логин SMTP для отправки писем                                                                         |
+| `SMTP_PASS`                    | —                        | пароль SMTP                                                                                           |
 
 ### Frontend
 
@@ -105,10 +117,10 @@ rhythm/
 | -------------- | ----------------------- | --------------------------------------------------------- |
 | `VITE_API_URL` | `http://localhost:7575` | URL бэкенда для dev-прокси Vite (в проде не используется) |
 
-Пример задания переменной локально:
+Пример задания переменной локально (если не используется `.env`):
 
 ```bash
-REDIS_URL=redis://localhost:6379 npm run dev -w packages/backend
+SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 ```
 
 ---
