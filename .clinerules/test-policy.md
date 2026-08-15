@@ -11,12 +11,14 @@
 ## Двухэтапный процесс написания тестов
 
 ### Этап 1: Предложение (Plan)
+
 1. Изучи функцию/сервис/экран который нужно протестировать
 2. Составь список тестовых случаев в таблице: № | Сценарий | Тип | Ожидаемый результат
 3. Укажи какие моки потребуются
 4. Представь список пользователю на утверждение
 
 ### Этап 2: Реализация (Act)
+
 1. Дождись подтверждения/правок от пользователя
 2. Напиши код тестов
 3. Запусти `npm test` в соответствующем workspace
@@ -58,9 +60,11 @@
 ### E2E-тесты (два типа)
 
 **NestJS модульные E2E** — тестируют конкретный модуль через HTTP (в том же процессе):
+
 - `src/auth/tests/e2e/vk-login.spec.ts` (в `tests/e2e/`)
 
 **Playwright сквозные E2E** — тестируют пользовательские сценарии в браузере (отдельный процесс):
+
 - `e2e/guest/catalog.spec.ts` — тесты гостя
 - `e2e/customer/profile.spec.ts` — тесты покупателя
 - `e2e/admin/dashboard.spec.ts` — тесты админа
@@ -86,51 +90,51 @@ npx playwright test --project=admin        # Только админ
 
 ## Приоритет блоков для покрытия тестами (Бэкенд)
 
-| Приоритет | Блок | Статус |
-|---|---|---|
-| 🥇 1 | **Auth (авторизация)** | - |
-| 🥇 2 | **Company (компании)** | - |
-| 🥇 3 | **Dashboard (дашборды)** | - |
-| 🥈 4 | **Partner (реферальная программа)** | - |
-| 🥈 5 | **Validators (валидаторы)** | Частично (есть тесты) |
-| 🥉 6 | **Templates (шаблоны)** | - |
-| 🥉 7 | **Loggers (логирование)** | - |
-| 🥉 8 | **Docs (документы)** | - |
-| 🥉 9 | **Google (Google Sheets)** | - |
-| 🥉 10 | **Params Company (параметры компании)** | - |
+| Приоритет | Блок                                    | Статус                                   |
+| --------- | --------------------------------------- | ---------------------------------------- |
+| 🥇 1      | **Auth (авторизация)**                  | Частично (integration-тесты контроллера) |
+| 🥇 2      | **Company (компании)**                  | Частично (integration-тесты контроллера) |
+| 🥇 3      | **Dashboard (дашборды)**                | Частично (integration-тесты контроллера) |
+| 🥈 4      | **Partner (реферальная программа)**     | -                                        |
+| 🥈 5      | **Validators (валидаторы)**             | Частично (есть тесты)                    |
+| 🥉 6      | **Templates (шаблоны)**                 | -                                        |
+| 🥉 7      | **Loggers (логирование)**               | -                                        |
+| 🥉 8      | **Docs (документы)**                    | -                                        |
+| 🥉 9      | **Google (Google Sheets)**              | -                                        |
+| 🥉 10     | **Params Company (параметры компании)** | -                                        |
 
 ### Integration-тесты контроллеров (NestJS)
 
-| Контроллер | Файл | Тесты |
-|---|---|---|
-| Auth | `packages/backend/src/controllers/auth/` | - |
-| Company | `packages/backend/src/controllers/company/` | - |
-| Dashboard | `packages/backend/src/controllers/dashboard/` | - |
-| Partner | `packages/backend/src/controllers/partner/` | - |
-| Templates | `packages/backend/src/controllers/templates/` | - |
-| Docs | `packages/backend/src/controllers/docs/` | - |
-| Loggers | `packages/backend/src/controllers/loggers/` | - |
-| Google | `packages/backend/src/controllers/google/` | - |
-| Params Company | `packages/backend/src/controllers/params-company/` | - |
+| Контроллер     | Файл                                                                            | Тесты |
+| -------------- | ------------------------------------------------------------------------------- | ----- |
+| Auth           | `packages/backend/src/controllers/auth/tests/auth.controller.spec.ts`           | 10    |
+| Company        | `packages/backend/src/controllers/company/tests/company.controller.spec.ts`     | 6     |
+| Dashboard      | `packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts` | 9     |
+| Partner        | `packages/backend/src/controllers/partner/`                                     | -     |
+| Templates      | `packages/backend/src/controllers/templates/`                                   | -     |
+| Docs           | `packages/backend/src/controllers/docs/`                                        | -     |
+| Loggers        | `packages/backend/src/controllers/loggers/`                                     | -     |
+| Google         | `packages/backend/src/controllers/google/`                                      | -     |
+| Params Company | `packages/backend/src/controllers/params-company/`                              | -     |
 
 **Итого:** 0 suites (backend) + 0 suites (frontend) = **0 suites**, 0 тестов (backend) + 0 тестов (frontend) = **0 тестов** (unit + integration)
 
 ## Приоритет блоков для покрытия тестами (Фронтенд)
 
-| Приоритет | Блок | Модули/компоненты | Статус |
-|---|---|---|---|
-| 🥇 1 | **Redux-сторы** | `entities/user/`, `entities/company/`, `entities/dashboard-data/`, `entities/dashboard-view/`, `entities/ui/` | - |
-| 🥇 2 | **Shared helpers** | `shared/helpers/`, `shared/lib/` | - |
-| 🥇 3 | **Shared API** | `shared/api/` | - |
-| 🥈 4 | **Features (фичи)** | `features/auth/`, `features/dashboard-view/`, `features/company/`, `features/partner/`, `features/user/` | - |
-| 🥈 5 | **Widgets** | `widgets/auth/`, `widgets/sidebar/`, `widgets/navbar/`, `widgets/footer/`, `widgets/dashboard-view/`, `widgets/dashboard-render/` | - |
-| 🥉 6 | **Pages** | Статические страницы: `not-found`, `not-access`, `policy` (smoke). Остальные — ручное тестирование | - |
+| Приоритет | Блок                | Модули/компоненты                                                                                                                 | Статус |
+| --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 🥇 1      | **Redux-сторы**     | `entities/user/`, `entities/company/`, `entities/dashboard-data/`, `entities/dashboard-view/`, `entities/ui/`                     | -      |
+| 🥇 2      | **Shared helpers**  | `shared/helpers/`, `shared/lib/`                                                                                                  | -      |
+| 🥇 3      | **Shared API**      | `shared/api/`                                                                                                                     | -      |
+| 🥈 4      | **Features (фичи)** | `features/auth/`, `features/dashboard-view/`, `features/company/`, `features/partner/`, `features/user/`                          | -      |
+| 🥈 5      | **Widgets**         | `widgets/auth/`, `widgets/sidebar/`, `widgets/navbar/`, `widgets/footer/`, `widgets/dashboard-view/`, `widgets/dashboard-render/` | -      |
+| 🥉 6      | **Pages**           | Статические страницы: `not-found`, `not-access`, `policy` (smoke). Остальные — ручное тестирование                                | -      |
 
 ### E2E smoke-тесты (Playwright)
 
-| Проект | Файл | Тесты |
-|---|---|---|
-| e2e (ещё не создан) | - | - |
+| Проект              | Файл | Тесты |
+| ------------------- | ---- | ----- |
+| e2e (ещё не создан) | -    | -     |
 
 **Итого (весь проект):** 0 suites (unit/integration) + 0 suites (E2E) = **0 suites**, **0 тестов** (0 unit/integration + 0 E2E)
 

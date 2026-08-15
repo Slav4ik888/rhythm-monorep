@@ -221,6 +221,39 @@ Koa в проде больше не используется (старт — `no
 - [x] 11.11 Восстановлен механизм проверки версии, утраченный при удалении Koa-middleware `check-version`: создан NestJS `CheckVersionInterceptor` (`interceptors/check-version.interceptor.ts`, 409 Conflict при рассинхроне `X-Client-Version` и `cfg.VERSION`), зарегистрирован глобально через `APP_INTERCEPTOR` в `app.module.ts`. Backend `cfg.VERSION` синхронизирован с фронтом (`2.22.0`). На фронте в `shared/api/api.ts` добавлен ответный interceptor: при 409 с `updateRequired` — `location.reload()` (с защитой от зацикливания через `sessionStorage`). Правило завершения сессии в `.clinerules` обновлено: версия бампается синхронно в двух файлах (frontend + backend).
 - [x] 11.12 Исправлено залипание старой версии у PWA: `vite.config.ts` — из `globPatterns` убран `html` + `globIgnores: ['**/index.html']` + `navigateFallback: null` (отключён дефолтный fallback vite-plugin-pwa на прекэшированный index.html), навигация теперь через `NetworkFirst` (свежий index.html из сети, кэш только офлайн). Причина бага: SW прекэшировал старый `index.html`, который после деплоя ссылался на удалённые чанки → «MIME type text/html» и вечная 2.21.0. На фронте в `api.ts` при 409 также снимается регистрация SW и очищается кэш перед `reload`. Версия поднята до `2.23.0` (frontend + backend синхронно).
 
+## Этап 12: Integration-тесты NestJS-контроллеров (сессия 23)
+
+- [x] 12.1 Установлен `@nestjs/testing@11.1.29` (devDependency) в `packages/backend`.
+- [x] 12.2 Добавлены integration-тесты (HTTP через `app.inject` на Fastify, модели мокаются через `jest.mock`, guard — через `overrideGuard`):
+  - [x] `controllers/auth/tests/auth.controller.spec.ts` — 10 тестов (login, signup/byEmailStart, sendCodeAgain, byEmailEnd, resetEmailPassword + ошибки 400/500).
+  - [x] `controllers/company/tests/company.controller.spec.ts` — 6 тестов (update, deleteSheet + 400/500 + 401 без сессии).
+  - [x] `controllers/dashboard/tests/dashboard.controller.spec.ts` — 9 тестов (bunch/get, createGroupItems, update PATCH, delete + 400 + 401).
+- [x] 12.3 Исправлен баг в `auth.controller.ts` (resetEmailPassword): `success: false` отдавал 500 вместо 400 — `HttpException` не имеет поля `statusCode`, и общий `catch` перемаппивал её в 500. Теперь кидается ошибка в едином формате `{ statusCode, body }`, как это делают модели.
+- [x] 12.4 В `config/jest/jest.config.ts` добавлен `/server/` в `testPathIgnorePatterns` — чтобы jest не подхватывал скомпилированные `*.test.js` из build-артефактов `server/` (после локального `npm run build`).
+- [x] 12.5 Выполнена разовая чистка `rm -rf packages/backend/server && npm run build -w packages/backend` (п.1 из `.planning/prompt-for-next.md`).
+- [x] 12.6 Валидация: `npm run lint` — 0 ошибок; `npm run build -w packages/backend` — exit 0; backend test — 16 failed (все предсуществующие валидаторы, новых нет); frontend test — 4 failed (предсуществующие валидаторы). Версия поднята до `2.24.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+
+## Этап 13: Хранение загруженных данных — переход с localStorage на IndexedDB (запланировано)
+
+### Проблема
+
+Сейчас все загруженные данные пишутся в `localStorage` (`packages/frontend/src/shared/lib/local-storage`):
+
+- per-company ключи: `dataState-${companyId}` (данные гугл-таблицы), `bunches-${companyId}` (элементы дашборда/view), `viewBunchesUpdated-${companyId}`, `Dashboard-GSData-${companyId}` (dev-сырые данные `/api/getData`), `userState-${companyId}`, `companyState-${companyId}`;
+- общие ключи: `templates`, `templatesBunchesUpdated`, `paramsCompany`, `UIConfiguratorState`, `lastCompanyId`, `editMode-${companyId}`, `partnerId`, `hintsDontShowAgain`, cookie.
+
+Лимит localStorage ≈ 5 МБ. При загрузке данных нескольких компаний (особенно сырые `Dashboard-GSData-*`) квота исчерпывается → в `setStorageData` (`model/main.ts`) срабатывает обработчик `QuotaExceededError`, который делает `localStorage.clear()` и пересохраняет «важное» только для текущей компании — данные остальных компаний затираются, и при переключении их приходится грузить заново.
+
+### Решение
+
+- [ ] 13.1 Вынести «тяжёлые» per-company данные в **IndexedDB** (квота на порядки больше, async API): `dataState`, `bunches`, `viewBunchesUpdated`, `Dashboard-GSData` (dev).
+- [ ] 13.2 Подключить `idb@7.1.1` как прямую зависимость фронтенда (сейчас есть только транзитивно — через firebase/workbox) либо написать тонкую обёртку над нативным IndexedDB.
+- [ ] 13.3 Реализовать хранилище с интерфейсом, аналогичным `LS.*`, но async (Promises), ключ — `companyId`; обновить места использования: `entities/dashboard-data`, `entities/dashboard-view`, `entities/dashboard-templates`, `features/dashboard-data/get-data` (в т.ч. вызовы в хуках TanStack Query и сторах Zustand).
+- [ ] 13.4 Оставить в localStorage только мелкое UI-состояние/флаги (cookie, `partnerId`, `hintsDontShowAgain`, `lastCompanyId`, `editMode`, `UIConfiguratorState`, `paramsCompany`) — чтобы логика «важного» в `clear`/`QuotaExceededError` не менялась.
+- [ ] 13.5 Однократная миграция/backfill: при первом запуске перенести существующие per-company ключи из localStorage в IndexedDB и удалить их из localStorage.
+- [ ] 13.6 Переработать/убрать обработчик `QuotaExceededError` в `model/main.ts` — после миграции per-company данные больше не должны упираться в квоту localStorage.
+- [ ] 13.7 Добавить unit-тесты на новое IndexedDB-хранилище (mock `indexedDB`/`idb`, как в существующих тестах LS) и обновить затронутые store-тесты.
+
 ---
 
 ## Правила ведения плана

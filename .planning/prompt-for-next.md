@@ -2,102 +2,57 @@
 
 ## Дата
 
-14.08.2026 (сессия 22)
+15.08.2026 (сессия 23)
 
 ## Контекст: что сделано в этой сессии
 
-### 1. Актуализированы таблицы API-эндпоинтов (документация)
+### 1. Integration-тесты NestJS-контроллеров (приоритеты test-policy: Auth, Company, Dashboard)
 
-- `README.dev.md` и `.clinerules/promt-for-dev.md`: таблицы эндпоинтов заменены с устаревших
-  kebab-case без префикса на фактические NestJS-маршруты (camelCase + префикс `/api`).
-- Базовый URL: `https://rhy.thm.su/api` (локально `http://localhost:7575/api`). Nginx проксирует
-  `location /api/` → `127.0.0.1:7575` без срезания префикса.
-- Полный список маршрутов (26 шт.) — см. `README.dev.md` → «API эндпоинты».
+- Установлен `@nestjs/testing@11.1.29` (devDependency) в `packages/backend`.
+- Созданы три integration-теста (HTTP через `app.inject()` на Fastify, без поднятия реального порта):
+  - `packages/backend/src/controllers/auth/tests/auth.controller.spec.ts` — 10 тестов.
+  - `packages/backend/src/controllers/company/tests/company.controller.spec.ts` — 6 тестов.
+  - `packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts` — 9 тестов.
+- Паттерн: модели контроллеров мокаются через `jest.mock` (импортируются напрямую, не через DI); `FirebaseAuthGuard` мокается пустым классом-токеном + поведение задаётся через `overrideGuard(...).useValue({ canActivate })` — иначе реальный guard тянет `models` → `libs/redis`, что оставляет открытый handle и вешает завершение jest.
 
-### 2. Удалён Koa (PLAN этап 11) — миграция на NestJS завершена
+### 2. Исправлен баг resetEmailPassword
 
-- Удалены: `src/index.ts`, `src/app/index.ts`, `src/app/types/global.d.ts`, `src/middleware/` целиком.
-- Удалены Koa-контроллеры `src/controllers/*/index.ts` + подпапки (оставлены только `*.controller.ts` + `*.module.ts`).
-- `src/views/`: удалены `response-error`, `get-errors`, `get-status`, `not-authorized`; оставлены
-  `err-code.ts` (ERR_CODE) и `get-error-message` (getErrorMessage) — их используют модели.
-- `libs/firebase/auth/`: удалены Koa-версии (`fb-auth`, `get-cookies`, `get-session-data`,
-  `check-csrf-token`, `set-cookie`, `create-session`, `index.ts`); остались fastify-версии
-  (`set-cookie-fastify`, `create-session-fastify`, `get-session-data-fastify`).
-- `libs/loggers/`: удалены `create-log-temp` и `get-user-data-temp`; `index.ts` → `export * from './winston'`.
-  `send-group-mail.ts` больше не использует `createLogTemp`.
-- Удалены Koa/мёртвые модели с `Context`: `models/user/utils/get-user-id`,
-  `models/company/utils/get-company-id`, `models/company/handlers/get`,
-  `models/dashboard-view/services/dev-save-bunches`; обновлены `models/{user,company}/index.ts`, `handlers/index.ts`, `utils/index.ts`.
-- `package.json`: убраны `dev:koa`/`start:koa` и зависимости `koa`, `koa-bodyparser`, `koa-router`,
-  `@types/koa*`. Корневой `package-lock.json` обновлён (−62 пакета); удалён вложенный
-  `packages/backend/package-lock.json` (npm workspace его не использует).
+- `auth.controller.ts`: при `success: false` от модели кидался `HttpException(result, 400)`, но общий `catch` проверяет `err.statusCode` (у `HttpException` его нет) и перемаппливал в 500. Теперь кидается ошибка в едином формате `{ statusCode, body }` (как модели) — клиенту отдаётся 400.
 
-### 3. Дедупликация React 19 (PLAN 3.11)
+### 3. Jest игнорирует build-артефакты `server/`
 
-- `@testing-library/react` → `^16.1.0` (установился 16.3.2).
-- Root `overrides` дополнены `react: 19.0.8` / `react-dom: 19.0.8`.
-- Удалён костыль `moduleNameMapper` (4 записи react/react-dom) из `packages/frontend/config/jest/jest.config.js`.
-- `npm ls react react-dom` — всё на 19.0.8 (18.3.1 больше не резолвится).
+- В `packages/backend/config/jest/jest.config.ts` в `testPathIgnorePatterns` добавлен `/server/` — раньше после локального `npm run build` jest подхватывал скомпилированные `server/**/*.test.js` (тест-файлы вне папок `tests/`) и гонял их дубликатом.
 
-### 4. Восстановлен механизм проверки версии (check-version)
+### 4. Разовая чистка (п.1 прошлой сессии)
 
-- Проблема: при удалении Koa-middleware `check-version` (этап 11) он не был мигрирован в NestJS (в `app.module.ts` оставался TODO), а backend `cfg.VERSION` застрял на `1.53.0` — защита «версия сервера vs фронт» не работала.
-- Создан `packages/backend/src/interceptors/check-version.interceptor.ts` (409 Conflict при рассинхроне), зарегистрирован глобально через `APP_INTERCEPTOR`.
-- Backend `cfg.VERSION` синхронизирован с фронтом → `2.22.0`.
-- Фронт `shared/api/api.ts`: ответный interceptor при 409 + `updateRequired` → `location.reload()` (защита от зацикливания через `sessionStorage`, не чаще 1 reload/3 c).
-- `.clinerules/promt-for-dev.md`: правило завершения сессии — версия бампается синхронно в двух файлах (frontend + backend).
-
-### 5. Исправлено залипание старой версии PWA (Service Worker)
-
-- Симптом: после деплоя пользователи получали старый `index.html` (2.21.0) со ссылками на уже удалённые
-  чанки → `Expected a JavaScript module but got MIME text/html` (nginx fallback) и вечная старая версия.
-- Причина: SW прекэшировал `index.html` (`globPatterns` включал `html`) и раздавал его устаревшим.
-- Фикс в `vite.config.ts`: `globPatterns` без `html` + `globIgnores: ['**/index.html']` +
-  `navigateFallback: null` (отключён дефолт vite-plugin-pwa) + навигация через `NetworkFirst`
-  (свежий index.html из сети, кэш — только офлайн). Проверено: в `sw.js` больше нет
-  `createHandlerBoundToURL("index.html")`, precache 35 → 34 entries.
-- В `api.ts` при 409 также снимается регистрация SW и очищается кэш (`caches.delete`) перед `reload`.
-- Версия поднята до `2.23.0` (frontend + backend синхронно).
+- Выполнен `rm -rf packages/backend/server && npm run build -w packages/backend`.
 
 ### Валидация
 
-- `npm run lint` — 0 ошибок. `npm run build -w packages/backend` — exit 0. `npm run build -w packages/frontend` — exit 0.
-- backend test: 16 failed (все предсуществующие валидаторы) — новых нет.
-- frontend test: 4 failed (предсуществующие валидаторы `validate-auth-by-login`, `validate-auth-by-login-schema`, `validate-fix-date-schema`, `validate-user-schema`) — новых нет.
-- `VERSION` → `2.23.0`, `ASSEMBLY_DATE` → `2026-08-14` (frontend + backend синхронно).
-- Обновлён стек в `README.md`/`README.dev.md`: Koa → NestJS + Fastify, PM2 → systemd,
-  структура бэкенда (guards/interceptors/main.ts), Zustand + TanStack Query (было Redux Toolkit).
+- `npm run lint` — 0 ошибок.
+- `npm run build -w packages/backend` — exit 0.
+- backend test: unit — 16 failed (все предсуществующие валидаторы), shared — 377 passed, validators — 13 failed (предсуществующие). Новых падений нет.
+- frontend test: 4 failed (предсуществующие валидаторы `validate-auth-by-login*`, `validate-fix-date-schema`, `validate-user-schema`); `config.test.ts` чинится бампом `ASSEMBLY_DATE`.
+- `VERSION` → `2.24.0`, `ASSEMBLY_DATE` → `2026-08-15` (frontend + backend синхронно).
 
 ## Следующие шаги
 
-1. (разово, локально) почистить `packages/backend/server/` от старых Koa-файлов, оставшихся от прошлых
-   сборок: `rm -rf packages/backend/server && npm run build -w packages/backend`. В `deploy.sh` очистка
-   `server/` уже добавлена (в `build_backend` перед `npm run build`), поэтому при следующих деплоях
-   мёртвые файлы не накапливаются.
-2. (опц., сервер) почистить `/etc/rhythm/rhythm-server.env` от неиспользуемых
-   `FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY` — нужны только как fallback для локального dev
-   (в проде работает `GOOGLE_APPLICATION_CREDENTIALS`).
-3. Продолжить покрытие тестами по приоритетам `test-policy.md` (Auth, Company, Dashboard — integration-тестов всё ещё нет).
+1. **Хранение данных → IndexedDB** (PLAN «Этап 13», запрос бизнеса): перенести «тяжёлые» per-company данные (`dataState`, `bunches`, `viewBunchesUpdated`, `Dashboard-GSData`) из localStorage в IndexedDB — сейчас при загрузке данных нескольких компаний квота localStorage (~5 МБ) исчерпывается, `QuotaExceededError`-обработчик делает `localStorage.clear()` и затирает данные других компаний (приходится грузить заново).
+2. Продолжить integration-тесты оставшихся контроллеров по test-policy: User, Partner, Templates, Docs, Loggers, Google, Params Company.
+3. Разобраться с 16 предсуществующими падающими валидаторами бэкенда (напр. `validate-string` падает на `undefined`/`null` — `Cannot convert undefined or null to object` в `isHasField`). Это блокирует «зелёный» `npm test -w packages/backend`.
 4. Этап 2 (v2.0): оплата/эквайринг, обработка webhook.
 
 ## Коммит
 
-`fix: PWA — index.html больше не прекэшируется (NetworkFirst-навигация), убран дефолтный navigateFallback; при рассинхроне версии сброс SW-кэша перед reload`
+`test: integration-тесты контроллеров Auth/Company/Dashboard (Fastify inject); fix resetEmailPassword 400 вместо 500; jest игнорирует build-артефакты server/`
 
 ## Предупреждения/заметки
 
-- Вложенный `packages/frontend/package-lock.json` остался (артефакт до монорепо, не содержит koa) —
-  при желании можно тоже удалить, как и backend-вариант.
-- React 19 теперь принудительно через `overrides`: если какой-то пакет обновится до строгого peer
-  `^18`, `npm install` даст peer-предупреждение (не ERESOLVE — overrides принудительны). Держать в уме.
-- `get-session-data-fastify.ts` — fastify-версия, пока нигде не используется (FirebaseAuthGuard
-  реализует свою `extractSessionCookie`); оставлена «на будущее», можно удалить при чистке.
-- **PWA/SW:** `index.html` больше НЕ прекэшируется (`globIgnores` + `navigateFallback: null` + NetworkFirst
-  для навигации). При добавлении новых правил в `workbox` не возвращай дефолтный `navigateFallback` — иначе
-  вернётся баг с залипшей старой версией. Пользователям со «старым» SW (до этого фикса) нужен один раз
-  сброс кэша: DevTools → Application → Clear site data / Unregister SW.
-- **check-version:** версия теперь хранится в двух местах (`packages/frontend/src/app/config/index.ts`
-  и `packages/backend/src/app/config/index.ts`) и ДОЛЖНА совпадать. При деплое новой версии обнови оба
-  файла, иначе `CheckVersionInterceptor` начнёт отдавать 409 всем клиентам → бесконечный reload.
-- `loggerServer` остался в `winston/index.ts` неиспользуемым (после удаления Koa `app/index.ts`); `loggerApp`
-  снова используется — в `CheckVersionInterceptor`.
+- **Не удаляй `@nestjs/testing`** — нужен для `Test.createTestingModule`. Держи версию синхронной с `@nestjs/core` (сейчас 11.1.29).
+- **Guard в тестах контроллеров:** не импортируй реальный `FirebaseAuthGuard` (тянет `models` → `libs/redis` и вешает завершение jest на открытом handle). Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(...).useValue({ canActivate })`.
+- **`server/` — build-артефакт, gitignored** (`packages/backend/server/`). После локального `npm run build` там появляются скомпилированные `*.test.js` (тесты вне папок `tests/`); jest теперь их игнорирует через `testPathIgnorePatterns: ['/node_modules/', '/shared/', '/server/']`.
+- **check-version:** версия хранится в двух местах (`packages/frontend/src/app/config/index.ts` и `packages/backend/src/app/config/index.ts`) и ДОЛЖНА совпадать (сейчас `2.24.0`). `ASSEMBLY_DATE` — только во фронте, должна быть «сегодня» (иначе падает `config.test.ts`).
+- **PWA/SW:** `index.html` больше НЕ прекэшируется (`globIgnores` + `navigateFallback: null` + NetworkFirst). Не возвращай дефолтный `navigateFallback` — вернётся баг с залипшей старой версией.
+- Вложенный `packages/frontend/package-lock.json` всё ещё лежит (артефакт до монорепо) — можно удалить при чистке.
+- `get-session-data-fastify.ts` в `libs/firebase/auth/` — не используется, оставлен «на будущее».
+- `loggerServer` в `winston/index.ts` не используется (после удаления Koa `app/index.ts`); `loggerApp` используется в `CheckVersionInterceptor`.

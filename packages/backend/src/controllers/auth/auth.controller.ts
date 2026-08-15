@@ -117,8 +117,14 @@ export class AuthController {
     try {
       const args: ResetEmailPasswordArgs = { email: body.email };
       const result = await resetEmailPasswordModel(args);
+      // Модель возвращает success: false, когда не удалось отправить письмо.
+      // Кидаем ошибку в едином формате (statusCode + body), как это делают модели,
+      // чтобы общий catch корректно отдал 400 (HttpException не имеет поля statusCode).
       if (!result.success) {
-        throw new HttpException(result, HttpStatus.BAD_REQUEST);
+        throw Object.assign(new Error('Не удалось отправить ссылку'), {
+          statusCode: HttpStatus.BAD_REQUEST,
+          body: result,
+        });
       }
       return result;
     } catch (err: any) {
