@@ -410,9 +410,16 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
   `e2e/helpers/mock-auth.ts` (`createE2eUser`, `createE2eCompany`, `mockAuth(page)`); формат ответа
   `{ userData, companyData }` = `ResGetAuth` фронтенда. Для дашборда дополнительно заглушается
   `**/api/getData` (пустой `{}`).
+- **Доступ к дашборду** проверяется через `checkDashboardAccess`: чтобы защищённая страница/дашборд
+  рендерились без «У вас нет доступа», мокай владельца (`mockAuth` с `company.owner === user.email`,
+  как в `e2e/admin/dashboard.spec.ts`). Дефолтный `createE2eUser()` (`Employee`) без прав даст
+  `isDashboardAccessView: false`. Полная модель подсистемы — `.planning/codebase/DASHBOARD-ACCESS.md`.
 - **Особенность роутинга:** путь из одного сегмента (`/non-existent-page`) ловится роутом `:companyId`
   (страница чужой компании), а не `*` (404). Для 404 используй многосегментный путь.
 - **Запуск:** `npm run test:e2e` (или `npx playwright test`; отдельный проект — `--project=guest|customer|admin`).
+- **Офлайн-сценарий PWA** тестируется отдельно на production-сборке: `npm run test:e2e:pwa` →
+  `playwright.pwa.config.ts` (поднимает `npm run build -w packages/frontend` + `vite preview`, порт 4173).
+  Основной конфиг исключает `e2e/pwa/**` через `testIgnore`.
 
 ### Наборы E2E-тестов
 
@@ -422,6 +429,7 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 | `e2e/guest/auth.spec.ts`       | Вход (успех/валидация), восстановление пароля, полный сценарий регистрации (код → перенаправление) — 4 теста                       |
 | `e2e/guest/referral.spec.ts`   | Реферальная программа `?ref=` (увеличение счётчика, невалидный код, идемпотентность, передача `partnerId` в регистрацию) — 4 теста |
 | `e2e/guest/pwa.spec.ts`        | PWA: веб-манифест, ссылка на манифест, регистрация Service Worker — 3 теста                                                        |
+| `e2e/pwa/offline.spec.ts`      | PWA на production-сборке: офлайн-рендер главной и дашборда из SW-кэша (`context.setOffline`) — 2 теста, отдельный конфиг           |
 | `e2e/customer/profile.spec.ts` | Личный кабинет (рендер данных / редирект неавторизованного) — 2 теста                                                              |
 | `e2e/admin/dashboard.spec.ts`  | Профиль компании и дашборд владельца — 2 теста                                                                                     |
 

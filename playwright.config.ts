@@ -13,6 +13,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
+  // Офлайн-тесты PWA живут в отдельном конфиге (playwright.pwa.config.ts, production preview),
+  // поэтому исключаем их из основного прогона (dev-сервер).
+  testIgnore: ['**/e2e/pwa/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

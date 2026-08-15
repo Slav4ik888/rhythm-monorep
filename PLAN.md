@@ -428,6 +428,32 @@ Firebase не требуются — ответы `/api/*` мокаются че
       backend — 127 suites / 993 теста; frontend — 377 suites / 2926 тестов (всё зелёное).
 - [x] 19.7 `VERSION` → `2.30.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
 
+## Этап 20: Офлайн/PWA-сценарий на production-сборке (сессия 30)
+
+Закрыт второй пункт из плана этапа 19: полный офлайн-сценарий (рендер из Service Worker-кэша
+без сети). Первый пункт («реальные» сценарии входа/регистрации против Firebase Auth-эмуляторов +
+сидов) остаётся отдельной задачей — он требует поднятого Docker-стека (`docker-compose.yml`).
+
+- [x] 20.1 Новый конфиг `playwright.pwa.config.ts` (корень): `testDir: ./e2e/pwa`, `webServer`
+      поднимает production-сборку (`npm run build -w packages/frontend` + `vite preview`, порт 4173,
+      `baseURL` 4173). В dev-режиме SW обслуживает HMR/dev-assets, поэтому офлайн проверяется
+      именно на production-сборке.
+- [x] 20.2 `e2e/pwa/offline.spec.ts` (2 теста):
+  - гостевая главная рендерится из SW-кэша без сети: загрузка → ожидание `serviceWorker.controller`
+    (`clientsClaim`) → `reload` (index.html попадает в кэш `navigations`) → `context.setOffline(true)`
+    → `reload` → страница рендерится;
+  - дашборд рендерится из SW-кэша без сети: авторизация мокается как владелец (`owner@e2e.test`,
+    чтобы `checkDashboardAccess → isOwner` был true; дефолтный `Employee` даёт «У вас нет доступа»),
+    `**/api/getData` заглушён; после офлайна дашборд перезагружается из кэша.
+- [x] 20.3 Основной `playwright.config.ts` дополнен `testIgnore: ['**/e2e/pwa/**']`, чтобы dev-прогон
+      не подхватывал офлайн-спек (он живёт на отдельном порту/сборке). Корневой `package.json`:
+      script `test:e2e:pwa`.
+- [x] 20.4 Документация: `README.dev.md` (раздел E2E) — строка в таблице наборов + пункт «Запуск»
+      про `npm run test:e2e:pwa`.
+- [x] 20.5 Валидация: `npx playwright test --config playwright.pwa.config.ts` — 2 passed;
+      `npx playwright test` (основной) — 22 passed.
+- [x] 20.6 `VERSION` → `2.31.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+
 ---
 
 ## Правила ведения плана
