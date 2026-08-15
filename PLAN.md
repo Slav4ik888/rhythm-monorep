@@ -403,6 +403,31 @@ IndexedDB другие вкладки перестали получать localS
       backend — 60/466 + 50/377 + 17/150 suites passed; frontend — все suites passed.
 - [x] 18.8 `VERSION` → `2.29.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
 
+## Этап 19: Расширение E2E-покрытия — auth, реферальная программа, PWA (сессия 29)
+
+Расширен набор Playwright-тестов в `e2e/guest/` тремя новыми спеками. Подход прежний: бэкенд и
+Firebase не требуются — ответы `/api/*` мокаются через `page.route()`, поднимается только Vite dev-сервер.
+
+- [x] 19.1 `e2e/guest/auth.spec.ts` (4 теста): вход (успешный сценарий → редирект на главную, тело
+      `POST /api/auth/login/byEmail`; пустая форма — валидация без запроса), восстановление пароля
+      (`POST /api/auth/login/resetEmailPassword` из модалки), полный сценарий регистрации
+      (`byEmailStart` → форма кода → `byEmailEnd` → редирект на главную).
+- [x] 19.2 `e2e/guest/referral.spec.ts` (4 теста): партнёрские ссылки `?ref=` — увеличение счётчика
+      (`POST /api/increaseFollower` с `{ partnerId }`), невалидный код не отправляется, идемпотентность
+      (повторный переход не дублирует, ключ `Rhythm-partnerId` в localStorage), передача `partnerId` в
+      `byEmailStart` при регистрации.
+- [x] 19.3 `e2e/guest/pwa.spec.ts` (3 теста): веб-манифест (`/manifest.webmanifest` отдаёт `name`,
+      `short_name`, `start_url: '/'`, `display: 'standalone'`, иконки), `<link rel="manifest">` в HTML,
+      регистрация Service Worker после загрузки (`navigator.serviceWorker.getRegistrations()`).
+- [x] 19.4 Вскрыта деталь local-storage: ключи сохраняются с префиксом `Rhythm-`
+      (`shared/lib/local-storage/model/main.ts`, `PREFIX = 'Rhythm-'`), значение — JSON-строка, поэтому
+      в тестах проверяется `localStorage.getItem('Rhythm-partnerId')`.
+- [x] 19.5 Документация: `README.dev.md` (раздел E2E) — таблица наборов тестов + примечание, что
+      «реальные» сценарии входа/регистрации против Firebase Auth-эмуляторов + сидов — отдельная задача.
+- [x] 19.6 Валидация: `npx playwright test` — 22 passed (11 существующих + 11 новых); `npm run lint` — 0;
+      backend — 127 suites / 993 теста; frontend — 377 suites / 2926 тестов (всё зелёное).
+- [x] 19.7 `VERSION` → `2.30.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+
 ---
 
 ## Правила ведения плана

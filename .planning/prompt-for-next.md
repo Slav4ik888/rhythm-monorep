@@ -2,52 +2,57 @@
 
 ## Дата
 
-15.08.2026 (сессия 28)
+15.08.2026 (сессия 29)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 18: Кросс-вкладочная синхронизация IndexedDB через BroadcastChannel
+### Этап 19: Расширение E2E-покрытия — auth, реферальная программа, PWA
 
-Закрыт открытый вопрос из этапа 13: после выноса «тяжёлых» ключей в IndexedDB другие вкладки
-перестали получать localStorage-событие `storage` — `viewBunchesUpdated`/`bunches`/`dataState`
-не синхронизировались между вкладками.
+Расширен набор Playwright-тестов в `e2e/guest/` тремя новыми спеками (подход прежний: бэкенд/Firebase
+не нужны, `/api/*` мокаются через `page.route()`, поднимается только Vite dev-сервер).
 
-- Новый модуль `shared/lib/indexed-db/broadcast.ts` (канал `rhythm-heavy-data-sync`):
-  `postHeavySync` / `subscribeHeavySync` / `resetHeavySyncForTests`. BroadcastChannel создаётся
-  лениво; при отсутствии API (jsdom/старые браузеры) — no-op.
-- `HeavyStorage.set/remove/clear` транслируют изменения другим вкладкам; `applyRemoteSync`
-  обновляет in-memory кеш принимающей вкладки и диспатчит `storage`-событие. Добавлены
-  идемпотентный `startSync()` и `stopSync()`.
-- `LS.initHeavyStorage()` включает подписку (`HeavyStorage.startSync()`).
-- Same-tab синхронизация сохранена (`window.dispatchEvent(new Event('storage'))` в
-  `setViewBunchesUpdated`) — BroadcastChannel не доставляет сообщение отправителю.
-- `storage.test.ts` расширен с 7 до 13 тестов (fake BroadcastChannel в jsdom).
-- Валидация: lint 0, tsc (frontend) 0, backend 993 passed, frontend 2926 passed.
+- `e2e/guest/auth.spec.ts` (4 теста): вход (успех → редирект на `/`, тело `POST /api/auth/login/byEmail`;
+  пустая форма → валидация без запроса), восстановление пароля (`resetEmailPassword` из модалки),
+  полный сценарий регистрации (`byEmailStart` → форма кода → `byEmailEnd` → редирект).
+- `e2e/guest/referral.spec.ts` (4 теста): партнёрские ссылки `?ref=` — `POST /api/increaseFollower` с
+  `{ partnerId }`, невалидный код не отправляется, идемпотентность, передача `partnerId` в `byEmailStart`.
+- `e2e/guest/pwa.spec.ts` (3 теста): `/manifest.webmanifest` (name/short_name/start_url/display/icons),
+  `<link rel="manifest">`, регистрация Service Worker (`navigator.serviceWorker.getRegistrations()`).
 
-### Документация
+Итого E2E: 22 теста (11 существующих + 11 новых).
 
-- `PLAN.md`: этап 18.
-- `README.dev.md`: раздел IndexedDB — «ограничение» заменено описанием BroadcastChannel-синхронизации.
+### Вскрытые детали
+
+- localStorage: ключи с префиксом `Rhythm-` (`PREFIX = 'Rhythm-'` в `shared/lib/local-storage/model/main.ts`),
+  значение — JSON-строка. В E2E проверяем `localStorage.getItem('Rhythm-partnerId')` (не `partnerId`).
+- Валидация signup требует `permissions === true` (чекбокс) и `partnerId` (допустимо пустой/из LS).
 
 ## Следующие шаги
 
-1. Расширять E2E-покрытие: реальные сценарии входа/регистрации (нужны Firebase Auth-эмуляторы из
-   `docker-compose.yml` + сиды), реферальная программа (партнёрские ссылки `?ref=`), офлайн/PWA.
+1. **Реальные сценарии входа/регистрации** против поднятого стека: Firebase Auth/Firestore/Redis эмуляторы
+   из `docker-compose.yml` + сиды. Сейчас auth-флоу покрыт моками `page.route()` (фронт делегирует
+   аутентификацию бэкенду `/api/auth/*`). Полный сквозной сценарий — отдельная задача: поднять эмуляторы,
+   засидить пользователя/компанию, прогонять реальные `signInWithEmailAndPassword`.
+2. **Офлайн/PWA на production-сборке:** сейчас проверены манифест + регистрация SW (dev). Полный
+   офлайн-сценарий (рендер дашборда из SW-кэша без сети) — на `npm run build -w packages/frontend`
+   - `preview`, с `context.setOffline(true)`.
 
 ## Коммит
 
-`feat: кросс-вкладочная синхронизация IndexedDB через BroadcastChannel`
+`test: E2E-покрытие auth, реферальной программы (?ref=) и PWA`
 
 ## Предупреждения/заметки
 
-- **BroadcastChannel** синхронизирует ВСЕ «тяжёлые» ключи (не только `viewBunchesUpdated`):
-  `set/remove/clear` шлют сообщение `{ type, key, value? }`. Значение пересылается через structured
-  clone — данные HeavyStorage JSON-совместимы, поэтому безопасно.
-- **check-version:** `VERSION` сейчас `2.29.0` в ОБОИХ файлах (`packages/frontend/src/app/config/index.ts`,
+- **check-version:** `VERSION` сейчас `2.30.0` в ОБОИХ файлах (`packages/frontend/src/app/config/index.ts`,
   `packages/backend/src/app/config/index.ts`) — синхронно.
 - **POST-эндпоинты, возвращающие данные, должны иметь `@HttpCode(200)`** (NestJS default для POST — 201).
 - **`user/logout`** — `@HttpCode(302)` + `@Res()` + `reply.redirect('/')`, не убирать.
 - **Роутинг:** путь из одного сегмента (`/non-existent-page`) трактуется как `:companyId` (страница
   чужой компании), НЕ как 404. Для 404 нужен многосегментный путь (`/unknown/deep/route`).
+- **E2E-моки:** гостевым страницам не мешает 500 от `getAuth` (graceful); перед тестом auth-флоу мокаем
+  `**/api/user/getAuth` → 500, чтобы страницы login/signup рендерились без редиректа.
+- **Локаторы форм:** кнопки — `getByRole('button', { name: 'Войти' | 'Регистрация' | 'Подтвердить' })`
+  (заголовки совпадают по тексту — различаем по role); поле кода подтверждения без label —
+  `page.locator('input[name="emailCode"]')`.
 - Долгоживущие сведения (guard-мок для контроллеров, `@nestjs/testing`, PWA/SW, E2E,
   BroadcastChannel-синхронизация) — в `.clinerules/test-policy.md` и `README.dev.md`, здесь не дублировать.
