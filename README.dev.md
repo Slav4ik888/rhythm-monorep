@@ -12,6 +12,7 @@
 - [Переменные окружения](#переменные-окружения)
 - [PWA / Service Worker](#pwa--service-worker)
 - [Технический долг и мёртвый код](#технический-долг-и-мёртвый-код)
+- [E2E-тесты (Playwright)](#e2e-тесты-playwright)
 - [Деплой](#деплой)
 
 ---
@@ -390,6 +391,23 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 - `packages/backend/src/libs/loggers/winston/index.ts`: `loggerServer` не используется (после удаления Koa `app/index.ts`); `loggerApp` используется — в `CheckVersionInterceptor`.
 - `packages/backend/src/libs/firebase/auth/get-session-data-fastify.ts` — не используется (FirebaseAuthGuard реализует свою `extractSessionCookie`); кандидат на удаление.
 - Вложенный `packages/frontend/package-lock.json` — артефакт до монорепо, можно удалить (как ранее был удалён backend-вариант).
+
+## E2E-тесты (Playwright)
+
+Сквозные smoke-тесты браузером. Расположение — `e2e/`, конфиг — `playwright.config.ts` (корень).
+
+- **Проекты:** `guest` (`e2e/guest/pages.spec.ts`), `customer` (`e2e/customer/profile.spec.ts`),
+  `admin` (`e2e/admin/dashboard.spec.ts`) — по ролям пользователей.
+- **Бэкенд и Firebase не требуются.** `webServer` поднимает только Vite dev-сервер
+  (`npm run dev -w packages/frontend`, порт 3000). Guest-страницы переживают 500 от `getAuth`/`getPolicy`
+  (graceful error handling).
+- **Авторизация мокается** перехватом `GET /api/user/getAuth` через `page.route()` — см.
+  `e2e/helpers/mock-auth.ts` (`createE2eUser`, `createE2eCompany`, `mockAuth(page)`); формат ответа
+  `{ userData, companyData }` = `ResGetAuth` фронтенда. Для дашборда дополнительно заглушается
+  `**/api/getData` (пустой `{}`).
+- **Особенность роутинга:** путь из одного сегмента (`/non-existent-page`) ловится роутом `:companyId`
+  (страница чужой компании), а не `*` (404). Для 404 используй многосегментный путь.
+- **Запуск:** `npm run test:e2e` (или `npx playwright test`; отдельный проект — `--project=guest|customer|admin`).
 
 ## Деплой
 

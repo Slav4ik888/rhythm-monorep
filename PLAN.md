@@ -349,6 +349,33 @@ VS Code подсвечивал `describe`/`test`/`expect` в `*.test.ts`/`*.spec
 - [x] 16.12 `npm test -w packages/frontend` — 1478 тестов (unit) + остальные suites, всё зелёное.
 - [x] 16.13 `VERSION` → `2.27.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
 
+## Этап 17: E2E-тесты (Playwright) (сессия 27)
+
+Создана инфраструктура сквозных E2E-тестов и первый набор smoke-тестов по трём ролям. Бэкенд и
+Firebase для тестов не нужны: поднимается только Vite dev-сервер фронтенда, а авторизация для
+защищённых страниц мокается через `page.route()` (перехват `GET /api/user/getAuth`).
+
+- [x] 17.1 Установлен `@playwright/test` (1.62.1) + браузер chromium. Добавлены скрипты
+      `test:e2e` / `test:e2e:ui` в корневой `package.json`; в `.gitignore` — артефакты
+      `test-results/`, `playwright-report/`, `blob-report/`.
+- [x] 17.2 `playwright.config.ts` (корень): три проекта — `guest`, `customer`, `admin`
+      (Desktop Chrome), `webServer` = `npm run dev -w packages/frontend` на порту 3000,
+      `baseURL` = `http://localhost:3000`.
+- [x] 17.3 `e2e/helpers/mock-auth.ts` — фабрики `createE2eUser`/`createE2eCompany` и
+      `mockAuth(page)` (перехват `**/api/user/getAuth`, формат `{ userData, companyData }`,
+      как `ResGetAuth` фронтенда).
+- [x] 17.4 `e2e/guest/pages.spec.ts` (7 тестов): `/` (приветствие гостя + кнопка демо), `/login`,
+      `/signup`, `/policy`, `/demo`, 404 (`/unknown/deep/route`), переход на `/demo` с главной.
+      Вскрыта особенность роутинга: путь из одного сегмента (`/non-existent-page`) трактуется как
+      `:companyId` (страница чужой компании), а не как 404 — для 404 нужен многосегментный путь.
+- [x] 17.5 `e2e/customer/profile.spec.ts` (2 теста): `/user-profile` рендерит данные
+      авторизованного пользователя; неавторизованный (500 от getAuth) редиректится на `/login`.
+- [x] 17.6 `e2e/admin/dashboard.spec.ts` (2 теста): владелец видит `/company-profile` и
+      `/e2e-company-id/dashboard` (без редиректа, сайдбар отрисован); `**/api/getData` заглушён
+      пустым ответом `{}`.
+- [x] 17.7 Валидация: `npx playwright test` — 11 passed; lint новых файлов — 0 ошибок.
+- [x] 17.8 `VERSION` → `2.28.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+
 ---
 
 ## Правила ведения плана

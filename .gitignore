@@ -47,3 +47,8 @@ packages/frontend/dev-dist/
 packages/backend/server/
 packages/backend/dist/
 packages/shared/dist/
+
+# Playwright (E2E)
+/test-results/
+/playwright-report/
+/blob-report/

@@ -65,9 +65,12 @@
 
 **Playwright сквозные E2E** — тестируют пользовательские сценарии в браузере (отдельный процесс):
 
-- `e2e/guest/catalog.spec.ts` — тесты гостя
-- `e2e/customer/profile.spec.ts` — тесты покупателя
-- `e2e/admin/dashboard.spec.ts` — тесты админа
+- `e2e/guest/pages.spec.ts` — тесты гостя (статичные страницы)
+- `e2e/customer/profile.spec.ts` — тесты авторизованного пользователя (личный кабинет)
+- `e2e/admin/dashboard.spec.ts` — тесты владельца/админа (профиль компании и дашборд)
+
+Бэкенд и Firebase для E2E не нужны: поднимается только Vite dev-сервер (см. `webServer` в
+`playwright.config.ts`), авторизация мокается через `page.route()` — см. `e2e/helpers/mock-auth.ts`.
 
 ## Команды для запуска
 
@@ -140,10 +143,13 @@ npx playwright test --project=admin        # Только админ
 
 ### E2E smoke-тесты (Playwright)
 
-| Проект              | Файл | Тесты |
-| ------------------- | ---- | ----- |
-| e2e (ещё не создан) | -    | -     |
+| Проект   | Файл                           | Тесты |
+| -------- | ------------------------------ | ----- |
+| guest    | `e2e/guest/pages.spec.ts`      | 7     |
+| customer | `e2e/customer/profile.spec.ts` | 2     |
+| admin    | `e2e/admin/dashboard.spec.ts`  | 2     |
 
-**Итого (весь проект):** 127 suites (backend) + 377 suites (frontend) = **504 suites**; 993 теста (backend) + 2914 тестов (frontend) = **3907 тестов** (unit/integration, E2E пока нет).
+**Итого (весь проект):** 127 suites (backend) + 377 suites (frontend) + 3 suites (e2e) = **507 suites**;
+993 теста (backend) + 2914 тестов (frontend) + 11 тестов (e2e) = **3918 тестов**.
 
-**Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — ещё не созданы. **Lint:** 0 ошибок.
+**Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — созданы smoke-тесты (guest/customer/admin). **Lint:** 0 ошибок.
