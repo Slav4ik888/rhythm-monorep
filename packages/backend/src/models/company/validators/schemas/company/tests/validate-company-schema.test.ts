@@ -217,6 +217,11 @@ describe(`Validate scheme - ${SCHEMA_NAME.COMPANY}`, () => {
         e: 'Не верный формат данных, для поля "e".',
         // 'e'                    : 'Отсутствует обязательное поле "e".',
         a: 'Отсутствует обязательное поле "a".',
+        // additionalProperties: недопустимые поля (removeAdditional: false)
+        addyField: 'Присутствует недопустимое поле "addyField".',
+        addySheetField: 'Присутствует недопустимое поле "addySheetField".',
+        any: 'Присутствует недопустимое поле "any".',
+        b: 'Присутствует недопустимое поле "b".',
         '124': 'Поле "124" не должно быть больше 4102423200000.',
         '125': 'Не верный формат данных, для поля "125".',
         general: 'must be equal to one of the allowed values', // invalid sheet type

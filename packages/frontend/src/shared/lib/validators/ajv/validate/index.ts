@@ -6,7 +6,7 @@ import { SCHEMA_NAME } from '../schemas';
 import type { Validation } from '../../types';
 import addFormats from 'ajv-formats';
 
-const ajv = new Ajv({ allErrors: true, $data: true, removeAdditional: true });
+const ajv = new Ajv({ allErrors: true, $data: true, removeAdditional: false });
 
 addKeywords(ajv);
 addSchemas(ajv);

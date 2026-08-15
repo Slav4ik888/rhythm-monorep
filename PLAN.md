@@ -264,6 +264,53 @@ Koa в проде больше не используется (старт — `no
 Причина: раньше `npm run dev` запускал фронтенд и бэкенд одновременно (`&`), Vite поднимался за ~150 мс и
 сразу слал запросы к API, а бэкенд ещё грузился → прокси Vite падал с `ECONNREFUSED`.
 
+## Этап 15: Починка падающих валидаторов (сессия 25)
+
+`npm test -w packages/backend` был красным (16 failing тестов) и `npm test -w packages/frontend` (4 failing
+теста) — корень в двух дефектах общей для бэкенда и фронтенда валидаторной библиотеки.
+
+### Причина 1: `isHasField` падал на `undefined`/`null`
+
+`isHasField` вызывал `Object.prototype.hasOwnProperty.call(data, field)` без проверки `data`, что давало
+`TypeError: Cannot convert undefined or null to object`. Это ломало все «object-fields»-валидаторы
+(`validateString`, `validateNumber`, `validateBoolean`, `validateEmail`, `validateOneOfSeveral`) и базовые
+предикаты (`isFieldValueBool`, `isFieldValueUndefined`) при `data = undefined`.
+
+- [x] 15.1 Бэкенд `src/libs/validators/base/simpe-vaidators/has-field/index.ts`: добавлен guard `isNotObj(data)`
+      (импорт из `../is-obj`), возврат `false` для `undefined`/`null`. Аналогично уже исправленному фронту.
+      Починено 13 backend-тестов («Data is undefined»).
+
+### Причина 2: `removeAdditional: true` отключал проверку `additionalProperties: false`
+
+`new Ajv({ removeAdditional: true })` удалял лишние поля из данных вместо генерации ошибок `additionalProperties`,
+поэтому схема-тесты, ожидавшие ошибку «Присутствует недопустимое поле …», падали. При этом `get-valid-result-by-keywords`
+уже умел обрабатывать keyword `additionalProperties`.
+
+- [x] 15.2 Бэкенд + фронт `libs/validators/ajv/validate/index.ts`: `removeAdditional: true` → `false`.
+      Починено 3 backend-теста (auth-by-login, fix-date, user) и 4 frontend-теста (auth-by-login ×2, fix-date, user).
+- [x] 15.3 Обновлены тесты схемы `COMPANY` (бэкенд `models/company/...` и фронт `entities/company/...`):
+      в кейс «should invalid fields of company date» добавлены ожидания `additionalProperties`-ошибок для
+      `addyField`, `addySheetField`, `any`, `b` (раньше эти доп. поля молча удалялись).
+
+### Валидация
+
+- [x] 15.4 `npm run lint` — 0 ошибок.
+- [x] 15.5 `npm test -w packages/backend` — 427 passed, 0 failed.
+- [x] 15.6 `npm test -w packages/frontend` — 1478 passed, 0 failed.
+- [x] 15.7 `VERSION` → `2.26.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+
+### Dev-инфраструктура: глобальные типы Jest в tsconfig (ошибка TS2593 «Cannot find name 'describe'»)
+
+VS Code подсвечивал `describe`/`test`/`expect` в `*.test.ts`/`*.spec.ts` как не найденные. Причина: в
+`packages/backend/tsconfig.json` не было явного `types`, и редактор не подхватывал hoisted-пакет `@types/jest`.
+
+- [x] 15.8 `packages/backend/tsconfig.json`: добавлены `"types": ["node", "jest"]` и `"skipLibCheck": true`
+      (последнее гасит шум в сторонних `.d.ts` — `Window`/`HTMLElement` из firebase/juice, `Int32Array` из
+      `@google-cloud/storage`). CLI `tsc --noEmit` теперь 0 ошибок.
+- [x] 15.9 `packages/backend/tsconfig.prod.json`: `"types": ["node"]` (prod не тянет Jest) + исключены
+      `**/*.test.ts` и `**/*.spec.ts` из продакшн-сборки (раньше тесты, лежащие рядом с кодом, компилировались
+      в `server/`). `npm run build -w packages/backend` — exit 0.
+
 ---
 
 ## Правила ведения плана

@@ -18,6 +18,9 @@
     /* Type Checking */
     "noImplicitAny": false,
     "allowUnreachableCode": false,
+    "skipLibCheck": true,
+    /* Global types (Node + Jest globals: describe/test/expect) */
+    "types": ["node", "jest"],
     /* Decorators (NestJS) */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

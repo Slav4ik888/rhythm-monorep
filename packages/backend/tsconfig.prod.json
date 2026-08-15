@@ -1,10 +1,15 @@
 {
-  "extends" : "./tsconfig.json",
-  "exclude" : [
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "exclude": [
     "babel.config.js",
     "./config/**/*",
     "./server/**/*",
     "**/tests/**/*",
     "**/test/**/*",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }
