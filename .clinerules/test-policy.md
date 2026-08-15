@@ -117,6 +117,13 @@ npx playwright test --project=admin        # Только админ
 | Google         | `packages/backend/src/controllers/google/`                                      | -     |
 | Params Company | `packages/backend/src/controllers/params-company/`                              | -     |
 
+#### Правила для integration-тестов NestJS-контроллеров
+
+- Используй `@nestjs/testing` (`Test.createTestingModule`) + `FastifyAdapter` + `app.inject()` — HTTP-запросы без поднятия реального порта.
+- Держи `@nestjs/testing` версией, синхронной с `@nestjs/core` (сейчас `11.1.29`). Не удаляй зависимость.
+- Модели контроллеры импортируют напрямую (не через DI) — мокай их через `jest.mock('../../../models/...')`.
+- **`FirebaseAuthGuard`:** НЕ импортируй реальный guard — он тянет `models` → `libs/redis`, оставляет открытый handle и вешает завершение jest. Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(FirebaseAuthGuard).useValue({ canActivate })`.
+
 **Итого:** 0 suites (backend) + 0 suites (frontend) = **0 suites**, 0 тестов (backend) + 0 тестов (frontend) = **0 тестов** (unit + integration)
 
 ## Приоритет блоков для покрытия тестами (Фронтенд)

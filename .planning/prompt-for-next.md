@@ -48,11 +48,5 @@
 
 ## Предупреждения/заметки
 
-- **Не удаляй `@nestjs/testing`** — нужен для `Test.createTestingModule`. Держи версию синхронной с `@nestjs/core` (сейчас 11.1.29).
-- **Guard в тестах контроллеров:** не импортируй реальный `FirebaseAuthGuard` (тянет `models` → `libs/redis` и вешает завершение jest на открытом handle). Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(...).useValue({ canActivate })`.
-- **`server/` — build-артефакт, gitignored** (`packages/backend/server/`). После локального `npm run build` там появляются скомпилированные `*.test.js` (тесты вне папок `tests/`); jest теперь их игнорирует через `testPathIgnorePatterns: ['/node_modules/', '/shared/', '/server/']`.
-- **check-version:** версия хранится в двух местах (`packages/frontend/src/app/config/index.ts` и `packages/backend/src/app/config/index.ts`) и ДОЛЖНА совпадать (сейчас `2.24.0`). `ASSEMBLY_DATE` — только во фронте, должна быть «сегодня» (иначе падает `config.test.ts`).
-- **PWA/SW:** `index.html` больше НЕ прекэшируется (`globIgnores` + `navigateFallback: null` + NetworkFirst). Не возвращай дефолтный `navigateFallback` — вернётся баг с залипшей старой версией.
-- Вложенный `packages/frontend/package-lock.json` всё ещё лежит (артефакт до монорепо) — можно удалить при чистке.
-- `get-session-data-fastify.ts` в `libs/firebase/auth/` — не используется, оставлен «на будущее».
-- `loggerServer` в `winston/index.ts` не используется (после удаления Koa `app/index.ts`); `loggerApp` используется в `CheckVersionInterceptor`.
+- **check-version:** версия в двух файлах (`packages/frontend/src/app/config/index.ts`, `packages/backend/src/app/config/index.ts`) ДОЛЖНА совпадать — сейчас `2.24.0`. `ASSEMBLY_DATE` (фронт) — «сегодня», иначе падает `config.test.ts`. Механизм/правило — в `.clinerules/promt-for-dev.md`.
+- Долгоживущие сведения вынесены в постоянную документацию (здесь не дублировать): паттерн guard-мока и `@nestjs/testing` → `.clinerules/test-policy.md`; build-артефакт `server/` + jest-ignore, PWA/SW `navigateFallback`, мёртвый код `loggerServer`/`get-session-data-fastify`/`package-lock.json` → `README.dev.md`.

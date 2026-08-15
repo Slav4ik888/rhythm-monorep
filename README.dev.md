@@ -10,6 +10,8 @@
 - [Структура базы данных (Firestore)](#структура-базы-данных-firestore)
 - [API эндпоинты](#api-эндпоинты)
 - [Переменные окружения](#переменные-окружения)
+- [PWA / Service Worker](#pwa--service-worker)
+- [Технический долг и мёртвый код](#технический-долг-и-мёртвый-код)
 - [Деплой](#деплой)
 
 ---
@@ -208,6 +210,12 @@ npm run format                      # Prettier
 npm run format:check                # Prettier (только проверка)
 ```
 
+### Сборка бэкенда и build-артефакты
+
+- `packages/backend/server/` — результат `npm run build -w packages/backend` (gitignored build-артефакт, не коммить).
+- После локальной сборки в `server/` попадают скомпилированные `*.test.js` (тесты, лежащие вне папок `tests/`); jest игнорирует их через `testPathIgnorePatterns: ['/node_modules/', '/shared/', '/server/']` (`packages/backend/config/jest/jest.config.ts`).
+- При необходимости чистая сборка: `rm -rf packages/backend/server && npm run build -w packages/backend` (в `deploy.sh` очистка `server/` уже выполняется).
+
 ---
 
 ## Структура базы данных (Firestore)
@@ -343,6 +351,18 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 ```
 
 ---
+
+## PWA / Service Worker
+
+- **`index.html` НЕ прекэшируется.** В `packages/frontend/vite.config.ts` (vite-plugin-pwa/workbox): `globPatterns` без `html` + `globIgnores: ['**/index.html']` + `navigateFallback: null`, навигация через `NetworkFirst` (свежий `index.html` из сети, кэш — только офлайн).
+- **Не возвращай дефолтный `navigateFallback`** — иначе SW снова начнёт раздавать прекэшированный `index.html` (баг «вечная старая версия» после деплоя). Пользователям со старым SW нужен разовый сброс кэша: DevTools → Application → Clear site data / Unregister SW.
+- При рассинхроне версии (409 от `CheckVersionInterceptor`) фронт снимает регистрацию SW и чистит кэш перед `reload` (см. `shared/api/api.ts`).
+
+## Технический долг и мёртвый код
+
+- `packages/backend/src/libs/loggers/winston/index.ts`: `loggerServer` не используется (после удаления Koa `app/index.ts`); `loggerApp` используется — в `CheckVersionInterceptor`.
+- `packages/backend/src/libs/firebase/auth/get-session-data-fastify.ts` — не используется (FirebaseAuthGuard реализует свою `extractSessionCookie`); кандидат на удаление.
+- Вложенный `packages/frontend/package-lock.json` — артефакт до монорепо, можно удалить (как ранее был удалён backend-вариант).
 
 ## Деплой
 
