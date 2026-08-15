@@ -90,32 +90,33 @@ npx playwright test --project=admin        # Только админ
 
 ## Приоритет блоков для покрытия тестами (Бэкенд)
 
-| Приоритет | Блок                                    | Статус                                   |
-| --------- | --------------------------------------- | ---------------------------------------- |
-| 🥇 1      | **Auth (авторизация)**                  | Частично (integration-тесты контроллера) |
-| 🥇 2      | **Company (компании)**                  | Частично (integration-тесты контроллера) |
-| 🥇 3      | **Dashboard (дашборды)**                | Частично (integration-тесты контроллера) |
-| 🥈 4      | **Partner (реферальная программа)**     | -                                        |
-| 🥈 5      | **Validators (валидаторы)**             | Частично (есть тесты)                    |
-| 🥉 6      | **Templates (шаблоны)**                 | -                                        |
-| 🥉 7      | **Loggers (логирование)**               | -                                        |
-| 🥉 8      | **Docs (документы)**                    | -                                        |
-| 🥉 9      | **Google (Google Sheets)**              | -                                        |
-| 🥉 10     | **Params Company (параметры компании)** | -                                        |
+| Приоритет | Блок                                    | Статус                             |
+| --------- | --------------------------------------- | ---------------------------------- |
+| 🥇 1      | **Auth (авторизация)**                  | Есть integration-тесты контроллера |
+| 🥇 2      | **Company (компании)**                  | Есть integration-тесты контроллера |
+| 🥇 3      | **Dashboard (дашборды)**                | Есть integration-тесты контроллера |
+| 🥈 4      | **Partner (реферальная программа)**     | Есть integration-тесты контроллера |
+| 🥈 5      | **Validators (валидаторы)**             | Есть unit-тесты                    |
+| 🥉 6      | **Templates (шаблоны)**                 | Есть integration-тесты контроллера |
+| 🥉 7      | **Loggers (логирование)**               | Есть integration-тесты контроллера |
+| 🥉 8      | **Docs (документы)**                    | Есть integration-тесты контроллера |
+| 🥉 9      | **Google (Google Sheets)**              | Есть integration-тесты контроллера |
+| 🥉 10     | **Params Company (параметры компании)** | Есть integration-тесты контроллера |
 
 ### Integration-тесты контроллеров (NestJS)
 
-| Контроллер     | Файл                                                                            | Тесты |
-| -------------- | ------------------------------------------------------------------------------- | ----- |
-| Auth           | `packages/backend/src/controllers/auth/tests/auth.controller.spec.ts`           | 10    |
-| Company        | `packages/backend/src/controllers/company/tests/company.controller.spec.ts`     | 6     |
-| Dashboard      | `packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts` | 9     |
-| Partner        | `packages/backend/src/controllers/partner/`                                     | -     |
-| Templates      | `packages/backend/src/controllers/templates/`                                   | -     |
-| Docs           | `packages/backend/src/controllers/docs/`                                        | -     |
-| Loggers        | `packages/backend/src/controllers/loggers/`                                     | -     |
-| Google         | `packages/backend/src/controllers/google/`                                      | -     |
-| Params Company | `packages/backend/src/controllers/params-company/`                              | -     |
+| Контроллер     | Файл                                                                                      | Тесты |
+| -------------- | ----------------------------------------------------------------------------------------- | ----- |
+| Auth           | `packages/backend/src/controllers/auth/tests/auth.controller.spec.ts`                     | 10    |
+| Company        | `packages/backend/src/controllers/company/tests/company.controller.spec.ts`               | 6     |
+| Dashboard      | `packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts`           | 9     |
+| User           | `packages/backend/src/controllers/user/tests/user.controller.spec.ts`                     | 9     |
+| Partner        | `packages/backend/src/controllers/partner/tests/partner.controller.spec.ts`               | 3     |
+| Templates      | `packages/backend/src/controllers/templates/tests/templates.controller.spec.ts`           | 9     |
+| Docs           | `packages/backend/src/controllers/docs/tests/docs.controller.spec.ts`                     | 2     |
+| Loggers        | `packages/backend/src/controllers/loggers/tests/loggers.controller.spec.ts`               | 6     |
+| Google         | `packages/backend/src/controllers/google/tests/google.controller.spec.ts`                 | 6     |
+| Params Company | `packages/backend/src/controllers/params-company/tests/params-company.controller.spec.ts` | 4     |
 
 #### Правила для integration-тестов NestJS-контроллеров
 
@@ -124,7 +125,7 @@ npx playwright test --project=admin        # Только админ
 - Модели контроллеры импортируют напрямую (не через DI) — мокай их через `jest.mock('../../../models/...')`.
 - **`FirebaseAuthGuard`:** НЕ импортируй реальный guard — он тянет `models` → `libs/redis`, оставляет открытый handle и вешает завершение jest. Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(FirebaseAuthGuard).useValue({ canActivate })`.
 
-**Итого:** 0 suites (backend) + 0 suites (frontend) = **0 suites**, 0 тестов (backend) + 0 тестов (frontend) = **0 тестов** (unit + integration)
+**Итого (бэкенд):** 127 suites, 993 теста (unit 466 + shared 377 + validators 150), включая integration-тесты всех 10 контроллеров.
 
 ## Приоритет блоков для покрытия тестами (Фронтенд)
 
@@ -143,6 +144,6 @@ npx playwright test --project=admin        # Только админ
 | ------------------- | ---- | ----- |
 | e2e (ещё не создан) | -    | -     |
 
-**Итого (весь проект):** 0 suites (unit/integration) + 0 suites (E2E) = **0 suites**, **0 тестов** (0 unit/integration + 0 E2E)
+**Итого (весь проект):** 127 suites (backend) + 377 suites (frontend) = **504 suites**; 993 теста (backend) + 2914 тестов (frontend) = **3907 тестов** (unit/integration, E2E пока нет).
 
-**Покрытие фронтенда:** ~0% (low). **Lint:** 0 ошибок.
+**Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — ещё не созданы. **Lint:** 0 ошибок.

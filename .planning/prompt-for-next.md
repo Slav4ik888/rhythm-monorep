@@ -2,59 +2,73 @@
 
 ## Дата
 
-15.08.2026 (сессия 25)
+15.08.2026 (сессия 26)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 15: Починка падающих валидаторов (бэкенд + фронт)
+### Этап 16: Integration-тесты оставшихся контроллеров (бэкенд)
 
-`npm test -w packages/backend` был красным (16 failing), фронт — 4 failing. Причина — два дефекта общей
-валидаторной библиотеки. Подробности и «почему» — в `PLAN.md`, этап 15.
+Дописаны integration-тесты NestJS-контроллеров по test-policy. Теперь integration-тесты есть у всех **10**
+контроллеров (Auth, Company, Dashboard, User, Partner, Templates, Docs, Loggers, Google, Params Company).
 
-- `isHasField` (бэкенд `src/libs/validators/base/simpe-vaidators/has-field/index.ts`) падал на
-  `undefined`/`null` (`Cannot convert undefined or null to object`). Добавлен guard `isNotObj(data)`.
-  Фронтенд-версия уже была исправлена.
-- `removeAdditional: true` → `false` в `libs/validators/ajv/validate/index.ts` (бэкенд + фронт). Раньше AJV
-  молча удалял лишние поля, поэтому проверка `additionalProperties: false` не генерировала ошибку
-  «Присутствует недопустимое поле …» (хотя `get-valid-result-by-keywords` её обрабатывает).
-- Обновлены тесты схемы `COMPANY` (бэкенд `models/company/...` и фронт `entities/company/...`): добавлены
-  ожидания `additionalProperties`-ошибок (`addyField`, `addySheetField`, `any`, `b`).
+Новые файлы (по паттерну Auth/Company/Dashboard: `Test.createTestingModule` + `FastifyAdapter` + `app.inject()`,
+модели — `jest.mock`, `FirebaseAuthGuard` — пустой класс-токен + `overrideGuard`):
 
-### Dev-инфраструктура: типы Jest в tsconfig
+- `user/tests/user.controller.spec.ts` (9): getAuth, update, logout (302 + cookie), guard 401.
+- `partner/tests/partner.controller.spec.ts` (3): increaseFollower.
+- `templates/tests/templates.controller.spec.ts` (9): getBunchesUpdated, getTemplates, update (userId default
+  `system`), delete.
+- `docs/tests/docs.controller.spec.ts` (2): getPolicy.
+- `loggers/tests/loggers.controller.spec.ts` (6): view/download/clear (успех + 403).
+- `google/tests/google.controller.spec.ts` (6): getData — публичный доступ/401/valid cookie/400/502. `admin-sdk`
+  мокается (`jest.mock('../../../libs/firebase/config/admin-sdk', () => ({ admin: { auth: () => ({ verifySessionCookie: jest.fn() }) } }))`).
+- `params-company/tests/params-company.controller.spec.ts` (4): GET/POST paramsCompany/get.
 
-- `packages/backend/tsconfig.json`: `"types": ["node", "jest"]` + `"skipLibCheck": true` — убрана ошибка
-  TS2593 «Cannot find name 'describe'/'test'/'expect'» в VS Code. `tsc --noEmit` теперь 0 ошибок.
-- `packages/backend/tsconfig.prod.json`: `"types": ["node"]` + исключены `**/*.test.ts`/`**/*.spec.ts` из
-  продакшн-сборки. `npm run build -w packages/backend` — exit 0.
+### Починка HTTP-кодов POST-эндпоинтов (обнаружено тестами)
+
+NestJS по умолчанию отдаёт `201 Created` для POST; у Koa-оригиналов и остальных контроллеров проекта — `200`.
+Исправлено:
+
+- `@HttpCode(200)` добавлен в: `google/getData`, `params-company/get (POST)`, `templates/{getTemplates,update,delete}`.
+- `user/logout` → `@HttpCode(302)`: NestJS до вызова хендлера ставит `201` (default для POST), из-за чего
+  `reply.redirect('/')` подхватывал `raw.statusCode = 201` и возвращал 201 вместо редиректа 302.
+
+### Документация
+
+- `.clinerules/test-policy.md`: таблица integration-тестов заполнена (все 10 контроллеров, включая добавленный
+  ранее не учтённый `User`), статусы приоритетов и итоговые цифры обновлены.
+- `PLAN.md`: этап 16.
 
 ### Валидация
 
 - `npm run lint` — 0 ошибок.
-- `npm test -w packages/backend` — 427 passed, 0 failed.
-- `npm test -w packages/frontend` — 1478 passed, 0 failed.
-- `VERSION` → `2.26.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+- `npm test -w packages/backend` — unit 60 suites / 466 тестов, shared 50/377, validators 17/150 (всё зелёное).
+- `npm test -w packages/frontend` — 1478 (unit) + entities/features/shared/widgets (всё зелёное).
+- `VERSION` → `2.27.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
 
 ## Следующие шаги
 
-1. Продолжить integration-тесты оставшихся контроллеров по test-policy: User, Partner, Templates, Docs,
-   Loggers, Google, Params Company (Auth/Company/Dashboard уже есть). Теперь это можно делать в «зелёной» среде.
-2. Этап 2 (v2.0): оплата/эквайринг, обработка webhook.
+1. Этап 2 (v2.0): оплата/эквайринг, обработка webhook, безопасность платёжных данных.
+2. E2E-тесты (Playwright) — в test-policy заведены папки `e2e/{guest,customer,admin}`, но самих тестов ещё нет.
+3. Кросс-вкладочная синхронизация `viewBunchesUpdated` после IndexedDB (BroadcastChannel) — всё ещё открытый
+   вопрос (см. PLAN.md 13.3 и README.dev.md).
 
 ## Коммит
 
-`fix: починены валидаторы — isHasField guard на undefined/null и removeAdditional:false для additionalProperties`
+`test: integration-тесты оставшихся контроллеров (User/Partner/Templates/Docs/Loggers/Google/ParamsCompany) + @HttpCode(200/302) для POST-эндпоинтов`
 
 ## Предупреждения/заметки
 
-- **НЕ возвращать `removeAdditional: true`.** Это отключает проверку `additionalProperties: false` во всех
-  схемах (auth, user, company, …) — ошибка «Присутствует недопустимое поле» перестанет генерироваться.
-  Держать `removeAdditional: false` в `libs/validators/ajv/validate/index.ts` (бэкенд + фронт синхронно).
-- **`isHasField` должен проверять `isNotObj(data)`** перед `hasOwnProperty` — иначе `undefined`/`null` дают
-  `TypeError`. Фронт и бэкенд теперь оба это делают; при правках валидаторов держать поведение одинаковым.
+- **POST-эндпоинты, возвращающие данные, ДОЛЖНЫ иметь `@HttpCode(200)`.** Без него NestJS отдаёт `201 Created`
+  (default для POST) — рассинхрон с Koa и с остальными контроллерами. При добавлении новых POST-хендлеров
+  сразу ставить `@HttpCode(200)`.
+- **`user/logout` использует `@HttpCode(302)` + `@Res()` + `reply.redirect('/')`.** Не убирать `@HttpCode(302)`:
+  иначе NestJS ставит `201` до вызова хендлера, и `reply.redirect()` вернёт 201 вместо 302.
+- **`google.controller.ts`** тянет `admin` (firebase-admin) и `serviceGetCompany` напрямую — в integration-тесте
+  оба мокаются (`../../../libs/firebase/config/admin-sdk`, `../../../models/company`), иначе инициализируется
+  Firebase Admin SDK и тест падает/висит.
 - **check-version:** версия в двух файлах (`packages/frontend/src/app/config/index.ts`,
-  `packages/backend/src/app/config/index.ts`) ДОЛЖНА совпадать — сейчас `2.26.0`. `ASSEMBLY_DATE` (фронт) —
+  `packages/backend/src/app/config/index.ts`) ДОЛЖНА совпадать — сейчас `2.27.0`. `ASSEMBLY_DATE` (фронт) —
   «сегодня», иначе падает `config.test.ts`.
-- Кросс-вкладочная синхронизация `viewBunchesUpdated` после IndexedDB (BroadcastChannel) — всё ещё открытый
-  вопрос из прошлой сессии (см. PLAN.md 13.3 и README.dev.md).
 - Долгоживущие сведения (guard-мок для контроллеров, `@nestjs/testing`, PWA/SW, мёртвый код) — в
   `.clinerules/test-policy.md` и `README.dev.md`, здесь не дублировать.

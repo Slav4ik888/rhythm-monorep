@@ -2,7 +2,7 @@
 // NestJS-контроллер для templates (миграция с Koa)
 // Заменяет controllers/templates/{get-bunches-updated, get-templates, update, delete}
 
-import { Controller, Get, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
 import { getBunchesUpdatedModel } from '../../models/templates/handlers/get-bunches-updated';
 import { getTemplatesModel, ReqGetTemplates, ResGetTemplates } from '../../models/templates/handlers/get-templates';
 import { updateTemplateModel, UpdateTemplate } from '../../models/templates/handlers/update';
@@ -26,6 +26,7 @@ export class TemplatesController {
 
   // eslint-disable-next-line class-methods-use-this
   @Post('/templates/getTemplates')
+  @HttpCode(200)
   async getTemplates(@Body() body: ReqGetTemplates): Promise<ResGetTemplates> {
     try {
       return await getTemplatesModel(body);
@@ -39,6 +40,7 @@ export class TemplatesController {
 
   // eslint-disable-next-line class-methods-use-this
   @Post('/templates/update')
+  @HttpCode(200)
   async updateTemplate(@Body() body: UpdateTemplate & { userId?: string }): Promise<UpdateTemplate> {
     try {
       // TODO: получать userId из FirebaseAuthGuard, пока берём из body или используем заглушку
@@ -56,6 +58,7 @@ export class TemplatesController {
 
   // eslint-disable-next-line class-methods-use-this
   @Post('/templates/delete')
+  @HttpCode(200)
   async deleteTemplate(@Body() body: DeleteTemplate): Promise<DeleteTemplate> {
     try {
       return await deleteTemlateModel(body);

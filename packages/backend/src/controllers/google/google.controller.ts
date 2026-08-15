@@ -2,7 +2,7 @@
 // NestJS-контроллер для google/getData (миграция с Koa)
 // Заменяет controllers/google/get-data
 
-import { Controller, Post, Body, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Req, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
 import { googleGetDataModel, GoogleGetDataArgs } from '../../models/google/handlers';
 import { serviceGetCompany } from '../../models/company';
 import { admin } from '../../libs/firebase/config/admin-sdk';
@@ -13,6 +13,7 @@ export class GoogleController {
   // Маршрут без префикса модуля — как в Koa-роутере (prefix '/api' + '/getData')
   // и во фронтенде (API_PATHS.google.getData = '/getData')
   @Post('/getData')
+  @HttpCode(200)
   async getData(@Body() body: GoogleGetDataArgs, @Req() request: any): Promise<string> {
     try {
       // Условная проверка доступа (как checkUserSession в Koa):

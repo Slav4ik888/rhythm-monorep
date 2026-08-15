@@ -56,6 +56,7 @@ export class UserController {
   // POST /api/user/logout — выход из аккаунта (очистка cookie + редирект)
   // eslint-disable-next-line class-methods-use-this
   @Post('/user/logout')
+  @HttpCode(302)
   async logout(@Res() reply: FastifyReply): Promise<void> {
     // Очищаем cookie сессии
     reply.header('Set-Cookie', `${cfg.COOKIE_NAME}=; Path=/; Max-Age=0`);

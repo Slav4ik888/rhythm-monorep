@@ -311,6 +311,44 @@ VS Code подсвечивал `describe`/`test`/`expect` в `*.test.ts`/`*.spec
       `**/*.test.ts` и `**/*.spec.ts` из продакшн-сборки (раньше тесты, лежащие рядом с кодом, компилировались
       в `server/`). `npm run build -w packages/backend` — exit 0.
 
+## Этап 16: Integration-тесты оставшихся контроллеров (сессия 26)
+
+Продолжены integration-тесты NestJS-контроллеров по test-policy. Покрыты все 7 оставшихся контроллеров
+(User, Partner, Templates, Docs, Loggers, Google, Params Company) — итого integration-тесты есть у всех 10
+контроллеров. Паттерн — как у Auth/Company/Dashboard: `Test.createTestingModule` + `FastifyAdapter` +
+`app.inject()`, модели мокаются через `jest.mock`, `FirebaseAuthGuard` — пустой класс-токен + `overrideGuard`.
+
+- [x] 16.1 `user/tests/user.controller.spec.ts` (9 тестов): `GET /api/user/getAuth` (успех/400/500),
+      `POST /api/user/update` (успех/400/500), `POST /api/user/logout` (302 + очистка cookie),
+      защита guard (401 ×2).
+- [x] 16.2 `partner/tests/partner.controller.spec.ts` (3 теста): `POST /api/increaseFollower` (успех/400/500).
+- [x] 16.3 `templates/tests/templates.controller.spec.ts` (9 тестов): `GET getBunchesUpdated`, `POST getTemplates`,
+      `POST update` (userId default `system` + из body), `POST delete` — успех и 400/500.
+- [x] 16.4 `docs/tests/docs.controller.spec.ts` (2 теста): `GET /api/getPolicy` (успех/500).
+- [x] 16.5 `loggers/tests/loggers.controller.spec.ts` (6 тестов): `view`/`download`/`clear` (успех + 403).
+- [x] 16.6 `google/tests/google.controller.spec.ts` (6 тестов): `POST /api/getData` — пропуск проверки без
+      `dashboardSheetId`, публичный доступ, 401 без cookie, успех с валидной cookie, 400 от модели, 502 при
+      ошибке Google Apps Script. `admin-sdk` мокается (иначе инициализируется Firebase Admin).
+- [x] 16.7 `params-company/tests/params-company.controller.spec.ts` (4 теста): `GET`/`POST /api/paramsCompany/get`
+      (успех/400).
+
+### Починка HTTP-кодов POST-эндпоинтов (обнаружено тестами)
+
+Тесты вскрыли рассинхрон с Koa-оригиналами: NestJS по умолчанию отдаёт `201 Created` для POST, а у Koa
+и в остальных контроллерах проекта (Company, Dashboard, User.update, Partner) — `200`. Исправлено добавлением
+`@HttpCode(200)`:
+
+- [x] 16.8 `google/getData`, `params-company/get (POST)`, `templates/{getTemplates,update,delete}` — `@HttpCode(200)`.
+- [x] 16.9 `user/logout` — `@HttpCode(302)`: NestJS до вызова хендлера ставил `201` (default для POST),
+      поэтому `reply.redirect('/')` подхватывал `raw.statusCode = 201` и возвращал 201 вместо редиректа 302.
+
+### Валидация
+
+- [x] 16.10 `npm run lint` — 0 ошибок.
+- [x] 16.11 `npm test -w packages/backend` — unit 60 suites / 466 тестов, shared 50/377, validators 17/150 (всё зелёное).
+- [x] 16.12 `npm test -w packages/frontend` — 1478 тестов (unit) + остальные suites, всё зелёное.
+- [x] 16.13 `VERSION` → `2.27.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+
 ---
 
 ## Правила ведения плана

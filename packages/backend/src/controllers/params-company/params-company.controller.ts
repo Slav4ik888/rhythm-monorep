@@ -2,7 +2,7 @@
 // NestJS-контроллер для params-company (миграция с Koa)
 // Заменяет controllers/params-company/get/index.ts
 
-import { Controller, Get, Post, Query, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
 import { getParamsCompanyModel, GetParamsCompanyArgs } from '../../models/params-company/handlers/get';
 import { Company } from '../../models/company';
 
@@ -24,6 +24,7 @@ export class ParamsCompanyController {
 
   // eslint-disable-next-line class-methods-use-this
   @Post('/paramsCompany/get')
+  @HttpCode(200)
   async postParamsCompanyGet(@Body() body: GetParamsCompanyArgs): Promise<Company> {
     try {
       return await getParamsCompanyModel(body);
