@@ -2,51 +2,68 @@
 
 ## Дата
 
-15.08.2026 (сессия 23)
+15.08.2026 (сессия 24)
 
 ## Контекст: что сделано в этой сессии
 
-### 1. Integration-тесты NestJS-контроллеров (приоритеты test-policy: Auth, Company, Dashboard)
+### Этап 13: Хранение данных → IndexedDB (запрос бизнеса)
 
-- Установлен `@nestjs/testing@11.1.29` (devDependency) в `packages/backend`.
-- Созданы три integration-теста (HTTP через `app.inject()` на Fastify, без поднятия реального порта):
-  - `packages/backend/src/controllers/auth/tests/auth.controller.spec.ts` — 10 тестов.
-  - `packages/backend/src/controllers/company/tests/company.controller.spec.ts` — 6 тестов.
-  - `packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts` — 9 тестов.
-- Паттерн: модели контроллеров мокаются через `jest.mock` (импортируются напрямую, не через DI); `FirebaseAuthGuard` мокается пустым классом-токеном + поведение задаётся через `overrideGuard(...).useValue({ canActivate })` — иначе реальный guard тянет `models` → `libs/redis`, что оставляет открытый handle и вешает завершение jest.
+Перенёс «тяжёлые» per-company данные из localStorage в IndexedDB — раньше при загрузке данных
+нескольких компаний квота localStorage (~5 МБ) исчерпывалась, `QuotaExceededError`-обработчик делал
+`localStorage.clear()` и затирал данные других компаний (приходилось грузить заново).
 
-### 2. Исправлен баг resetEmailPassword
-
-- `auth.controller.ts`: при `success: false` от модели кидался `HttpException(result, 400)`, но общий `catch` проверяет `err.statusCode` (у `HttpException` его нет) и перемаппливал в 500. Теперь кидается ошибка в едином формате `{ statusCode, body }` (как модели) — клиенту отдаётся 400.
-
-### 3. Jest игнорирует build-артефакты `server/`
-
-- В `packages/backend/config/jest/jest.config.ts` в `testPathIgnorePatterns` добавлен `/server/` — раньше после локального `npm run build` jest подхватывал скомпилированные `server/**/*.test.js` (тест-файлы вне папок `tests/`) и гонял их дубликатом.
-
-### 4. Разовая чистка (п.1 прошлой сессии)
-
-- Выполнен `rm -rf packages/backend/server && npm run build -w packages/backend`.
+- Добавлен `idb@^7.1.1` как прямая зависимость `packages/frontend`.
+- Новый модуль `packages/frontend/src/shared/lib/indexed-db/`:
+  - `db.ts` — БД `rhythm-heavy-data`, стор `kv` (openDB через `idb`, ленивое соединение);
+  - `storage.ts` — **синхронный фасад `HeavyStorage`**: in-memory кеш (чтение мгновенное) + async-персист
+    в IndexedDB через очередь записи (`set`/`get`/`remove`/`has` синхронные, `bulkSet`/`hydrate`/`clear`/`flush` async);
+  - `storage.test.ts` — 7 unit-тестов (mock `idb`).
+- `local-storage/model/helpers.ts`: «тяжёлые» хелперы (`setDataState/getDataState`, `setBunches/getBunches`,
+  `setViewBunchesUpdated/getViewBunchesUpdated`, `devSetGSData/devGetGSData`) переведены на `HeavyStorage`,
+  **сигнатуры остались синхронными** — стора/хуки/useMemo не менялись.
+- `local-storage/model/init.ts`: `initHeavyStorage()` = однократная миграция существующих «тяжёлых» ключей
+  из localStorage в IndexedDB (`migrateHeavyFromLocalStorage`, `HeavyStorage.bulkSet`) + `HeavyStorage.hydrate()`.
+- `index.tsx`: инициализация `LS.initHeavyStorage()` до `root.render` (try/catch — при недоступном IndexedDB
+  рендерим без кеша, данные дозагрузятся с сервера).
+- `local-storage/model/main.ts`: экспорт `HEAVY_KEY_PREFIXES`; обработчик `QuotaExceededError` упрощён
+  (убраны сохранение/восстановление тяжёлых данных).
+- `local-storage/model/clear/index.ts`: `clearStorage` стал async и дополнительно чистит IndexedDB;
+  `features/ui/clear-cache-btn` ожидает через `await LS.clearStorage()` перед `location.reload()`.
 
 ### Валидация
 
 - `npm run lint` — 0 ошибок.
-- `npm run build -w packages/backend` — exit 0.
-- backend test: unit — 16 failed (все предсуществующие валидаторы), shared — 377 passed, validators — 13 failed (предсуществующие). Новых падений нет.
-- frontend test: 4 failed (предсуществующие валидаторы `validate-auth-by-login*`, `validate-fix-date-schema`, `validate-user-schema`); `config.test.ts` чинится бампом `ASSEMBLY_DATE`.
-- `VERSION` → `2.24.0`, `ASSEMBLY_DATE` → `2026-08-15` (frontend + backend синхронно).
+- `npx tsc -p packages/frontend/tsconfig.json --noEmit` — exit 0.
+- frontend test: unit — 4 failed (предсуществующие валидаторы `validate-auth-by-login*`, `validate-fix-date-schema`,
+  `validate-user-schema`); entities — 2 failed (предсуществующие); shared — 912 passed (включая новые 7 тестов
+  `indexed-db/storage.test.ts`); features — 15 passed; widgets — 119 passed. Новых падений нет.
+- `VERSION` → `2.25.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
 
 ## Следующие шаги
 
-1. **Хранение данных → IndexedDB** (PLAN «Этап 13», запрос бизнеса): перенести «тяжёлые» per-company данные (`dataState`, `bunches`, `viewBunchesUpdated`, `Dashboard-GSData`) из localStorage в IndexedDB — сейчас при загрузке данных нескольких компаний квота localStorage (~5 МБ) исчерпывается, `QuotaExceededError`-обработчик делает `localStorage.clear()` и затирает данные других компаний (приходится грузить заново).
-2. Продолжить integration-тесты оставшихся контроллеров по test-policy: User, Partner, Templates, Docs, Loggers, Google, Params Company.
-3. Разобраться с 16 предсуществующими падающими валидаторами бэкенда (напр. `validate-string` падает на `undefined`/`null` — `Cannot convert undefined or null to object` в `isHasField`). Это блокирует «зелёный» `npm test -w packages/backend`.
-4. Этап 2 (v2.0): оплата/эквайринг, обработка webhook.
+1. Продолжить integration-тесты оставшихся контроллеров по test-policy: User, Partner, Templates, Docs,
+   Loggers, Google, Params Company (Auth/Company/Dashboard уже есть).
+2. Разобраться с 16 предсуществующими падающими валидаторами бэкенда (напр. `validate-string` падает на
+   `undefined`/`null` — `Cannot convert undefined or null to object` в `isHasField`). Блокирует «зелёный»
+   `npm test -w packages/backend`.
+3. Этап 2 (v2.0): оплата/эквайринг, обработка webhook.
 
 ## Коммит
 
-`test: integration-тесты контроллеров Auth/Company/Dashboard (Fastify inject); fix resetEmailPassword 400 вместо 500; jest игнорирует build-артефакты server/`
+`feat: переход «тяжёлых» per-company данных с localStorage на IndexedDB (idb, синхронный фасад HeavyStorage, миграция на старте)`
 
 ## Предупреждения/заметки
 
-- **check-version:** версия в двух файлах (`packages/frontend/src/app/config/index.ts`, `packages/backend/src/app/config/index.ts`) ДОЛЖНА совпадать — сейчас `2.24.0`. `ASSEMBLY_DATE` (фронт) — «сегодня», иначе падает `config.test.ts`. Механизм/правило — в `.clinerules/promt-for-dev.md`.
-- Долгоживущие сведения вынесены в постоянную документацию (здесь не дублировать): паттерн guard-мока и `@nestjs/testing` → `.clinerules/test-policy.md`; build-артефакт `server/` + jest-ignore, PWA/SW `navigateFallback`, мёртвый код `loggerServer`/`get-session-data-fastify`/`package-lock.json` → `README.dev.md`.
+- **check-version:** версия в двух файлах (`packages/frontend/src/app/config/index.ts`,
+  `packages/backend/src/app/config/index.ts`) ДОЛЖНА совпадать — сейчас `2.25.0`. `ASSEMBLY_DATE` (фронт) —
+  «сегодня», иначе падает `config.test.ts`. Механизм/правило — в `.clinerules/promt-for-dev.md`.
+- **Кросс-вкладочная синхронизация `viewBunchesUpdated`:** раньше `setViewBunchesUpdated`/`setTemplatesBunchesUpdated`
+  диспатчили `new Event('storage')` и «соседние» вкладки видели изменение. После перевода на IndexedDB вкладки
+  НЕ получают storage-событие (IndexedDB его не генерирует). Same-tab синхронизация (компонент
+  `ClearLsBunchesUpdated` слушает `storage` + вручную диспатчит) сохранена. Если понадобится кросс-вкладочность —
+  добавить BroadcastChannel.
+- **Синхронный фасад вместо async API `LS.*`** — осознанное отклонение от формулировки PLAN 13.3 («async (Promises)»),
+  чтобы не размазывать `await` по Zustand-сторам/useMemo/getInitialState. Обоснование зафиксировано в PLAN.md (13.3).
+- Долгоживущие сведения вынесены в постоянную документацию (здесь не дублировать): паттерн guard-мока и
+  `@nestjs/testing` → `.clinerules/test-policy.md`; build-артефакт `server/` + jest-ignore, PWA/SW
+  `navigateFallback`, мёртвый код `loggerServer`/`get-session-data-fastify`/`package-lock.json` → `README.dev.md`.

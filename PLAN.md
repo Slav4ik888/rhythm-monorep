@@ -233,7 +233,7 @@ Koa в проде больше не используется (старт — `no
 - [x] 12.5 Выполнена разовая чистка `rm -rf packages/backend/server && npm run build -w packages/backend` (п.1 из `.planning/prompt-for-next.md`).
 - [x] 12.6 Валидация: `npm run lint` — 0 ошибок; `npm run build -w packages/backend` — exit 0; backend test — 16 failed (все предсуществующие валидаторы, новых нет); frontend test — 4 failed (предсуществующие валидаторы). Версия поднята до `2.24.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
 
-## Этап 13: Хранение загруженных данных — переход с localStorage на IndexedDB (запланировано)
+## Этап 13: Хранение загруженных данных — переход с localStorage на IndexedDB (выполнено, сессия 24)
 
 ### Проблема
 
@@ -246,13 +246,13 @@ Koa в проде больше не используется (старт — `no
 
 ### Решение
 
-- [ ] 13.1 Вынести «тяжёлые» per-company данные в **IndexedDB** (квота на порядки больше, async API): `dataState`, `bunches`, `viewBunchesUpdated`, `Dashboard-GSData` (dev).
-- [ ] 13.2 Подключить `idb@7.1.1` как прямую зависимость фронтенда (сейчас есть только транзитивно — через firebase/workbox) либо написать тонкую обёртку над нативным IndexedDB.
-- [ ] 13.3 Реализовать хранилище с интерфейсом, аналогичным `LS.*`, но async (Promises), ключ — `companyId`; обновить места использования: `entities/dashboard-data`, `entities/dashboard-view`, `entities/dashboard-templates`, `features/dashboard-data/get-data` (в т.ч. вызовы в хуках TanStack Query и сторах Zustand).
-- [ ] 13.4 Оставить в localStorage только мелкое UI-состояние/флаги (cookie, `partnerId`, `hintsDontShowAgain`, `lastCompanyId`, `editMode`, `UIConfiguratorState`, `paramsCompany`) — чтобы логика «важного» в `clear`/`QuotaExceededError` не менялась.
-- [ ] 13.5 Однократная миграция/backfill: при первом запуске перенести существующие per-company ключи из localStorage в IndexedDB и удалить их из localStorage.
-- [ ] 13.6 Переработать/убрать обработчик `QuotaExceededError` в `model/main.ts` — после миграции per-company данные больше не должны упираться в квоту localStorage.
-- [ ] 13.7 Добавить unit-тесты на новое IndexedDB-хранилище (mock `indexedDB`/`idb`, как в существующих тестах LS) и обновить затронутые store-тесты.
+- [x] 13.1 Вынесены «тяжёлые» per-company данные в **IndexedDB**: `dataState`, `bunches`, `viewBunchesUpdated`, `Dashboard-GSData` (dev). Остальное (`userState`, `companyState`, `templates`, `templatesBunchesUpdated` и мелкие флаги) осталось в localStorage.
+- [x] 13.2 Подключён `idb@7.1.1` как прямая зависимость `packages/frontend` (в `package.json` + `package-lock.json`).
+- [x] 13.3 Реализован модуль `shared/lib/indexed-db` (БД `rhythm-heavy-data`, стор `kv`): `db.ts` (openDB через `idb`), `storage.ts` (синхронный фасад `HeavyStorage`). **Решение:** вместо полностью async API `LS.*` сделан синхронный фасад — in-memory кеш (чтение мгновенное, как из localStorage) + асинхронная персистентность в IndexedDB через очередь записи. Это позволило сохранить синхронные сигнатуры `LS.getBunches/getDataState/...` и не размазывать `await` по Zustand-сторам, `useMemo` и `getInitialState`. «Тяжёлые» хелперы в `local-storage/model/helpers.ts` переведены на `HeavyStorage`.
+- [x] 13.4 В localStorage осталось только мелкое UI-состояние/флаги (cookie, `partnerId`, `hintsDontShowAgain`, `lastCompanyId`, `editMode`, `UIConfiguratorState`, `paramsCompany`, `templates`, `templatesBunchesUpdated`, `userState`, `companyState`). Логика `clear`/`QuotaExceededError` сохранена для мелких ключей.
+- [x] 13.5 Однократная миграция/backfill: `local-storage/model/init.ts` → `initHeavyStorage()` переносит существующие «тяжёлые» ключи из localStorage в IndexedDB (`HeavyStorage.bulkSet`) и удаляет их из localStorage; вызывается на старте в `index.tsx` до `root.render`.
+- [x] 13.6 Переработан обработчик `QuotaExceededError` в `model/main.ts`: убраны сохранение/восстановление тяжёлых данных (они больше не в localStorage), оставлена логика для мелкого состояния.
+- [x] 13.7 Добавлены unit-тесты `shared/lib/indexed-db/storage.test.ts` (7 тестов, mock `idb`). Существующие store-тесты (мокают `LS`) не потребовали правок — сигнатуры сохранены. `clearStorage` стал async и дополнительно чистит IndexedDB (вызов в `clear-cache-btn` ожидает через `await`).
 
 ---
 

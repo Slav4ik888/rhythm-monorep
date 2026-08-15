@@ -1,18 +1,22 @@
 import { PREFIX } from '../main';
 import * as h from '../helpers';
+import { HeavyStorage } from '../../../indexed-db';
 
-export const clearStorage = () => {
+export const clearStorage = async () => {
   // Сохраняем то, что не должно исчезнуть
-  const cookie             = h.getAcceptedCookie();
-  const partnerId          = h.getPartnerId();
+  const cookie = h.getAcceptedCookie();
+  const partnerId = h.getPartnerId();
   const hintsDontShowAgain = h.getHintsDontShowAgain();
 
-  // Очищаем localStorage
-  Object.keys(localStorage).forEach(key => {
+  // Очищаем localStorage (мелкое UI-состояние/флаги)
+  Object.keys(localStorage).forEach((key) => {
     if (key.startsWith(PREFIX)) {
       localStorage.removeItem(key);
     }
   });
+
+  // Очищаем IndexedDB («тяжёлые» per-company данные)
+  await HeavyStorage.clear();
 
   // Восстанавливаем сохранённое
   if (cookie) h.setAcceptedCookie();

@@ -10,6 +10,7 @@ import { isStr } from '../../validators';
 import { ResGetData } from 'shared/types';
 import type { BunchesUpdated } from '../../structures/bunch';
 import { setStorageData, getStorageData } from './main';
+import { HeavyStorage } from '../../indexed-db';
 
 /** Auth */
 export const setAcceptedCookie = () => setStorageData('acceptedCookie', { isAccepted: 'true' });
@@ -62,29 +63,32 @@ export const setTemplatesBunchesUpdated = (data: BunchesUpdated) => {
 export const getTemplatesBunchesUpdated = () => getStorageData<BunchesUpdated>('templatesBunchesUpdated') || {};
 
 // Dashboard-data
+// Тяжёлые per-company данные хранятся в IndexedDB (не в localStorage — квота ~5 МБ).
 export const setDataState = (companyId: string, data: StateSchemaDashboardData) =>
-  setStorageData(`dataState-${companyId}`, data);
-export const getDataState = (companyId: string) => getStorageData<StateSchemaDashboardData>(`dataState-${companyId}`);
+  HeavyStorage.set(`dataState-${companyId}`, data);
+export const getDataState = (companyId: string) => HeavyStorage.get<StateSchemaDashboardData>(`dataState-${companyId}`);
 
 // Dashboard-view
+// Тяжёлые per-company данные хранятся в IndexedDB (не в localStorage — квота ~5 МБ).
 export const setBunches = (companyId: string, bunches: BunchesViewItem) =>
-  setStorageData(`bunches-${companyId}`, bunches);
-export const getBunches = (companyId: string) => getStorageData<BunchesViewItem>(`bunches-${companyId}`) || {};
+  HeavyStorage.set(`bunches-${companyId}`, bunches);
+export const getBunches = (companyId: string) => HeavyStorage.get<BunchesViewItem>(`bunches-${companyId}`) || {};
 
 /** Dashboard-view - timestamp of last updated */
 export const setViewBunchesUpdated = (companyId: string, data: BunchesUpdated) => {
-  setStorageData(`viewBunchesUpdated-${companyId}`, data);
-  // Триггерим событие для других вкладок
+  HeavyStorage.set(`viewBunchesUpdated-${companyId}`, data);
+  // Триггерим событие для других вкладок (тот же tab синхронизируется вручную)
   window.dispatchEvent(new Event('storage'));
 };
 export const getViewBunchesUpdated = (companyId: string) =>
-  getStorageData<BunchesUpdated>(`viewBunchesUpdated-${companyId}`) || {};
+  HeavyStorage.get<BunchesUpdated>(`viewBunchesUpdated-${companyId}`) || {};
 
 // Partners
 export const setPartnerId = (code: string | null) => setStorageData('partnerId', code);
 export const getPartnerId = () => getStorageData<string | undefined>('partnerId');
 
 // Dev
+// Сырые данные /api/getData — самые «тяжёлые», тоже вынесены в IndexedDB.
 export const devSetGSData = (companyId: string, data: ResGetData) =>
-  setStorageData(`Dashboard-GSData-${companyId}`, data);
-export const devGetGSData = (companyId: string) => getStorageData<ResGetData>(`Dashboard-GSData-${companyId}`);
+  HeavyStorage.set(`Dashboard-GSData-${companyId}`, data);
+export const devGetGSData = (companyId: string) => HeavyStorage.get<ResGetData>(`Dashboard-GSData-${companyId}`);

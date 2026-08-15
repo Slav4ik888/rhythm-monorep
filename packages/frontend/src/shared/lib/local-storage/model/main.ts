@@ -4,9 +4,15 @@ import { __devLog } from '../../tests/__dev-log';
 
 export const PREFIX = 'Rhythm-';
 
+/**
+ * «Тяжёлые» per-company ключи, вынесенные в IndexedDB (см. shared/lib/indexed-db).
+ * Значения — префикс ключа БЕЗ PREFIX (например `dataState-${companyId}`).
+ * Используется при однократной миграции из localStorage в IndexedDB.
+ */
+export const HEAVY_KEY_PREFIXES = ['dataState-', 'bunches-', 'viewBunchesUpdated-', 'Dashboard-GSData-'] as const;
+
 /** Вывод ошибки в консоль */
 const showError = (text: string, fieldName: string) => __devLog('LS showError', `${text}: ${fieldName}`);
-
 
 /**
  * Проверка на ошибку
@@ -21,12 +27,10 @@ const checkError = (data: any, fieldName: string) => {
   return false;
 };
 
-
-
 /** Сохраняем в LocalStorage */
 export const setStorageData = (
-  storageName    : string,
-  data           : any,
+  storageName: string,
+  data: any,
   // withoutPrefix? : boolean // Если нужно без префикса, чтобы при очистки LS эти данные остались
 ) => {
   try {
@@ -35,8 +39,7 @@ export const setStorageData = (
 
     // const name = withoutPrefix ? storageName : PREFIX + storageName;
     localStorage.setItem(PREFIX + storageName, JSON.stringify(data));
-  }
-  catch (e: any) {
+  } catch (e: any) {
     if (e.name === 'QuotaExceededError') {
       console.error('LS заполнен, очистили старые данные и сохранили новые');
 
@@ -46,7 +49,7 @@ export const setStorageData = (
       const cookie = h.getAcceptedCookie();
       const hintsDontShowAgain = h.getHintsDontShowAgain();
 
-      if (! companyId) {
+      if (!companyId) {
         localStorage.clear();
 
         // Восстанавливаем важное
@@ -59,16 +62,15 @@ export const setStorageData = (
         }
       }
 
-      const userState                        = h.getUserState(companyId);
-      const lastCompanyId                    = h.getLastCompanyId();
-      const companyState                     = h.getCompanyState(companyId);
-      const paramsCompanyState               = h.getParamsCompanyState();
-      const uIConfiguratorState              = h.getUIConfiguratorState();
-      const dashboardTemplates               = h.getTemplates();
+      const userState = h.getUserState(companyId);
+      const lastCompanyId = h.getLastCompanyId();
+      const companyState = h.getCompanyState(companyId);
+      const paramsCompanyState = h.getParamsCompanyState();
+      const uIConfiguratorState = h.getUIConfiguratorState();
+      const dashboardTemplates = h.getTemplates();
       const dashboardTemplatesBunchesUpdated = h.getTemplatesBunchesUpdated();
-      const dashboardDataState               = h.getDataState(companyId);
-      const dashboardBunches                 = h.getBunches(companyId);
-      const dashboardViewBunchesUpdated      = h.getViewBunchesUpdated(companyId);
+      // «Тяжёлые» per-company данные (dataState, bunches, viewBunchesUpdated) уже в IndexedDB —
+      // их не нужно сохранять/восстанавливать здесь, localStorage их больше не хранит.
 
       localStorage.clear();
 
@@ -80,18 +82,13 @@ export const setStorageData = (
       if (uIConfiguratorState) h.setUIConfiguratorState(uIConfiguratorState);
       h.setTemplates(dashboardTemplates);
       h.setTemplatesBunchesUpdated(dashboardTemplatesBunchesUpdated);
-      if (dashboardDataState) h.setDataState(companyId, dashboardDataState);
-      h.setBunches(companyId, dashboardBunches);
-      h.setViewBunchesUpdated(companyId, dashboardViewBunchesUpdated);
       h.setHintsDontShowAgain(hintsDontShowAgain);
-    }
-    else {
+    } else {
       console.error('Ошибка LocalStorage:', e);
     }
     return false;
   }
 };
-
 
 /**
  * v.2025-06-05

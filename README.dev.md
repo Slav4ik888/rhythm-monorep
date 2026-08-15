@@ -86,6 +86,30 @@ rhythm/
 | **Деплой**         | VPS + systemd + Nginx                                                                     |
 | **Качество кода**  | ESLint, Prettier, Husky, lint-staged                                                      |
 
+### Хранение данных на клиенте (localStorage + IndexedDB)
+
+Загруженные данные дашборда делятся на «лёгкие» и «тяжёлые»:
+
+- **localStorage** (`shared/lib/local-storage`, префикс `Rhythm-`) — мелкое UI-состояние и флаги:
+  cookie, `partnerId`, `hintsDontShowAgain`, `lastCompanyId`, `editMode-*`, `UIConfiguratorState`,
+  `paramsCompany`, `templates`, `templatesBunchesUpdated`, `userState-*`, `companyState-*`.
+- **IndexedDB** (`shared/lib/indexed-db`, БД `rhythm-heavy-data`, стор `kv`) — «тяжёлые» per-company данные:
+  `dataState-*` (данные гугл-таблицы), `bunches-*` (view-элементы дашборда), `viewBunchesUpdated-*`,
+  `Dashboard-GSData-*` (dev-сырые данные `/api/getData`). Причина: квота localStorage ~5 МБ исчерпывалась
+  при загрузке данных нескольких компаний.
+
+Реализация — **синхронный фасад `HeavyStorage`** (`shared/lib/indexed-db/storage.ts`):
+in-memory `Map` для мгновенного синхронного чтения + асинхронная персистентность в IndexedDB через очередь
+записи. Это сохраняет синхронные сигнатуры `LS.getBunches/getDataState/...` (они используются в Zustand-сторах,
+`useMemo` и `getInitialState`) и не требует размазывать `await` по приложению.
+
+- Инициализация: `LS.initHeavyStorage()` в `src/index.tsx` до `root.render` — сначала однократная миграция
+  существующих «тяжёлых» ключей из localStorage в IndexedDB (`migrateHeavyFromLocalStorage`), затем
+  `HeavyStorage.hydrate()` (загрузка всех ключей в память).
+- Очистка: `LS.clearStorage()` (async) чистит и localStorage, и IndexedDB.
+- Ограничение: кросс-вкладочная синхронизация `viewBunchesUpdated` через `storage`-событие больше не работает
+  (IndexedDB не генерирует его); same-tab синхронизация сохранена. При необходимости — BroadcastChannel.
+
 ---
 
 ## Глоссарий доменных терминов
