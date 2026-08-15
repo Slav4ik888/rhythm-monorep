@@ -48,4 +48,7 @@ export async function migrateHeavyFromLocalStorage(): Promise<void> {
 export async function initHeavyStorage(): Promise<void> {
   await migrateHeavyFromLocalStorage();
   await HeavyStorage.hydrate();
+  // Включаем кросс-вкладочную синхронизацию (BroadcastChannel): изменения «тяжёлых»
+  // ключей из других вкладок будут применяться к in-memory кешу этой вкладки.
+  HeavyStorage.startSync();
 }

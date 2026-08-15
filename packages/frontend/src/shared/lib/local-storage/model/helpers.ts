@@ -77,7 +77,8 @@ export const getBunches = (companyId: string) => HeavyStorage.get<BunchesViewIte
 /** Dashboard-view - timestamp of last updated */
 export const setViewBunchesUpdated = (companyId: string, data: BunchesUpdated) => {
   HeavyStorage.set(`viewBunchesUpdated-${companyId}`, data);
-  // Триггерим событие для других вкладок (тот же tab синхронизируется вручную)
+  // Событие для текущей вкладки (same-tab). Кросс-вкладочно данные синхронизируются
+  // через BroadcastChannel внутри HeavyStorage (см. shared/lib/indexed-db/broadcast.ts).
   window.dispatchEvent(new Event('storage'));
 };
 export const getViewBunchesUpdated = (companyId: string) =>

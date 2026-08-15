@@ -376,6 +376,33 @@ Firebase для тестов не нужны: поднимается тольк�
 - [x] 17.7 Валидация: `npx playwright test` — 11 passed; lint новых файлов — 0 ошибок.
 - [x] 17.8 `VERSION` → `2.28.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
 
+## Этап 18: Кросс-вкладочная синхронизация IndexedDB через BroadcastChannel (сессия 28)
+
+Закрыт открытый вопрос из этапа 13 (README.dev.md «Ограничение»): после выноса «тяжёлых» ключей в
+IndexedDB другие вкладки перестали получать localStorage-событие `storage`, и `viewBunchesUpdated`
+(а также `bunches`, `dataState`) не синхронизировались между вкладками.
+
+- [x] 18.1 Новый модуль `shared/lib/indexed-db/broadcast.ts`: канал `rhythm-heavy-data-sync`,
+      сообщения `{ type: 'set' | 'remove' | 'clear', key?, value? }`, функции `postHeavySync` /
+      `subscribeHeavySync` / `resetHeavySyncForTests`. BroadcastChannel создаётся лениво, при
+      отсутствии API (jsdom/старые браузеры) операции — no-op.
+- [x] 18.2 `HeavyStorage` (`storage.ts`) транслирует `set`/`remove`/`clear` другим вкладкам и
+      принимает чужие сообщения (`applyRemoteSync`): обновляет in-memory кеш и диспатчит
+      `storage`-событие для локальных подписчиков (как раньше делал localStorage). Добавлены
+      идемпотентный `startSync()` и `stopSync()`.
+- [x] 18.3 `LS.initHeavyStorage()` включает подписку (`HeavyStorage.startSync()`) после
+      `migrateHeavyFromLocalStorage()` + `hydrate()`; точка входа `index.tsx` не менялась.
+- [x] 18.4 Same-tab синхронизация сохранена: `setViewBunchesUpdated` по-прежнему диспатчит
+      `window.dispatchEvent(new Event('storage'))` (BroadcastChannel не доставляет сообщение
+      отправителю); комментарий в `helpers.ts` уточнён.
+- [x] 18.5 Unit-тесты `storage.test.ts` расширены с 7 до 13 (fake BroadcastChannel в jsdom):
+      трансляция set/remove, приём set/remove/clear из «другой вкладки», идемпотентность startSync.
+- [x] 18.6 Документация: `README.dev.md` (раздел IndexedDB) — ограничение заменено описанием
+      BroadcastChannel-синхронизации.
+- [x] 18.7 Валидация: `npm run lint` — 0 ошибок; `tsc --noEmit` (frontend) — 0 ошибок;
+      backend — 60/466 + 50/377 + 17/150 suites passed; frontend — все suites passed.
+- [x] 18.8 `VERSION` → `2.29.0` (frontend + backend синхронно), `ASSEMBLY_DATE` → `2026-08-15`.
+
 ---
 
 ## Правила ведения плана

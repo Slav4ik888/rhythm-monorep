@@ -108,8 +108,13 @@ in-memory `Map` для мгновенного синхронного чтени�
   существующих «тяжёлых» ключей из localStorage в IndexedDB (`migrateHeavyFromLocalStorage`), затем
   `HeavyStorage.hydrate()` (загрузка всех ключей в память).
 - Очистка: `LS.clearStorage()` (async) чистит и localStorage, и IndexedDB.
-- Ограничение: кросс-вкладочная синхронизация `viewBunchesUpdated` через `storage`-событие больше не работает
-  (IndexedDB не генерирует его); same-tab синхронизация сохранена. При необходимости — BroadcastChannel.
+- Кросс-вкладочная синхронизация: IndexedDB не генерирует localStorage-событие `storage`, поэтому
+  изменения «тяжёлых» ключей транслируются другим вкладкам через `BroadcastChannel`
+  (`shared/lib/indexed-db/broadcast.ts`, канал `rhythm-heavy-data-sync`). `HeavyStorage.set/remove/clear`
+  шлют сообщение `{ type, key, value? }`, принимающая вкладка обновляет in-memory кеш и диспатчит
+  `storage`-событие для локальных подписчиков. Подписка включается в `LS.initHeavyStorage()`
+  (`HeavyStorage.startSync()`). Same-tab синхронизация осталась на ручном
+  `window.dispatchEvent(new Event('storage'))` (BroadcastChannel не доставляет сообщение отправителю).
 
 ---
 
