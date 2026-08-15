@@ -213,9 +213,12 @@ in-memory `Map` для мгновенного синхронного чтени�
 ## Команды разработки
 
 ```bash
-# Запуск
-npm run dev -w packages/frontend    # Фронтенд (Vite, порт 3000)
+# Запуск (всё вместе): бэкенд стартует первым, фронтенд — после готовности порта 7575
+npm run dev                          # обёртка над dev.sh (wait-on tcp:7575)
+
+# Или по отдельности (сначала бэкенд, дождаться «Listening on port 7575», потом фронтенд)
 npm run dev -w packages/backend     # Бэкенд (NestJS, порт 7575)
+npm run dev -w packages/frontend    # Фронтенд (Vite, порт 3000)
 
 # Сборка
 npm run build -w packages/frontend  # Фронтенд (production)

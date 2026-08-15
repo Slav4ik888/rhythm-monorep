@@ -8,7 +8,7 @@
     "packages/shared"
   ],
   "scripts": {
-    "dev": "npm run dev -w packages/frontend & npm run dev -w packages/backend",
+    "dev": "bash dev.sh",
     "build": "npm run build -w packages/backend && npm run build -w packages/frontend",
     "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
@@ -45,7 +45,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
     "prettier": "^3.4.2",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "wait-on": "^9.1.0"
   },
   "dependencies": {
     "@fastify/formbody": "^8.0.2",

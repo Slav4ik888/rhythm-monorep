@@ -30,6 +30,16 @@
 - `local-storage/model/clear/index.ts`: `clearStorage` стал async и дополнительно чистит IndexedDB;
   `features/ui/clear-cache-btn` ожидает через `await LS.clearStorage()` перед `location.reload()`.
 
+### Dev-запуск: ожидание готовности бэкенда
+
+При `npm run dev` фронтенд (Vite) стартовал за ~150 мс и сразу слал запросы к API, а бэкенд
+(ts-node + NestJS + Firebase) ещё грузился → прокси Vite падал с `ECONNREFUSED`.
+
+- Добавлен `wait-on@^9.1.0` (корневой devDependency) + корневой `dev.sh`.
+- Корневой `dev`-скрипт теперь `bash dev.sh`: запускает бэкенд в фоне → ждёт `wait-on tcp:7575`
+  (таймаут 90с) → запускает фронтенд в foreground; при выходе/Ctrl+C глушит бэкенд (trap).
+- Обновлены `README.md` и `README.dev.md` (раздел «Запуск»).
+
 ### Валидация
 
 - `npm run lint` — 0 ошибок.
@@ -50,7 +60,9 @@
 
 ## Коммит
 
-`feat: переход «тяжёлых» per-company данных с localStorage на IndexedDB (idb, синхронный фасад HeavyStorage, миграция на старте)`
+`dev: ожидание готовности бэкенда перед стартом фронта (dev.sh + wait-on tcp:7575)`
+
+> Этап 13 (IndexedDB) уже закоммичен отдельно: `80a6575 feat: переход «тяжёлых» per-company данных с localStorage на IndexedDB (idb, синхронный фасад HeavyStorage, миграция на старте)`. Здесь — только коммит для dev.sh.
 
 ## Предупреждения/заметки
 

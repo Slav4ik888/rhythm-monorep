@@ -33,9 +33,12 @@ cd rhythm
 # 2. Установка зависимостей
 npm install
 
-# 3. Запуск
-npm run dev -w packages/frontend   # Фронтенд (Vite, порт 3000)
+# 3. Запуск (бэкенд + фронтенд; фронтенд стартует после готовности бэкенда)
+npm run dev
+
+# Или по отдельности
 npm run dev -w packages/backend    # Бэкенд (NestJS, порт 7575)
+npm run dev -w packages/frontend   # Фронтенд (Vite, порт 3000)
 ```
 
 После запуска:
