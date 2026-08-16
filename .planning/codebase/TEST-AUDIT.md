@@ -67,16 +67,17 @@
 
 Не покрыты (вне этапа 26): `api-paths.ts`, `query-keys.ts` (простые константы-объекты).
 
-### 2. `features/*` — покрыты dashboard-view (4 спека), docs, partner; остальные 6 — 0
+### 2. `features/*` — ✅ unit-тесты добавлены (сессия 46)
 
-company, dashboard-data, dashboard-templates, hints, ui, user.
+company (DeleteMemberIconContainer), dashboard-data (transform-gs-data, get-ms-from-ref),
+dashboard-templates (chartOptionsToRemove), hints (useFeatureHints), ui (ClearCacheBtn), user (store).
+Ранее: dashboard-view (4 спека), docs, partner.
 
-### 3. `widgets/*` — ✅ smoke-тесты добавлены (сессия 44)
+### 3. `widgets/*` — ✅ smoke-тесты добавлены (сессия 44 + 46)
 
 Smoke: auth/accept-cookie, sidebar, navbar, footer, dashboard-view/panel, dashboard-data/datebar,
-hints, message-bar, page-loader. Утилиты dashboard-render (14) и view-configurator (6) покрыты unit-тестами ранее.
-
-Остаются без smoke: dashboard-templates, page-error, offers, demo/goto-demo-btn, logo-btn, ui-configurator, version.
+hints, message-bar, page-loader, version, logo-btn, offers, page-error, demo/goto-demo-btn,
+ui-configurator, dashboard-templates. Утилиты dashboard-render (14) и view-configurator (6) покрыты unit-тестами ранее.
 
 ### 4. `pages/*` — ✅ smoke-тесты добавлены (сессия 44)
 

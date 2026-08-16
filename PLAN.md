@@ -84,6 +84,11 @@
 - [x] 28.4 Swagger / OpenAPI для API-контрактов (`@nestjs/swagger`, Swagger UI на `/api/docs`)
 - [x] 28.5 Дробление крупных файлов — ревизия: оба файла ≤ 500 строк (465 и 352), дробление не требуется по DoD test-policy
 
+**Этап 29. Закрытие frontend-пробелов из TEST-AUDIT.md**
+
+- [x] 29.1 Unit-тесты `features/`: company (DeleteMemberIconContainer), dashboard-data (transform-gs-data, get-ms-from-ref), dashboard-templates (chartOptionsToRemove), hints (useFeatureHints), ui (ClearCacheBtn), user (store)
+- [x] 29.2 Smoke-тесты `widgets/`: version, logo-btn, offers, page-error, demo/goto-demo-btn, ui-configurator, dashboard-templates
+
 ### Отложено (блокировано окружением)
 
 **Реальные сценарии входа/регистрации** против Firebase Auth/Firestore/Redis-эмуляторов + сиды.
