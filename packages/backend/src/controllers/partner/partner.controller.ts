@@ -3,8 +3,9 @@
 // Заменяет controllers/partner/increase-follower/index.ts
 
 import { Controller, Post, Body, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { increaseFollowerModel, IncreaseFollowerConfig } from '../../models/partner/handlers/increase-follower';
+import { IncreaseFollowerDto } from './dto';
 
 @ApiTags('partner')
 @Controller('api')
@@ -12,7 +13,12 @@ export class PartnerController {
   // eslint-disable-next-line class-methods-use-this
   @Post('/increaseFollower')
   @ApiOperation({ summary: 'Увеличение счётчика последователей партнёра', description: 'POST /api/increaseFollower' })
-  @ApiResponse({ status: 200, description: 'Счётчик увеличен' })
+  @ApiBody({ type: IncreaseFollowerDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Счётчик увеличен',
+    schema: { type: 'object', properties: { status: { type: 'string', example: 'ok' } } },
+  })
   @HttpCode(200)
   async increaseFollower(@Body() body: IncreaseFollowerConfig): Promise<{ status: string }> {
     try {

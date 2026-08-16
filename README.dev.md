@@ -400,6 +400,16 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 - **Swagger / OpenAPI** — реализован (сессия 45): `@nestjs/swagger@11.4.6` + Fastify-адаптер.
   Swagger UI на `/api/docs`, OpenAPI JSON на `/api/docs-json`. Документированы все контроллеры
   (9 тегов, 25 эндпоинтов: `@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiParam`).
+- **Swagger DTO-схемы** (сессия 49): детальные схемы запросов/ответов для всех 25 эндпоинтов.
+  DTO лежат в `packages/backend/src/dto/` (сущности: `user.dto`, `company.dto`, `view-item.dto`,
+  `template.dto`, `base.dto`, `common.dto`) и `packages/backend/src/controllers/<name>/dto/`
+  (запросы/ответы контроллера). Подключены через `@ApiBody({ type })`, `@ApiResponse({ status, type })`,
+  `@ApiQuery` (params-company GET). Итог генерации: 25 путей, 49 схем.
+  Контроллеры сохраняют исходные типы `@Body()`/`@Query()` (модельные типы), а не DTO-классы —
+  иначе структурные несовпадения (например `CompanyDto.status: string` vs enum `CompanyStatus`)
+  ломают типизацию; DTO подключаются только декораторами Swagger.
+  Исключение из `max-classes-per-file`: DTO-файлы объединяют связанные схемы
+  (`/* eslint-disable max-classes-per-file */`).
 - **`INTERNAL_USERS`** — служебные пользователи (их логи не пишутся в `url.log`) задаются через
   env `INTERNAL_USERS` (ID через запятую); дефолт — `DEFAULT_INTERNAL_USERS` в `app/config/index.ts`.
 

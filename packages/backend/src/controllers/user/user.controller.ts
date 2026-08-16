@@ -3,13 +3,15 @@
 // Заменяет controllers/user/get-auth/index.ts, controllers/user/update/index.ts, controllers/user/logout/index.ts
 
 import { Controller, Get, Post, Body, HttpException, HttpStatus, HttpCode, UseGuards, Res } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 import { getAuthModel, GetAuthArgs, ResGetAuth } from '../../models/user/handlers/get-auth';
 import { updateUserModel, UpdateUserArgs } from '../../models/user/handlers/update';
 import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { PartialUser } from '../../models/user/types';
+import { SuccessResponseDto } from '../../dto/common.dto';
+import { ResGetAuthDto, UpdateUserDto } from './dto';
 import { cfg } from '../../app/config';
 
 @ApiTags('user')
@@ -19,7 +21,7 @@ export class UserController {
   // eslint-disable-next-line class-methods-use-this
   @Get('/user/getAuth')
   @ApiOperation({ summary: 'Получение данных пользователя и компании', description: 'GET /api/user/getAuth' })
-  @ApiResponse({ status: 200, description: 'Данные пользователя и компании' })
+  @ApiResponse({ status: 200, description: 'Данные пользователя и компании', type: ResGetAuthDto })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(FirebaseAuthGuard)
   async getAuth(@CurrentUser() user: any): Promise<ResGetAuth> {
@@ -41,7 +43,8 @@ export class UserController {
   // eslint-disable-next-line class-methods-use-this
   @Post('/user/update')
   @ApiOperation({ summary: 'Обновление данных пользователя', description: 'POST /api/user/update' })
-  @ApiResponse({ status: 200, description: 'Пользователь обновлён' })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({ status: 200, description: 'Пользователь обновлён', type: SuccessResponseDto })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)

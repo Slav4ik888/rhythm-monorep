@@ -3,11 +3,13 @@
 // Заменяет controllers/company/update/index.ts и controllers/company/delete-sheet/index.ts
 
 import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { updateCompanyModel, UpdateCompanyArgs } from '../../models/company/handlers/update';
 import { companyDeleteSheetModel, DeleteSheetArgs } from '../../models/company/handlers/delete-sheet';
 import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
+import { CompanyDto } from '../../dto/company.dto';
+import { DeleteSheetDto, UpdateCompanyDto } from './dto';
 
 @ApiTags('company')
 @Controller('api')
@@ -16,7 +18,8 @@ export class CompanyController {
   // eslint-disable-next-line class-methods-use-this
   @Post('/company/update')
   @ApiOperation({ summary: 'Обновление данных компании', description: 'POST /api/company/update' })
-  @ApiResponse({ status: 200, description: 'Компания обновлена' })
+  @ApiBody({ type: UpdateCompanyDto })
+  @ApiResponse({ status: 200, description: 'Компания обновлена', type: CompanyDto })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   async update(@Body() body: { companyData: any }, @CurrentUser() user: any): Promise<any> {
@@ -37,7 +40,8 @@ export class CompanyController {
   // eslint-disable-next-line class-methods-use-this
   @Post('/company/deleteSheet')
   @ApiOperation({ summary: 'Удаление листа компании', description: 'POST /api/company/deleteSheet' })
-  @ApiResponse({ status: 200, description: 'Лист удалён' })
+  @ApiBody({ type: DeleteSheetDto })
+  @ApiResponse({ status: 200, description: 'Лист удалён', type: DeleteSheetDto })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   async deleteSheet(@Body() body: { companyId: string; sheetId: string }, @CurrentUser() user: any): Promise<any> {

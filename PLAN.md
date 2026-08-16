@@ -103,6 +103,15 @@
 - [x] 47.4 Сиды (seed-данные пользователя/компании) в эмуляторы (`scripts/seed-emulators.ts`, `npm run seed:emulators`)
 - [x] 47.5 Реальные сценарии входа/регистрации против эмуляторов (тесты: `*.emulators.spec.ts`, `npm run test:emulators`)
 
+### Этап 49 — Swagger: детальные DTO-схемы запросов/ответов
+
+**Полные схемы запросов/ответов** для всех 25 эндпоинтов (Swagger UI `/api/docs` уже был, но без детальных DTO).
+
+- [x] 49.1 Общие DTO сущностей (`packages/backend/src/dto/`): `base.dto`, `common.dto`, `user.dto`, `company.dto`, `view-item.dto`, `template.dto`
+- [x] 49.2 DTO запросов/ответов для каждого контроллера (`packages/backend/src/controllers/<name>/dto/`): auth, user, company, dashboard, templates, partner, params-company, google, docs
+- [x] 49.3 Подключены в контроллеры: `@ApiBody({ type })`, `@ApiResponse({ status, type })`, `@ApiQuery` (params-company GET). Типы `@Body()`/`@Query()` оставлены модельными (DTO — только декораторами)
+- [x] 49.4 Верификация: `SwaggerModule.createDocument` → 25 путей, 49 схем; `tsc`, `lint` (0), backend (170/1115) и frontend (446/3093) тесты — зелёные
+
 ---
 
 ## Правила ведения плана
