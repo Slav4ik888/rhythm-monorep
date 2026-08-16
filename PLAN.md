@@ -71,8 +71,8 @@
 
 **Этап 27. widgets / pages**
 
-- [ ] 27.1 `widgets/` — auth, sidebar, navbar, footer, dashboard-view, dashboard-data, hints, message-bar, page-loader
-- [ ] 27.2 `pages/` — dashboard, company, company-profile, user-profile, demo, root
+- [x] 27.1 `widgets/` — auth, sidebar, navbar, footer, dashboard-view, dashboard-data, hints, message-bar, page-loader
+- [x] 27.2 `pages/` — dashboard, company, company-profile, user-profile, demo, root
 
 ### P4 — Чистка техдолга + документация
 

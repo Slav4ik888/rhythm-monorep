@@ -10,7 +10,7 @@
 | Backend unit       | 103    | 588   | контроллеры (integration) + models + guards/interceptors/decorators + libs/views/config |
 | Backend shared     | 50     | 377   | `src/shared/utils/**`                                                                   |
 | Backend validators | 17     | 150   | `src/libs/validators/**` + схемы                                                        |
-| Frontend           | 412    | 3034  | entities/shared/helpers/lib + часть widgets/pages                                       |
+| Frontend           | 427    | 3053  | entities/shared/helpers/lib + smoke-тесты widgets/pages (сессия 44)                     |
 | E2E (Playwright)   | 6      | 22    | guest/customer/admin + PWA-manifest                                                     |
 | E2E PWA (prod)     | 1      | 6     | `e2e/pwa/offline.spec.ts`                                                               |
 
@@ -71,14 +71,17 @@
 
 company, dashboard-data, dashboard-templates, hints, ui, user.
 
-### 3. `widgets/*` — покрыты только dashboard-render (14) и view-configurator (6)
+### 3. `widgets/*` — ✅ smoke-тесты добавлены (сессия 44)
 
-Не покрыты: auth, sidebar, navbar, footer, dashboard-view, dashboard-data, dashboard-templates,
-hints, message-bar, page-loader, page-error, offers, demo, logo-btn, ui-configurator, version.
+Smoke: auth/accept-cookie, sidebar, navbar, footer, dashboard-view/panel, dashboard-data/datebar,
+hints, message-bar, page-loader. Утилиты dashboard-render (14) и view-configurator (6) покрыты unit-тестами ранее.
 
-### 4. `pages/*` — smoke только на login(4), signup(4), not-found(1), not-access(1), policy(1)
+Остаются без smoke: dashboard-templates, page-error, offers, demo/goto-demo-btn, logo-btn, ui-configurator, version.
 
-Не покрыты: dashboard, company, company-profile, user-profile, demo, root.
+### 4. `pages/*` — ✅ smoke-тесты добавлены (сессия 44)
+
+Smoke: dashboard, company, company-profile, user-profile, demo, root (+ ранее: login(4), signup(4),
+not-found(1), not-access(1), policy(1)).
 
 ### 5. `entities/*` — не покрыты blocks, company-type, statistic-type (вероятно, типы/константы — низкий приоритет)
 

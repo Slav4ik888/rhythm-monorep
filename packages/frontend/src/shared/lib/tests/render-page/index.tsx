@@ -5,25 +5,25 @@
 import { ReactElement } from 'react';
 import { render, RenderResult } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createTheme, Theme, ThemeProvider } from '@mui/material/styles';
-import { customPalette as customPaletteLight } from 'app/providers/theme/model/themes/light-custom-palette';
-import { gradients as gradientsLight } from 'app/providers/theme/model/themes/light-gradients';
-import { borders } from 'app/providers/theme/model/themes/base/borders';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { getThemeByName } from 'app/providers/theme/utils/get-theme-by-name';
+import type { UIConfiguratorProviderState } from 'app/providers/theme';
 
 const muiTheme = createTheme();
 
-// Собираем светлую тему так же, как это делает getThemeByName в приложении:
-// customPalette + gradients + borders. В MUI v9 нет theme.borders по умолчанию,
-// а MDButton читает theme.borders.borderRadius — без него падает на деструктуризации.
-const theme = {
-  ...muiTheme,
-  borders: { ...borders },
-  palette: {
-    ...muiTheme.palette,
-    ...customPaletteLight,
-    gradients: gradientsLight,
-  },
-} as Theme & { borders: typeof borders };
+// Собираем тему так же, как UIConfiguratorProvider в приложении: getThemeByName
+// объединяет кастомную палитру, темы sidebar/navbar, градиенты, borders и breakpoints.
+// Упрощённая сборка (только customPalette) не подходит: Navbar читает palette.navbar,
+// Sidebar — palette.sidebar, без них падает на деструктуризации.
+// Как в UIConfiguratorProvider: результат getThemeByName дополнительно прогоняется
+// через createTheme, чтобы MUI дополнил breakpoints.up/down/between и прочие методы.
+const theme = createTheme(
+  getThemeByName(muiTheme, {
+    mode: 'light',
+    navbarColor: 'navbar_white',
+    sidebarColor: 'sidebar_black',
+  } as unknown as UIConfiguratorProviderState),
+);
 
 /**
  * Рендер страницы в контексте темы и роутера.

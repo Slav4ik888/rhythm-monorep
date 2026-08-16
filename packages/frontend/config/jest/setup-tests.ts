@@ -38,3 +38,39 @@ jest.mock('app/providers/theme/model/hooks/use-ui-configurator-controller', () =
     jest.fn(),
   ],
 }));
+
+// jsdom не реализует IntersectionObserver — его использует ProgressiveImage
+// (lazy loading изображений) в footer, navbar, sidebar, demo-страницах.
+// Используем фабрику-функцию (а не class), чтобы не нарушать max-classes-per-file.
+Object.assign(globalThis, {
+  IntersectionObserver: function IntersectionObserver() {
+    return {
+      root: null,
+      rootMargin: '',
+      thresholds: [],
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+      takeRecords: jest.fn(() => []),
+    };
+  },
+});
+
+// jsdom не реализует ResizeObserver — его использует HintContainer для отслеживания
+// размеров целевого элемента подсказки.
+Object.assign(globalThis, {
+  ResizeObserver: function ResizeObserver() {
+    return {
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    };
+  },
+});
+
+// react-helmet-async требует HelmetProvider в дереве компонентов; в тестах
+// страниц он не поднимается, поэтому подменяем на пассивную реализацию.
+jest.mock('react-helmet-async', () => ({
+  Helmet: ({ children }: { children?: React.ReactNode }) => children ?? null,
+  HelmetProvider: ({ children }: { children?: React.ReactNode }) => children ?? null,
+}));
