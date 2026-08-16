@@ -29,7 +29,7 @@ export class CompanyController {
     try {
       const args: UpdateCompanyArgs = {
         companyData: body.companyData,
-        userId: user.id,
+        user,
       };
       return await updateCompanyModel(args);
     } catch (err: unknown) {
@@ -52,7 +52,7 @@ export class CompanyController {
       const args: DeleteSheetArgs = {
         companyId: body.companyId,
         sheetId: body.sheetId,
-        userId: user.id,
+        user,
       };
       await companyDeleteSheetModel(args);
       return body;

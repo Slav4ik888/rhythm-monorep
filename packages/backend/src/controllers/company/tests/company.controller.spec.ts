@@ -75,7 +75,7 @@ describe('CompanyController (integration)', () => {
       expect(response.json()).toEqual(companyData);
       expect(updateCompanyModelMock).toHaveBeenCalledWith({
         companyData,
-        userId: 'user-1',
+        user: { id: 'user-1' },
       });
     });
 
@@ -115,7 +115,7 @@ describe('CompanyController (integration)', () => {
       expect(companyDeleteSheetModelMock).toHaveBeenCalledWith({
         companyId: 'c1',
         sheetId: 's1',
-        userId: 'user-1',
+        user: { id: 'user-1' },
       });
     });
 

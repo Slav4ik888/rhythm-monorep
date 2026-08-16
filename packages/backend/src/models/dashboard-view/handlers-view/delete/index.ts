@@ -1,6 +1,8 @@
 // packages/backend/src/models/dashboard-view/handlers-view/delete/index.ts
-// Рефакторинг: убран ctx, принимает DeleteViews + userId
 
+import { assertCanEditDashboard } from '../../../company/access';
+import { serviceGetCompany } from '../../../company/services';
+import type { User } from '../../../user/types';
 import { serviceDashboardViewDeleteGroup } from '../../services';
 import { PartialViewItemUpdate } from '../update';
 
@@ -11,22 +13,22 @@ export interface DeleteViews {
 }
 
 export interface DeleteViewsArgs extends DeleteViews {
-  userId: string;
+  user: User;
 }
 
 /**
  * @requires body.folder
  */
 export const deleteViewItemModel = async (args: DeleteViewsArgs): Promise<void> => {
-  const { viewItems = [], companyId, bunchUpdatedMs, userId } = args;
-
-  // TODO: Permissions
-  // TODO: Remove fields that are not allowed to be updated
-  // TODO: validateDeleteViewItem(userData);
+  const { viewItems = [], companyId, bunchUpdatedMs, user } = args;
 
   if (!companyId || !viewItems || !viewItems?.length || !bunchUpdatedMs) {
     throw Object.assign(new Error('invalid body required field'), { statusCode: 400 });
   }
 
-  await serviceDashboardViewDeleteGroup({ viewItems, companyId, bunchUpdatedMs, userId });
+  // Проверка прав на редактирование дашборда
+  const company = await serviceGetCompany(companyId);
+  assertCanEditDashboard(user, company);
+
+  await serviceDashboardViewDeleteGroup({ viewItems, companyId, bunchUpdatedMs, userId: user.id });
 };

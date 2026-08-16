@@ -1,5 +1,6 @@
 // packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts
 // Integration-тесты DashboardController (NestJS + Fastify, HTTP через app.inject)
+/* eslint-disable max-classes-per-file -- guard-заглушки: пустые классы-токены для overrideGuard */
 
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
@@ -7,6 +8,7 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { UnauthorizedException } from '@nestjs/common';
 import { DashboardController } from '../dashboard.controller';
 import { FirebaseAuthGuard } from '../../../guards/firebase-auth.guard';
+import { OptionalFirebaseAuthGuard } from '../../../guards/optional-firebase-auth.guard';
 import { getBunchesModel } from '../../../models/dashboard-view/handlers-bunch/get';
 import { createGroupViewItemsModel } from '../../../models/dashboard-view/handlers-view/create-group-items';
 import { updateGroupViewItemsModel } from '../../../models/dashboard-view/handlers-view/update';
@@ -26,6 +28,9 @@ jest.mock('../../../models/dashboard-view/handlers-view/delete', () => ({
 // Мокаем guard (пустой класс-токен), чтобы не тянуть models → redis (открытый handle)
 jest.mock('../../../guards/firebase-auth.guard', () => ({
   FirebaseAuthGuard: class FirebaseAuthGuard {},
+}));
+jest.mock('../../../guards/optional-firebase-auth.guard', () => ({
+  OptionalFirebaseAuthGuard: class OptionalFirebaseAuthGuard {},
 }));
 
 const getBunchesModelMock = getBunchesModel as jest.Mock;
@@ -65,6 +70,8 @@ describe('DashboardController (integration)', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(authGuardOk)
+      .overrideGuard(OptionalFirebaseAuthGuard)
+      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
@@ -90,7 +97,7 @@ describe('DashboardController (integration)', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual({ bunches });
-      expect(getBunchesModelMock).toHaveBeenCalledWith(body);
+      expect(getBunchesModelMock).toHaveBeenCalledWith({ ...body, user: undefined });
     });
 
     it('пробрасывает 400 от модели', async () => {
@@ -122,7 +129,7 @@ describe('DashboardController (integration)', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual(body);
-      expect(createGroupViewItemsModelMock).toHaveBeenCalledWith({ ...body, userId: 'user-1' });
+      expect(createGroupViewItemsModelMock).toHaveBeenCalledWith({ ...body, user: { id: 'user-1' } });
     });
 
     it('пробрасывает 400 от модели', async () => {
@@ -150,7 +157,7 @@ describe('DashboardController (integration)', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual(body);
-      expect(updateGroupViewItemsModelMock).toHaveBeenCalledWith({ ...body, userId: 'user-1' });
+      expect(updateGroupViewItemsModelMock).toHaveBeenCalledWith({ ...body, user: { id: 'user-1' } });
     });
 
     it('пробрасывает 400 от модели', async () => {
@@ -177,7 +184,7 @@ describe('DashboardController (integration)', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual({});
-      expect(deleteViewItemModelMock).toHaveBeenCalledWith({ ...body, userId: 'user-1' });
+      expect(deleteViewItemModelMock).toHaveBeenCalledWith({ ...body, user: { id: 'user-1' } });
     });
 
     it('пробрасывает 400 от модели', async () => {

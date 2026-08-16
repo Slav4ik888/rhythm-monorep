@@ -1,5 +1,8 @@
 import { BunchAction } from '../../../../shared/lib/structures/bunch';
-import { serviceUpdateTemplate, ServiceUpdateTemplateArgs } from '../../services/update';
+import { omit } from '../../../../shared/utils/objects/omit';
+import { assertCanEditTemplates } from '../../../company/access';
+import type { User } from '../../../user/types';
+import { serviceUpdateTemplate } from '../../services/update';
 import { PartialTemplate, Template } from '../../types';
 
 /** v.2025-07-01 */
@@ -13,16 +16,16 @@ export interface UpdateTemplate {
   fullSet?: boolean;
 }
 
+/** Аргументы updateTemplateModel */
+export interface UpdateTemplateArgs extends UpdateTemplate {
+  user: User;
+}
+
 /**
  * @requires body.AddNewViews
- * Рефакторинг: убрана зависимость от Koa ctx — принимает явные аргументы + userId.
  */
-export const updateTemplateModel = async (args: ServiceUpdateTemplateArgs): Promise<UpdateTemplate> => {
-  const { template, bunchUpdatedMs, bunchAction } = args;
-
-  // TODO: Permissions
-  // TODO: Remove fields that are not allowed to be updated
-  // TODO: validateNewView(userData);
+export const updateTemplateModel = async (args: UpdateTemplateArgs): Promise<UpdateTemplate> => {
+  const { template, bunchUpdatedMs, bunchAction, user } = args;
 
   if (!template || !bunchUpdatedMs || !bunchAction) {
     throw Object.assign(new Error('invalid body required field'), {
@@ -31,6 +34,19 @@ export const updateTemplateModel = async (args: ServiceUpdateTemplateArgs): Prom
     });
   }
 
-  const updated = await serviceUpdateTemplate(args);
+  // Шаблоны глобальные — менять может только владелец/привилегированная роль
+  assertCanEditTemplates(user);
+
+  // Отсекаем серверные поля (createdAt/lastChange)
+  const safeTemplate = omit(template, ['createdAt', 'lastChange']) as UpdateTemplate['template'];
+
+  const updated = await serviceUpdateTemplate({
+    template: safeTemplate,
+    bunchUpdatedMs,
+    bunchAction,
+    fullSet: args.fullSet,
+    userId: user.id,
+  });
+
   return updated;
 };

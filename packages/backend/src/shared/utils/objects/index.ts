@@ -12,8 +12,10 @@ export * from './get-object-without-field';
 export * from './get-scheme';
 export * from './get-value-by-scheme';
 export * from './is-changes';
-export * from './is-field';   // v.2024-11-09
+export * from './is-field'; // v.2024-11-09
 export * from './object-fields-to-string';
+export * from './pick';
+export * from './omit';
 export * from './set-value-by-scheme';
 export * from './size-of';
 export * from './update-object';

@@ -4,7 +4,9 @@
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { UnauthorizedException } from '@nestjs/common';
 import { TemplatesController } from '../templates.controller';
+import { FirebaseAuthGuard } from '../../../guards/firebase-auth.guard';
 import { getBunchesUpdatedModel } from '../../../models/templates/handlers/get-bunches-updated';
 import { getTemplatesModel } from '../../../models/templates/handlers/get-templates';
 import { updateTemplateModel } from '../../../models/templates/handlers/update';
@@ -17,6 +19,10 @@ jest.mock('../../../models/templates/handlers/get-bunches-updated', () => ({
 jest.mock('../../../models/templates/handlers/get-templates', () => ({ getTemplatesModel: jest.fn() }));
 jest.mock('../../../models/templates/handlers/update', () => ({ updateTemplateModel: jest.fn() }));
 jest.mock('../../../models/templates/handlers/delete', () => ({ deleteTemlateModel: jest.fn() }));
+// Мокаем guard (пустой класс-токен), чтобы не тянуть models → redis (открытый handle)
+jest.mock('../../../guards/firebase-auth.guard', () => ({
+  FirebaseAuthGuard: class FirebaseAuthGuard {},
+}));
 
 const getBunchesUpdatedModelMock = getBunchesUpdatedModel as jest.Mock;
 const getTemplatesModelMock = getTemplatesModel as jest.Mock;
@@ -33,13 +39,24 @@ const post = (app: NestFastifyApplication, url: string, payload: unknown) =>
     payload: payload as object,
   });
 
+// Guard-заглушка: «аутентифицированный» пользователь
+const authGuardOk = {
+  canActivate: (context) => {
+    context.switchToHttp().getRequest().user = { id: 'user-1' };
+    return true;
+  },
+};
+
 describe('TemplatesController (integration)', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [TemplatesController],
-    }).compile();
+    })
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(authGuardOk)
+      .compile();
 
     app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
     await app.init();
@@ -105,8 +122,8 @@ describe('TemplatesController (integration)', () => {
     });
   });
 
-  describe('POST /api/templates/update', () => {
-    it('обновляет шаблон, подставляя userId по умолчанию system', async () => {
+  describe('POST /api/templates/update (защищён)', () => {
+    it('обновляет шаблон, передавая пользователя из guard', async () => {
       const template = { id: 't1', type: 'chart' };
       const body = { bunchUpdatedMs: 123, template, bunchAction: 'add' };
       updateTemplateModelMock.mockResolvedValue(body);
@@ -115,25 +132,7 @@ describe('TemplatesController (integration)', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual(body);
-      // userId не был передан в body → используется значение по умолчанию 'system'
-      expect(updateTemplateModelMock).toHaveBeenCalledWith({ ...body, userId: 'system' });
-    });
-
-    it('пробрасывает userId из body', async () => {
-      const template = { id: 't1', type: 'chart' };
-      const body = { bunchUpdatedMs: 123, template, bunchAction: 'add', userId: 'user-1' };
-      updateTemplateModelMock.mockResolvedValue({ bunchUpdatedMs: 123, template, bunchAction: 'add' });
-
-      const response = await post(app, '/api/templates/update', body);
-
-      expect(response.statusCode).toBe(200);
-      // userId из body подставляется в модель, но не уходит в возвращаемое значение
-      expect(updateTemplateModelMock).toHaveBeenCalledWith({
-        bunchUpdatedMs: 123,
-        template,
-        bunchAction: 'add',
-        userId: 'user-1',
-      });
+      expect(updateTemplateModelMock).toHaveBeenCalledWith({ ...body, user: { id: 'user-1' } });
     });
 
     it('пробрасывает 400 от модели (invalid body required field)', async () => {
@@ -151,7 +150,7 @@ describe('TemplatesController (integration)', () => {
     });
   });
 
-  describe('POST /api/templates/delete', () => {
+  describe('POST /api/templates/delete (защищён)', () => {
     it('удаляет шаблон и возвращает его данные', async () => {
       const body = { bunchUpdatedMs: 123, templateId: 't1', bunchId: 'b1' };
       deleteTemlateModelMock.mockResolvedValue(body);
@@ -160,7 +159,7 @@ describe('TemplatesController (integration)', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual(body);
-      expect(deleteTemlateModelMock).toHaveBeenCalledWith(body);
+      expect(deleteTemlateModelMock).toHaveBeenCalledWith({ ...body, user: { id: 'user-1' } });
     });
 
     it('пробрасывает 400 от модели (invalid body required field)', async () => {
@@ -176,5 +175,48 @@ describe('TemplatesController (integration)', () => {
 
       expect(response.statusCode).toBe(400);
     });
+  });
+});
+
+describe('TemplatesController — защита FirebaseAuthGuard', () => {
+  let app: NestFastifyApplication;
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TemplatesController],
+    })
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue({
+        canActivate: () => {
+          throw new UnauthorizedException('Session verification failed');
+        },
+      })
+      .compile();
+
+    app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('возвращает 401 для /api/templates/update без сессии', async () => {
+    const response = await post(app, '/api/templates/update', {
+      bunchUpdatedMs: 123,
+      template: { id: 't1' },
+      bunchAction: 'add',
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('возвращает 401 для /api/templates/delete без сессии', async () => {
+    const response = await post(app, '/api/templates/delete', {
+      bunchUpdatedMs: 123,
+      templateId: 't1',
+      bunchId: 'b1',
+    });
+    expect(response.statusCode).toBe(401);
   });
 });

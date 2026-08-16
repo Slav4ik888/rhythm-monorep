@@ -51,7 +51,7 @@ export class UserController {
     try {
       const args: UpdateUserArgs = {
         userData: body.userData,
-        userId: user.id,
+        user,
       };
       await updateUserModel(args);
       return { success: true };

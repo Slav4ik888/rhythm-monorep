@@ -5,7 +5,7 @@
 import { Controller, Get, Post, Query, Body, HttpCode } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getParamsCompanyModel, GetParamsCompanyArgs } from '../../models/params-company/handlers/get';
-import { Company } from '../../models/company';
+import type { ParamsCompany } from '../../models/company/types';
 import { toHttpException } from '../../libs/errors';
 import { CompanyDto } from '../../dto/company.dto';
 import { GetParamsCompanyDto } from './dto';
@@ -24,7 +24,7 @@ export class ParamsCompanyController {
     type: String,
   })
   @ApiResponse({ status: 200, description: 'Параметры компании', type: CompanyDto })
-  async getParamsCompanyGet(@Query() query: GetParamsCompanyArgs): Promise<Company> {
+  async getParamsCompanyGet(@Query() query: GetParamsCompanyArgs): Promise<ParamsCompany> {
     try {
       return await getParamsCompanyModel(query);
     } catch (err: unknown) {
@@ -38,7 +38,7 @@ export class ParamsCompanyController {
   @ApiBody({ type: GetParamsCompanyDto })
   @ApiResponse({ status: 200, description: 'Параметры компании', type: CompanyDto })
   @HttpCode(200)
-  async postParamsCompanyGet(@Body() body: GetParamsCompanyArgs): Promise<Company> {
+  async postParamsCompanyGet(@Body() body: GetParamsCompanyArgs): Promise<ParamsCompany> {
     try {
       return await getParamsCompanyModel(body);
     } catch (err: unknown) {

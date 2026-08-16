@@ -122,6 +122,26 @@
 - [x] 50.4 `Promise<any>` → конкретные типы (`PartialCompany`, `SuccessResponseDto`, `FastifyReply`, `Record<string, never>`); `@Req() request: any` → типизированный `RequestWithCookies` (google)
 - [x] 50.5 Верификация: `tsc`, `lint` (0), backend-тесты (171 suites / 1119 тестов) — зелёные
 
+### Этап 51 — Server-side права доступа и валидация полей в handlers
+
+**Закрытие TODO «Permissions / Remove fields / validate» в `models/*/handlers`** (пропущенная server-side логика из TEST-AUDIT).
+
+- [x] 51.1 Модуль контроля доступа `models/company/access/` (зеркалит фронтовой `use-access`):
+      `ACCESS_PRIORITY`, `isOwner`, `isPrivileged`, `getUserDashboardAccess`, `canAccess`,
+      `checkDashboardAccess`, `canEditCompany`, `canEditDashboard` + `assert*` (кидают 403).
+- [x] 51.2 Утилиты `pick`/`omit` (`shared/utils/objects`) + фильтры полей (whitelist) для защиты от mass assignment:
+      `filterCompanyData`, `filterUserData`, `toParamsCompany`, `filterViewItem`.
+- [x] 51.3 Подключены права + фильтрация в handlers: company update/delete-sheet (владелец/привилегированные),
+      user update (person/settings, id/companyId из аутентифицированного пользователя),
+      dashboard-view create/update/delete (владелец или участник с правом `e`),
+      templates update/delete (владелец/привилегированные; добавлен `FirebaseAuthGuard`).
+- [x] 51.4 `OptionalFirebaseAuthGuard` + `extractSessionCookie`; проверка доступа в публичный
+      `dashboard/bunch/get` (`checkDashboardAccess` requiredAccess `v`), публичная проекция
+      `paramsCompany/get` (без `ownerId`/`createdAt`/`lastChange`).
+- [x] 51.5 Контроллеры передают `user` вместо `userId`; обновлены integration-тесты контроллеров;
+      unit-тесты access/фильтров/guard. Верификация: `tsc`, `lint` (0),
+      backend (181 suites / 1173 теста), frontend (446 suites / 3093 теста) — зелёные.
+
 ---
 
 ## Правила ведения плана

@@ -17,6 +17,7 @@ import {
 } from '../../models/dashboard-view/handlers-view/update';
 import { deleteViewItemModel, DeleteViews, DeleteViewsArgs } from '../../models/dashboard-view/handlers-view/delete';
 import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
+import { OptionalFirebaseAuthGuard } from '../../guards/optional-firebase-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { toHttpException } from '../../libs/errors';
 import type { User } from '../../models/user';
@@ -32,9 +33,10 @@ export class DashboardController {
   @ApiBody({ type: ReqGetBunchesDto })
   @ApiResponse({ status: 200, description: 'Группы элементов дашборда', type: ResGetBunchesDto })
   @HttpCode(200)
-  async bunchGet(@Body() body: ReqGetBunches): Promise<ResGetBunches> {
+  @UseGuards(OptionalFirebaseAuthGuard)
+  async bunchGet(@Body() body: ReqGetBunches, @CurrentUser() user?: User): Promise<ResGetBunches> {
     try {
-      return await getBunchesModel(body);
+      return await getBunchesModel({ ...body, user });
     } catch (err: unknown) {
       throw toHttpException(err);
     }
@@ -54,7 +56,7 @@ export class DashboardController {
     @CurrentUser() user: User,
   ): Promise<CreateGroupViewItems> {
     try {
-      const args: CreateGroupViewItemsArgs = { ...body, userId: user.id };
+      const args: CreateGroupViewItemsArgs = { ...body, user };
       return await createGroupViewItemsModel(args);
     } catch (err: unknown) {
       throw toHttpException(err);
@@ -74,7 +76,7 @@ export class DashboardController {
   @UseGuards(FirebaseAuthGuard)
   async viewUpdate(@Body() body: UpdateViewItem, @CurrentUser() user: User): Promise<UpdateViewItem> {
     try {
-      const args: UpdateViewItemArgs = { ...body, userId: user.id };
+      const args: UpdateViewItemArgs = { ...body, user };
       return await updateGroupViewItemsModel(args);
     } catch (err: unknown) {
       throw toHttpException(err);
@@ -92,7 +94,7 @@ export class DashboardController {
   @UseGuards(FirebaseAuthGuard)
   async viewDelete(@Body() body: DeleteViews, @CurrentUser() user: User): Promise<Record<string, never>> {
     try {
-      const args: DeleteViewsArgs = { ...body, userId: user.id };
+      const args: DeleteViewsArgs = { ...body, user };
       await deleteViewItemModel(args);
       return {};
     } catch (err: unknown) {

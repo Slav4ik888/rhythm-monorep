@@ -129,7 +129,7 @@ npx playwright test --project=admin        # Только админ
 - **`FirebaseAuthGuard`:** НЕ импортируй реальный guard — он тянет `models` → `libs/redis`, оставляет открытый handle и вешает завершение jest. Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(FirebaseAuthGuard).useValue({ canActivate })`.
 - **`ThrottlerGuard`** (`@nestjs/throttler`, глобально `ThrottlerModule.forRoot` в `app.module` + `@UseGuards` на `AuthController`): в бизнес-тестах отключай через `overrideGuard(ThrottlerGuard).useValue({ canActivate: () => true })`; тесты 429 — отдельный `describe` с `ThrottlerModule.forRoot([{ ttl, limit: 2 }])` без override и последовательными `app.inject` (см. `postSequentially` в `auth.controller.spec.ts`).
 
-**Итого (бэкенд):** 171 suites, 1119 тестов (unit 592 + shared 377 + validators 150), включая integration-тесты всех 10 контроллеров, unit-тесты guards/interceptors/decorators и unit-тесты libs/views/config.
+**Итого (бэкенд):** 181 suites, 1173 теста (unit 639 + shared 384 + validators 150), включая integration-тесты всех 10 контроллеров, unit-тесты guards/interceptors/decorators, unit-тесты libs/views/config и unit-тесты access-модуля (`models/company/access`).
 
 ## Приоритет блоков для покрытия тестами (Фронтенд)
 
@@ -153,8 +153,8 @@ npx playwright test --project=admin        # Только админ
 | customer | `e2e/customer/profile.spec.ts` | 2     |
 | admin    | `e2e/admin/dashboard.spec.ts`  | 2     |
 
-**Итого (весь проект):** 171 suites (backend) + 446 suites (frontend) + 6 suites (e2e) = **623 suites**;
-1119 тестов (backend) + 3093 тестов (frontend) + 22 теста (e2e) = **4234 теста**.
+**Итого (весь проект):** 181 suites (backend) + 446 suites (frontend) + 6 suites (e2e) = **633 suites**;
+1173 теста (backend) + 3093 теста (frontend) + 22 теста (e2e) = **4288 тестов**.
 
 **Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — smoke-тесты (guest/customer/admin) +
 сценарии входа/регистрации (моки `/api/*`), реферальной программы (`?ref=`), PWA (манифест + SW). **Lint:** 0 ошибок.

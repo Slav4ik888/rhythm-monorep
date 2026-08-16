@@ -106,7 +106,7 @@ describe('UserController (integration)', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual({ success: true });
-      expect(updateUserModelMock).toHaveBeenCalledWith({ userData, userId: 'user-1' });
+      expect(updateUserModelMock).toHaveBeenCalledWith({ userData, user: { id: 'user-1', companyId: 'company-1' } });
     });
 
     it('пробрасывает 400 от модели', async () => {

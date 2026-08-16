@@ -2,12 +2,15 @@
 // NestJS-контроллер для templates (миграция с Koa)
 // Заменяет controllers/templates/{get-bunches-updated, get-templates, update, delete}
 
-import { Controller, Get, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getBunchesUpdatedModel } from '../../models/templates/handlers/get-bunches-updated';
 import { getTemplatesModel, ReqGetTemplates, ResGetTemplates } from '../../models/templates/handlers/get-templates';
-import { updateTemplateModel, UpdateTemplate } from '../../models/templates/handlers/update';
-import { deleteTemlateModel, DeleteTemplate } from '../../models/templates/handlers/delete';
+import { updateTemplateModel, UpdateTemplate, UpdateTemplateArgs } from '../../models/templates/handlers/update';
+import { deleteTemlateModel, DeleteTemplate, DeleteTemplateArgs } from '../../models/templates/handlers/delete';
+import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import type { User } from '../../models/user';
 import { BunchesUpdated } from '../../shared/lib/structures/bunch';
 import { toHttpException } from '../../libs/errors';
 import { DeleteTemplateDto, ReqGetTemplatesDto, ResGetTemplatesDto, UpdateTemplateDto } from './dto';
@@ -53,14 +56,13 @@ export class TemplatesController {
   @ApiOperation({ summary: 'Обновление шаблона', description: 'POST /api/templates/update' })
   @ApiBody({ type: UpdateTemplateDto })
   @ApiResponse({ status: 200, description: 'Шаблон обновлён', type: UpdateTemplateDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
-  async updateTemplate(@Body() body: UpdateTemplate & { userId?: string }): Promise<UpdateTemplate> {
+  @UseGuards(FirebaseAuthGuard)
+  async updateTemplate(@Body() body: UpdateTemplate, @CurrentUser() user: User): Promise<UpdateTemplate> {
     try {
-      // TODO: получать userId из FirebaseAuthGuard, пока берём из body или используем заглушку
-      const userId = body.userId || 'system';
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { userId: _uid, ...rest } = body;
-      return await updateTemplateModel({ ...rest, userId });
+      const args: UpdateTemplateArgs = { ...body, user };
+      return await updateTemplateModel(args);
     } catch (err: unknown) {
       throw toHttpException(err);
     }
@@ -71,10 +73,13 @@ export class TemplatesController {
   @ApiOperation({ summary: 'Удаление шаблона', description: 'POST /api/templates/delete' })
   @ApiBody({ type: DeleteTemplateDto })
   @ApiResponse({ status: 200, description: 'Шаблон удалён', type: DeleteTemplateDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
-  async deleteTemplate(@Body() body: DeleteTemplate): Promise<DeleteTemplate> {
+  @UseGuards(FirebaseAuthGuard)
+  async deleteTemplate(@Body() body: DeleteTemplate, @CurrentUser() user: User): Promise<DeleteTemplate> {
     try {
-      return await deleteTemlateModel(body);
+      const args: DeleteTemplateArgs = { ...body, user };
+      return await deleteTemlateModel(args);
     } catch (err: unknown) {
       throw toHttpException(err);
     }

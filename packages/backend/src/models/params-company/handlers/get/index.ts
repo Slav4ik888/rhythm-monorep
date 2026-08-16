@@ -1,7 +1,9 @@
 // packages/backend/src/models/params-company/handlers/get/index.ts
 
 import { ERROR_NAME, getErrorText } from '../../../../libs/validators';
-import { Company, serviceGetCompany } from '../../../company';
+import { serviceGetCompany } from '../../../company';
+import { toParamsCompany } from '../../../company/utils';
+import type { ParamsCompany } from '../../../company/types';
 
 export interface GetParamsCompanyArgs {
   companyId: string;
@@ -9,11 +11,10 @@ export interface GetParamsCompanyArgs {
 }
 
 /**
- * Получает параметры компании по companyId.
- * Рефакторинг: убрана зависимость от Koa ctx — принимает явные аргументы,
- * выбрасывает ошибку вместо ctx.throw.
+ * Получает параметры компании по companyId (публичный эндпоинт).
+ * Отдаёт только публичные поля (без ownerId и служебных таймстампов).
  */
-export const getParamsCompanyModel = async (args: GetParamsCompanyArgs): Promise<Company> => {
+export const getParamsCompanyModel = async (args: GetParamsCompanyArgs): Promise<ParamsCompany> => {
   const { companyId } = args;
 
   if (!companyId) {
@@ -21,10 +22,13 @@ export const getParamsCompanyModel = async (args: GetParamsCompanyArgs): Promise
     throw Object.assign(new Error(message), { statusCode: 400, body: { general: message } });
   }
 
-  // TODO: Получать не целиком данные компании а только для проверки полномочий доступа
-  // TODO: Check permissons for companyId
-  // для неавторизованных отдавать только необходимые поля
-
   const company = await serviceGetCompany(companyId);
-  return company;
+
+  if (!company) {
+    const message = 'Компания не найдена';
+    throw Object.assign(new Error(message), { statusCode: 404, body: { general: message } });
+  }
+
+  // Публичная проекция: только поля, нужные не-владельцу (без ownerId, createdAt, lastChange)
+  return toParamsCompany(company);
 };

@@ -1,21 +1,23 @@
 import { ERROR_NAME, getErrorText } from '../../../../libs/validators';
 import { serviceDashboardViewGetAllViewItems } from '../../../dashboard-view/services';
-import { serviceCompanyDeleteSheet } from '../../services';
+import type { User } from '../../../user/types';
+import { assertCanEditCompany } from '../../access';
+import { serviceCompanyDeleteSheet, serviceGetCompany } from '../../services';
 import { isSheetNotEmpty } from '../../utils';
 
-/** Аргументы для удаления листа (рефакторинг: без ctx) */
+/** Аргументы для удаления листа */
 export interface DeleteSheetArgs {
   companyId: string;
   sheetId: string;
-  userId: string;
+  user: User;
 }
 
 /**
  * Удаляет лист (sheet) компании.
- * Рефакторинг: убрана зависимость от Koa ctx — принимает аргументы напрямую.
+ * Проверяет права (владелец или привилегированная роль).
  */
 export const companyDeleteSheetModel = async (args: DeleteSheetArgs): Promise<void> => {
-  const { companyId, sheetId, userId } = args;
+  const { companyId, sheetId, user } = args;
 
   if (!companyId || !sheetId) {
     throw Object.assign(new Error(getErrorText(ERROR_NAME.INVALID_DATA)), {
@@ -24,7 +26,9 @@ export const companyDeleteSheetModel = async (args: DeleteSheetArgs): Promise<vo
     });
   }
 
-  // TODO: Permissions
+  // Проверка прав: удалять листы может только владелец или привилегированная роль
+  const company = await serviceGetCompany(companyId);
+  assertCanEditCompany(user, company);
 
   // Проверка наличия вложенных ViewItems - Нельзя удалять пока они есть
   const viewItems = await serviceDashboardViewGetAllViewItems(companyId);
@@ -36,7 +40,7 @@ export const companyDeleteSheetModel = async (args: DeleteSheetArgs): Promise<vo
   }
 
   // Delete
-  await serviceCompanyDeleteSheet(companyId, sheetId, userId);
+  await serviceCompanyDeleteSheet(companyId, sheetId, user.id);
 };
 
 /** Сигнатура для обратной совместимости с Koa-контроллером */

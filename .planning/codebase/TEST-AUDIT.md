@@ -108,3 +108,12 @@ not-found(1), not-access(1), policy(1)).
    заменена на `FastifyRequest` / типизированные ошибки (сессия 45); `any` в контроллерах устранён (сессия 50):
    `@CurrentUser() user: any` → `User`, `catch (err: any)` → `catch (err: unknown)` + `libs/errors/toHttpException`.
 6. **Захардкоженные ID** (`internalUsers`) — ✅ вынесены в `cfg.INTERNAL_USERS` (env `INTERNAL_USERS`, сессия 45).
+7. **Права доступа и валидация полей в handlers** — ✅ реализовано (сессия 51):
+   - модуль `models/company/access/` (зеркалит фронтовой `use-access`): `isOwner`, `isPrivileged`,
+     `checkDashboardAccess`, `canEditCompany`, `canEditDashboard`, `assert*` (403);
+   - фильтры-whitelist `pick`/`omit` против mass assignment (`filterCompanyData`, `filterUserData`,
+     `toParamsCompany`, `filterViewItem`);
+   - handlers company/user/dashboard-view/templates проверяют права и отсекают запрещённые поля;
+   - `templates/update|delete` переведены под `FirebaseAuthGuard` (раньше userId брался из body);
+   - публичные `dashboard/bunch/get` (через `OptionalFirebaseAuthGuard` + `checkDashboardAccess`) и
+     `paramsCompany/get` (только `ParamsCompany`-проекция, без `ownerId`/таймстампов).

@@ -8,7 +8,7 @@ import { admin } from '../libs/firebase/config/admin-sdk';
 import { loggerAuth } from '../libs/loggers';
 import models from '../models';
 import type { User } from '../models/user';
-import { cfg } from '../app/config';
+import { extractSessionCookie } from './extract-session-cookie';
 
 /** FastifyRequest, в который FirebaseAuthGuard кладёт аутентифицированного пользователя */
 interface AuthenticatedRequest extends FastifyRequest {
@@ -53,23 +53,9 @@ export class FirebaseAuthGuard implements CanActivate {
     }
   }
 
-  /** Извлекает session cookie из Fastify-запроса */
+  /** Извлекает session cookie из Fastify-запроса (обёртка над общим хелпером) */
   // eslint-disable-next-line class-methods-use-this
   private extractSessionCookie(request: AuthenticatedRequest): string | null {
-    const cookies = request.cookies || {};
-    const cookieValue: string = cookies[cfg.COOKIE_NAME] || '';
-
-    if (!cookieValue) {
-      const cookieHeader: string = request.headers?.cookie || '';
-      const match = cookieHeader.match(new RegExp(`${cfg.COOKIE_NAME}=([^;]+)`));
-      if (match) {
-        const parts = match[1].split('/');
-        return parts[1] || null;
-      }
-      return null;
-    }
-
-    const parts = cookieValue.split('/');
-    return parts[1] || null;
+    return extractSessionCookie(request);
   }
 }
