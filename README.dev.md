@@ -516,4 +516,34 @@ docker compose down              # остановить (данные эмуля
 
 Подключение бэкенда к эмуляторам — через `packages/backend/.env`:
 `FIRESTORE_EMULATOR_HOST=localhost:8080` и `FIREBASE_AUTH_EMULATOR_HOST=localhost:9099`
-(Admin SDK подхватывает их автоматически).
+(Admin SDK подхватывает их автоматически; client SDK `firebase/auth` подключается через
+`connectAuthEmulator` в `libs/firebase/config/fire.ts`).
+
+**Важно — projectId.** Эмулятор запускается с `--project rhythm-g2d7` (см. `command` в
+`docker-compose.yml` / `CMD` в `docker/firebase/Dockerfile`). Это значение **должно совпадать**
+с `FIREBASE_PROJECT_ID` из `packages/backend/.env`: иначе client SDK и Admin SDK попадают в разные
+тенанты Auth-эмулятора и вход по email падает с `auth/user-not-found` (эмулятор пишет предупреждение
+«Multiple projectIds are not recommended in single project mode»). Admin SDK также должен явно
+получать `projectId` в `initializeApp` (см. `libs/firebase/config/admin-sdk.ts`).
+
+### Сиды и «реальные» сценарии входа/регистрации
+
+```bash
+# 1. Поднять эмуляторы
+docker compose up -d
+
+# 2. Наполнить эмуляторы seed-данными (owner@rhythm.test + компания)
+npm run seed:emulators -w packages/backend
+
+# 3. Прогнать сценарии входа/регистрации против реальных эмуляторов
+npm run test:emulators -w packages/backend
+```
+
+- `seed:emulators` — идемпотентный скрипт (`packages/backend/src/scripts/seed-emulators.ts`):
+  создаёт владельца `owner@rhythm.test` / `Password123!` (Auth через `admin.auth().createUser`)
+  и активную компанию + пользователя в Firestore. Запускается только при заданных
+  `FIRESTORE_EMULATOR_HOST` / `FIREBASE_AUTH_EMULATOR_HOST` (защита от записи в боевой Firebase).
+- `test:emulators` — отдельный Jest-прогон (`jest.config-emulators.ts`, файлы `*.emulators.spec.ts`),
+  покрывающий вход seed-пользователя и полный цикл регистрации (byEmailStart → код из Redis →
+  byEmailEnd → вход). Не входит в обычный `npm test` (`.emulators.` исключён в `jest.config.ts`).
+  Требует поднятых эмуляторов + Redis и запущенного seed.

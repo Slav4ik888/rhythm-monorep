@@ -2,55 +2,70 @@
 
 ## Дата
 
-16.08.2026 (сессия 47)
+16.08.2026 (сессия 48)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 47 — разблокировка окружения (Docker + эмуляторы Firebase)
+### Этап 47 — реальные сценарии входа/регистрации против эмуляторов (закрыт)
 
-Задача «реальные сценарии входа/регистрации против Firebase Auth/Firestore/Redis-эмуляторов + сиды»
-(сессия 46, шаг 1) была заблокирована отсутствием Docker. В этой сессии окружение разблокировано:
+Этап 47 полностью выполнен (47.1–47.5). Реальные сценарии входа/регистрации работают против
+Firebase Auth/Firestore/Redis-эмуляторов + сиды.
 
-1. **Docker Desktop 29.7.2** установлен (macOS arm64), `docker compose` v5.3.1.
-2. **`docker-compose.yml` переработан:** удалённые/устаревшие сторонние образы
-   (`spurin/firebase-auth-emulator` — 404 на Docker Hub, `mtlynch/firestore-emulator` — только amd64,
-   `oittaa/gcp-storage-emulator`) заменены на **официальный Firebase Emulator Suite**
-   (Auth + Firestore + Storage) в одном контейнере + `redis:7-alpine`.
-3. Новые файлы: `docker/firebase/Dockerfile` (Node 20 + Java 21 + firebase-tools 15.x),
-   `firebase.json` (auth 9099 / firestore 8080 / storage 9199 / UI 4000), `storage.rules`.
-4. Стек поднят и проверен: `docker compose up -d` → `rhythm-firebase-emulators` + `rhythm-redis`
-   работают; порты отвечают (auth 200, firestore 200, ui 200, storage 501 на `/` — норма, redis PONG).
-5. `VERSION` → **2.47.0** (синхронно в обоих `config/index.ts`), `ASSEMBLY_DATE` = `2026-08-16`.
-   Обновлены `PLAN.md` (этап 47), `README.dev.md` (секция «Docker Compose»).
+1. **47.3 Настройка бэкенда на эмуляторы:**
+   - `packages/backend/.env` / `.env.example`: добавлены `FIRESTORE_EMULATOR_HOST=localhost:8080`
+     и `FIREBASE_AUTH_EMULATOR_HOST=localhost:9099`.
+   - `libs/firebase/config/fire.ts`: client SDK подключается через `connectAuthEmulator` под
+     env-флагом `FIREBASE_AUTH_EMULATOR_HOST`.
+   - **`libs/firebase/config/admin-sdk.ts`: в `admin.initializeApp` явно передан `projectId`**
+     (иначе Admin SDK берёт projectId из метаданных → `undefined`, а client SDK использует
+     `FIREBASE_PROJECT_ID` → пользователи попадают в разные тенанты Auth-эмулятора, вход —
+     `auth/user-not-found`).
+2. **Исправлен projectId эмулятора:** `docker-compose.yml` (`command`) и `docker/firebase/Dockerfile`
+   (`CMD`) запускали эмуляторы с `--project rhy-thm-su`, а SDK ходили с `rhythm-g2d7`.
+   Приведено к `rhythm-g2d7` (совпадает с `FIREBASE_PROJECT_ID`).
+3. **47.4 Сиды:** `packages/backend/src/scripts/seed-emulators.ts` (`npm run seed:emulators`) —
+   идемпотентный скрипт, создаёт `owner@rhythm.test` / `Password123!` (Auth через
+   `admin.auth().createUser`) + активную компанию + пользователя в Firestore. Защита от записи
+   в боевой Firebase (требует эмуляторные env-переменные).
+4. **47.5 Тесты:** `packages/backend/src/emulators/auth.emulators.spec.ts` + отдельный
+   `jest.config-emulators.ts` + `setup-emulators.ts`. Прогон: `npm run test:emulators -w packages/backend`.
+   Покрыто: вход seed-пользователя, неверный пароль, полный цикл регистрации
+   (byEmailStart → код из Redis → byEmailEnd → вход). Обычный `npm test` их НЕ запускает
+   (`.emulators.` добавлен в `testPathIgnorePatterns` в `jest.config.ts`).
+5. `VERSION` → **2.48.0** (синхронно в обоих `config/index.ts`), `ASSEMBLY_DATE` = `2026-08-16`.
+   Обновлены `PLAN.md` (47.3–47.5), `README.dev.md` (projectId + сиды + test:emulators).
 
 ## Следующие шаги
 
-1. **Настроить бэкенд на эмуляторы (47.3):**
-   - `packages/backend/.env`: `FIRESTORE_EMULATOR_HOST=localhost:8080`,
-     `FIREBASE_AUTH_EMULATOR_HOST=localhost:9099` (Admin SDK подхватывает автоматически).
-   - Client SDK `firebase/auth` (`packages/backend/src/libs/firebase/config/fire.ts`) подключить через
-     `connectAuthEmulator(auth, ...)` под env-флагом — иначе `signInWithEmailAndPassword` /
-     `createUserWithEmailAndPassword` пойдут в боевой Firebase, а не в эмулятор.
-2. **Сиды (47.4)** — seed-данные пользователя/компании в эмуляторы (Auth через `admin.auth().createUser()`,
-   Firestore через `db`).
-3. **Реальные сценарии входа/регистрации (47.5)** против эмуляторов (сейчас флоу покрыт моками
-   `page.route()`, см. README.dev.md §«Наборы E2E-тестов»).
-4. Опционально — полные схемы запросов/ответов в Swagger (DTO + `@ApiProperty`/`@ApiBody`).
+1. **Опционально — Swagger (DTO + `@ApiProperty`/`@ApiBody`):** полные схемы запросов/ответов
+   для всех эндпоинтов (пока Swagger UI на `/api/docs` есть, но без детальных DTO).
+2. **Опционально — расширить эмулятор-тесты:** getAuth с session cookie
+   (`admin.auth().createSessionCookie` + `verifySessionCookie`), сброс пароля.
+3. Дальше — по плану развития (новые фичи этапа 2: оплата/эквайринг, либо чистка техдолга).
 
 ## Коммит
 
-`infra: поднят стек эмуляторов Firebase (Emulator Suite) + Redis через docker compose`
+`feat: эмуляторы Firebase — сиды и реальные сценарии входа/регистрации (этап 47)`
 
 ## Предупреждения/заметки
 
-- **firebase-tools 15.x требует Java 21+** (не 17). Базовый образ `eclipse-temurin:21-jre-jammy` + Node 20.
-- **Storage-эмулятор требует правила** на ВЕРХНЕМ уровне `firebase.json`:
-  `"storage": { "rules": "storage.rules" }` (не в `emulators.storage.rules`).
-- **Данные эмуляторов in-memory** (сбрасываются при `docker compose down`/рестарте). Кэш бинарников
-  персистится в volume `firebase-emulator-cache`.
-- `docker compose up -d` без `--build` пересоздаёт контейнер при изменении `firebase.json`/монтируемых
-  файлов; при изменении `Dockerfile` нужен `docker compose up -d --build`.
+- **projectId эмулятора (`--project` в docker-compose.yml/Dockerfile) ДОЛЖЕН совпадать с
+  `FIREBASE_PROJECT_ID` из `packages/backend/.env`.** Иначе client SDK и Admin SDK попадают в
+  разные тенанты Auth-эмулятора → вход падает с `auth/user-not-found` (эмулятор пишет
+  «Multiple projectIds are not recommended in single project mode»). Зафиксировано в README.dev.md.
+- **Admin SDK должен явно получать `projectId` в `initializeApp`** (см. admin-sdk.ts), иначе
+  `admin.app().options.projectId === undefined` и та же проблема тенантов.
+- `test:emulators` / `seed:emulators` — отдельные npm-скрипты, НЕ входят в обычный `npm test`.
+- В Auth-эмуляторе неверный пароль возвращает `auth/wrong-password` (боевой client SDK —
+  `auth/invalid-credential`).
+- **Анти-спам signup:** между `byEmailStart` и `byEmailEnd` должно пройти ≥ 5 сек
+  (`SIGNUP_CODE_ANSWER_DELAY`), иначе 400 «Слишком частая попытка ответа». В эмулятор-тесте —
+  задержка `ANSWER_DELAY_MS = 5200`.
+- `signupData.partnerId` валидируется как `string` (схема), фронтенд шлёт `''` при отсутствии
+  реферера (не `null`).
 - **`import/first`:** импорты пишутся ДО `jest.mock(...)`; jest сам поднимает моки (hoisting).
-- **Конфиги Jest фронтенда:** `test:features` матчит только `**/features/**/*.test.ts`; smoke-тесты
+- Конфиги Jest фронтенда: `test:features` матчит только `**/features/**/*.test.ts`; smoke-тесты
   виджетов пишутся как `*.test.tsx` (подхватываются `test:unit`).
+- Данные эмуляторов in-memory (сбрасываются при `docker compose down`/рестарте). После рестарта
+  нужен повторный `npm run seed:emulators`.
 - Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.

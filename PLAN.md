@@ -98,10 +98,10 @@
       (Auth 9099 / Firestore 8080 / Storage 9199 / UI 4000) + Redis 6379. Заменены удалённые/устаревшие
       сторонние образы (`spurin/firebase-auth-emulator` и др.) на Emulator Suite
       (`docker/firebase/Dockerfile` + `firebase.json` + `storage.rules`)
-- [ ] 47.3 Настроить бэкенд на эмуляторы: `FIRESTORE_EMULATOR_HOST` / `FIREBASE_AUTH_EMULATOR_HOST`
-      в `.env` + `connectAuthEmulator` для client SDK `firebase/auth`
-- [ ] 47.4 Сиды (seed-данные пользователя/компании) в эмуляторы
-- [ ] 47.5 Реальные сценарии входа/регистрации против эмуляторов (тесты)
+- [x] 47.3 Настроить бэкенд на эмуляторы: `FIRESTORE_EMULATOR_HOST` / `FIREBASE_AUTH_EMULATOR_HOST`
+      в `.env` + `connectAuthEmulator` для client SDK `firebase/auth` (+ `projectId` в `admin.initializeApp`)
+- [x] 47.4 Сиды (seed-данные пользователя/компании) в эмуляторы (`scripts/seed-emulators.ts`, `npm run seed:emulators`)
+- [x] 47.5 Реальные сценарии входа/регистрации против эмуляторов (тесты: `*.emulators.spec.ts`, `npm run test:emulators`)
 
 ---
 

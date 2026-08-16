@@ -7,6 +7,10 @@ services:
     build:
       context: ./docker/firebase
     container_name: rhythm-firebase-emulators
+    # command переопределяет CMD из Dockerfile: projectId должен совпадать с
+    # FIREBASE_PROJECT_ID (packages/backend/.env), чтобы Auth-эмулятор не разводил
+    # client SDK и Admin SDK по разным тенантам (иначе вход — auth/user-not-found).
+    command: firebase emulators:start --project rhythm-g2d7 --only auth,firestore,storage
     ports:
       - '4000:4000' # Emulator UI
       - '8080:8080' # Firestore

@@ -30,7 +30,9 @@ const config: Config = {
     '**/?(*.)+(spec|test).[tj]s?(x)',
   ],
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ['/node_modules/', '/shared/', '/server/'],
+  // `.emulators.`-тесты требуют поднятых эмуляторов — они живут в отдельном конфиге
+  // (jest.config-emulators.ts, npm run test:emulators).
+  testPathIgnorePatterns: ['/node_modules/', '/shared/', '/server/', '\\.emulators\\.'],
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   setupFilesAfterEnv: ['<rootDir>setup-tests.ts'],
 };

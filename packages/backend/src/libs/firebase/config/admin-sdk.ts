@@ -11,6 +11,10 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   admin.initializeApp();
 } else {
   admin.initializeApp({
+    // projectId задаём явно: иначе Admin SDK берёт его из GOOGLE_CLOUD_PROJECT/метаданных,
+    // и в Auth-эмуляторе пользователи попадают в другой тенант (projectId undefined),
+    // чем у client SDK (FIREBASE_PROJECT_ID) — вход по email ломается (auth/user-not-found).
+    projectId: process.env.FIREBASE_PROJECT_ID || '',
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID || '',
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
