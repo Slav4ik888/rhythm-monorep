@@ -142,6 +142,20 @@
       unit-тесты access/фильтров/guard. Верификация: `tsc`, `lint` (0),
       backend (181 suites / 1173 теста), frontend (446 suites / 3093 теста) — зелёные.
 
+### Этап 52 — Rate limiting на не-auth эндпоинтах
+
+**Защита публичных read-эндпоинтов от DoS** (закрытие пункта техдолга «Rate limiting на не-auth эндпоинтах» из prompt-for-next сессии 51; продолжение этапа 24, где лимиты были навешаны только на auth).
+
+- [x] 52.1 Подключён `@UseGuards(ThrottlerGuard)` на публичных эндпоинтах:
+      `paramsCompany/get` (GET+POST), `dashboard/bunch/get` (POST, вместе с `OptionalFirebaseAuthGuard`),
+      `templates/getBunchesUpdated` (GET), `templates/getTemplates` (POST), `getPolicy` (GET), `getData` (POST).
+      Лимит по умолчанию из `app.module` (`ThrottlerModule.forRoot`, 10 запросов/мин на IP).
+- [x] 52.2 Документирован статус 429 в Swagger (`@ApiResponse({ status: 429 })`) для всех перечисленных эндпоинтов.
+- [x] 52.3 Integration-тесты 429: отдельный `describe` с `ThrottlerModule.forRoot([{ ttl: 60_000, limit: 2 }])`
+      без override guard + последовательные `app.inject` (по образцу `auth.controller.spec.ts`).
+      Бизнес-тесты переведены на `ThrottlerModule.forRoot([{ ttl: 60_000, limit: 1000 }])` + `overrideGuard(ThrottlerGuard)`.
+- [x] 52.4 Верификация: `tsc`, `lint` (0), backend (181 suites / 1178 тестов), frontend (446 suites / 3093 теста) — зелёные.
+
 ---
 
 ## Правила ведения плана

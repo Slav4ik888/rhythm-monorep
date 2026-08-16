@@ -2,7 +2,8 @@
 // NestJS-контроллер для google/getData (миграция с Koa)
 // Заменяет controllers/google/get-data
 
-import { Controller, Post, Body, Req, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, Req, HttpException, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { googleGetDataModel, GoogleGetDataArgs } from '../../models/google/handlers';
 import { serviceGetCompany } from '../../models/company';
@@ -19,6 +20,8 @@ interface RequestWithCookies extends FastifyRequest {
 
 @ApiTags('dashboard')
 @Controller('api')
+// Rate limiting на публичном read-эндпоинте (защита от DoS). Лимит по умолчанию из app.module (10/мин).
+@UseGuards(ThrottlerGuard)
 export class GoogleController {
   // Маршрут без префикса модуля — как в Koa-роутере (prefix '/api' + '/getData')
   // и во фронтенде (API_PATHS.google.getData = '/getData')
@@ -27,6 +30,7 @@ export class GoogleController {
   @ApiBody({ type: GoogleGetDataDto })
   @ApiResponse({ status: 200, description: 'Данные из Google Таблицы' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 429, description: 'Превышен лимит запросов' })
   @HttpCode(200)
   async getData(@Body() body: GoogleGetDataArgs, @Req() request: RequestWithCookies): Promise<string> {
     try {

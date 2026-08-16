@@ -3,6 +3,7 @@
 // Заменяет controllers/dashboard/bunch/get, view/createGroupItems, view/update, view/delete
 
 import { Controller, Post, Patch, Body, HttpCode, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getBunchesModel, ReqGetBunches, ResGetBunches } from '../../models/dashboard-view/handlers-bunch/get';
 import {
@@ -32,8 +33,10 @@ export class DashboardController {
   @ApiOperation({ summary: 'Получение групп элементов дашборда', description: 'POST /api/dashboard/bunch/get' })
   @ApiBody({ type: ReqGetBunchesDto })
   @ApiResponse({ status: 200, description: 'Группы элементов дашборда', type: ResGetBunchesDto })
+  @ApiResponse({ status: 429, description: 'Превышен лимит запросов' })
   @HttpCode(200)
-  @UseGuards(OptionalFirebaseAuthGuard)
+  // Rate limiting на публичном read-эндпоинте (защита от DoS). Лимит по умолчанию из app.module (10/мин).
+  @UseGuards(OptionalFirebaseAuthGuard, ThrottlerGuard)
   async bunchGet(@Body() body: ReqGetBunches, @CurrentUser() user?: User): Promise<ResGetBunches> {
     try {
       return await getBunchesModel({ ...body, user });

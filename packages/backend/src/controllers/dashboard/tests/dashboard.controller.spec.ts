@@ -6,6 +6,7 @@ import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { UnauthorizedException } from '@nestjs/common';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DashboardController } from '../dashboard.controller';
 import { FirebaseAuthGuard } from '../../../guards/firebase-auth.guard';
 import { OptionalFirebaseAuthGuard } from '../../../guards/optional-firebase-auth.guard';
@@ -66,11 +67,15 @@ describe('DashboardController (integration)', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      // Большой лимит + мок guard: здесь проверяется бизнес-логика, а не rate limiting (отдельный describe ниже).
+      imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 1000 }])],
       controllers: [DashboardController],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(authGuardOk)
       .overrideGuard(OptionalFirebaseAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(ThrottlerGuard)
       .useValue({ canActivate: () => true })
       .compile();
 
@@ -208,6 +213,7 @@ describe('DashboardController — защита FirebaseAuthGuard', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 1000 }])],
       controllers: [DashboardController],
     })
       .overrideGuard(FirebaseAuthGuard)
@@ -216,6 +222,8 @@ describe('DashboardController — защита FirebaseAuthGuard', () => {
           throw new UnauthorizedException('Session verification failed');
         },
       })
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
@@ -234,5 +242,46 @@ describe('DashboardController — защита FirebaseAuthGuard', () => {
       viewItems: [],
     });
     expect(response.statusCode).toBe(401);
+  });
+});
+
+describe('DashboardController — rate limiting (429)', () => {
+  let app: NestFastifyApplication;
+
+  beforeAll(async () => {
+    // Маленький лимит + реальный ThrottlerGuard (без override) — проверяем 429.
+    const moduleRef = await Test.createTestingModule({
+      imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 2 }])],
+      controllers: [DashboardController],
+    })
+      .overrideGuard(OptionalFirebaseAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
+
+    app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/dashboard/bunch/get: превышение лимита (2) → 429', async () => {
+    getBunchesModelMock.mockResolvedValue({ bunches: { b1: { id: 'b1' } } });
+
+    const responses = [];
+    for (let i = 0; i < 3; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      responses.push(await post(app, '/api/dashboard/bunch/get', { companyId: 'c1', bunchIds: ['b1'] }));
+    }
+
+    expect(responses[0].statusCode).toBe(200);
+    expect(responses[1].statusCode).toBe(200);
+    expect(responses[2].statusCode).toBe(429);
   });
 });

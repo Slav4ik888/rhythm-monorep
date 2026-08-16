@@ -3,6 +3,7 @@
 // Заменяет controllers/templates/{get-bunches-updated, get-templates, update, delete}
 
 import { Controller, Get, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getBunchesUpdatedModel } from '../../models/templates/handlers/get-bunches-updated';
 import { getTemplatesModel, ReqGetTemplates, ResGetTemplates } from '../../models/templates/handlers/get-templates';
@@ -29,6 +30,9 @@ export class TemplatesController {
     description: 'Обновлённые группы шаблонов',
     schema: { type: 'object', additionalProperties: { type: 'number' } },
   })
+  @ApiResponse({ status: 429, description: 'Превышен лимит запросов' })
+  // Rate limiting на публичном read-эндпоинте (защита от DoS). Лимит по умолчанию из app.module (10/мин).
+  @UseGuards(ThrottlerGuard)
   async getBunchesUpdated(): Promise<BunchesUpdated> {
     try {
       return await getBunchesUpdatedModel();
@@ -42,7 +46,10 @@ export class TemplatesController {
   @ApiOperation({ summary: 'Получение шаблонов', description: 'POST /api/templates/getTemplates' })
   @ApiBody({ type: ReqGetTemplatesDto })
   @ApiResponse({ status: 200, description: 'Список шаблонов', type: ResGetTemplatesDto })
+  @ApiResponse({ status: 429, description: 'Превышен лимит запросов' })
   @HttpCode(200)
+  // Rate limiting на публичном read-эндпоинте (защита от DoS). Лимит по умолчанию из app.module (10/мин).
+  @UseGuards(ThrottlerGuard)
   async getTemplates(@Body() body: ReqGetTemplates): Promise<ResGetTemplates> {
     try {
       return await getTemplatesModel(body);
