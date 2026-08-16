@@ -2,61 +2,55 @@
 
 ## Дата
 
-16.08.2026 (сессия 46)
+16.08.2026 (сессия 47)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 29 (P4) — закрытие frontend-пробелов из TEST-AUDIT.md (закрыт)
+### Этап 47 — разблокировка окружения (Docker + эмуляторы Firebase)
 
-Добиты тестовые пробелы фронтенда, отмеченные в `.planning/codebase/TEST-AUDIT.md` §2/§3.
+Задача «реальные сценарии входа/регистрации против Firebase Auth/Firestore/Redis-эмуляторов + сиды»
+(сессия 46, шаг 1) была заблокирована отсутствием Docker. В этой сессии окружение разблокировано:
 
-1. **29.1 Unit-тесты `features/` (7 файлов):**
-   - `dashboard-data` → `transform-gs-data` (`transformGSData` транспонирование + `getEntities` извлечение сущностей/дат);
-   - `dashboard-data` → `get-ms-from-ref` (timestamp из ref);
-   - `dashboard-templates` → `chartOptionsToRemove` (константа путей опций);
-   - `user` → `store.test.ts` (`serviceUpdateUser`, `serviceLogout` — моки `userApi` + entities-сторов);
-   - `hints` → `use-features-hints` (`serviceDontShowAgain` — renderHook + реальный `useHintsStore`);
-   - `company` → `DeleteMemberIconContainer` (smoke + клик → `updateCompany`);
-   - `ui` → `ClearCacheBtn` (smoke-рендер).
-2. **29.2 Smoke-тесты `widgets/` (7 файлов):**
-   `version`, `logo-btn`, `offers`, `page-error`, `demo/goto-demo-btn`, `ui-configurator`,
-   `dashboard-templates` (OpenTemplatesBtn + DashboardTemplates).
-
-### Прочее
-
-- `VERSION` → **2.46.0** (синхронно в `packages/frontend/src/app/config/index.ts` и
-  `packages/backend/src/app/config/index.ts`), `ASSEMBLY_DATE` = `2026-08-16`.
-- Обновлены `PLAN.md` (этап 29 → `[x]`), `.clinerules/test-policy.md` (статусы features/widgets,
-  итоговые цифры), `.planning/codebase/TEST-AUDIT.md` (§2/§3).
-- Итог прогона: backend 170 suites / 1115 тестов; frontend 446 suites / 3093 тестов.
+1. **Docker Desktop 29.7.2** установлен (macOS arm64), `docker compose` v5.3.1.
+2. **`docker-compose.yml` переработан:** удалённые/устаревшие сторонние образы
+   (`spurin/firebase-auth-emulator` — 404 на Docker Hub, `mtlynch/firestore-emulator` — только amd64,
+   `oittaa/gcp-storage-emulator`) заменены на **официальный Firebase Emulator Suite**
+   (Auth + Firestore + Storage) в одном контейнере + `redis:7-alpine`.
+3. Новые файлы: `docker/firebase/Dockerfile` (Node 20 + Java 21 + firebase-tools 15.x),
+   `firebase.json` (auth 9099 / firestore 8080 / storage 9199 / UI 4000), `storage.rules`.
+4. Стек поднят и проверен: `docker compose up -d` → `rhythm-firebase-emulators` + `rhythm-redis`
+   работают; порты отвечают (auth 200, firestore 200, ui 200, storage 501 на `/` — норма, redis PONG).
+5. `VERSION` → **2.47.0** (синхронно в обоих `config/index.ts`), `ASSEMBLY_DATE` = `2026-08-16`.
+   Обновлены `PLAN.md` (этап 47), `README.dev.md` (секция «Docker Compose»).
 
 ## Следующие шаги
 
-1. (Отложено, нужен Docker) реальные сценарии входа/регистрации против Firebase Auth/Firestore/Redis-эмуляторов + сиды.
-2. Опционально — полные схемы запросов/ответов в Swagger: DTO-классы + `@ApiProperty`/`@ApiBody`
-   (сейчас задокументированы маршруты/теги/операции/коды, но без JSON-схем тел).
-3. Опционально — низкоприоритетные типы/константы: `entities/{blocks,company-type,statistic-type}`
-   (в `TEST-AUDIT.md` §5) и `backend/src/shared/utils/random/index.ts` (168 строк — проверить наличие теста).
+1. **Настроить бэкенд на эмуляторы (47.3):**
+   - `packages/backend/.env`: `FIRESTORE_EMULATOR_HOST=localhost:8080`,
+     `FIREBASE_AUTH_EMULATOR_HOST=localhost:9099` (Admin SDK подхватывает автоматически).
+   - Client SDK `firebase/auth` (`packages/backend/src/libs/firebase/config/fire.ts`) подключить через
+     `connectAuthEmulator(auth, ...)` под env-флагом — иначе `signInWithEmailAndPassword` /
+     `createUserWithEmailAndPassword` пойдут в боевой Firebase, а не в эмулятор.
+2. **Сиды (47.4)** — seed-данные пользователя/компании в эмуляторы (Auth через `admin.auth().createUser()`,
+   Firestore через `db`).
+3. **Реальные сценарии входа/регистрации (47.5)** против эмуляторов (сейчас флоу покрыт моками
+   `page.route()`, см. README.dev.md §«Наборы E2E-тестов»).
+4. Опционально — полные схемы запросов/ответов в Swagger (DTO + `@ApiProperty`/`@ApiBody`).
 
 ## Коммит
 
-`test: unit-тесты features/ + smoke-тесты widgets/ (этап 29)`
+`infra: поднят стек эмуляторов Firebase (Emulator Suite) + Redis через docker compose`
 
 ## Предупреждения/заметки
 
-- **`import/first`:** импорты пишутся ДО `jest.mock(...)`; jest сам поднимает моки (hoisting), как в
-  существующих `partner.test.ts`/`get-policy.test.ts`. Нарушение даёт `import/first` в `npm run lint`.
-- **Конфиги Jest фронтенда:**
-  - `test:features` матчит только `**/features/**/*.test.ts` (без `.tsx`); `*.test.tsx` в features
-    попадают только в `test:unit` (`jest.config.js`).
-  - `test:widgets` матчит только `**/widgets/**/*.test.ts`; smoke-тесты виджетов пишутся как `*.test.tsx`
-    (подхватываются `test:unit`), как `page-loader.test.tsx` и др.
-  - Поэтому `*.test.ts` в features/widgets запускаются ДВАЖДЫ (unit + features/widgets) — итоговая
-    сумма suites/tests считается по всем 5 конфигам.
-- **Мок хуков/сторов:** для проверки изменений zustand-состояния проще использовать РЕАЛЬНЫЙ стор
-  (`useHintsStore.setState(...)`) и мокать только API (`userApi`/`updateCompany`), а не стор целиком.
-- **`ProgressiveImage`** (логотип) в smoke выдаёт `console.error` про `src` на `<img>`: PNG маппится на
-  `jest-empty-component` (React-компонент вместо строки). Это предупреждение, не ошибка — как в sidebar/navbar.
-- **`location.reload`** в jsdom не реализован («Not implemented: navigation») — smoke `ClearCacheBtn`
-  проверяет только рендер, без клика.
+- **firebase-tools 15.x требует Java 21+** (не 17). Базовый образ `eclipse-temurin:21-jre-jammy` + Node 20.
+- **Storage-эмулятор требует правила** на ВЕРХНЕМ уровне `firebase.json`:
+  `"storage": { "rules": "storage.rules" }` (не в `emulators.storage.rules`).
+- **Данные эмуляторов in-memory** (сбрасываются при `docker compose down`/рестарте). Кэш бинарников
+  персистится в volume `firebase-emulator-cache`.
+- `docker compose up -d` без `--build` пересоздаёт контейнер при изменении `firebase.json`/монтируемых
+  файлов; при изменении `Dockerfile` нужен `docker compose up -d --build`.
+- **`import/first`:** импорты пишутся ДО `jest.mock(...)`; jest сам поднимает моки (hoisting).
+- **Конфиги Jest фронтенда:** `test:features` матчит только `**/features/**/*.test.ts`; smoke-тесты
+  виджетов пишутся как `*.test.tsx` (подхватываются `test:unit`).
 - Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.

@@ -89,10 +89,19 @@
 - [x] 29.1 Unit-тесты `features/`: company (DeleteMemberIconContainer), dashboard-data (transform-gs-data, get-ms-from-ref), dashboard-templates (chartOptionsToRemove), hints (useFeatureHints), ui (ClearCacheBtn), user (store)
 - [x] 29.2 Smoke-тесты `widgets/`: version, logo-btn, offers, page-error, demo/goto-demo-btn, ui-configurator, dashboard-templates
 
-### Отложено (блокировано окружением)
+### Этап 47 — Реальные сценарии входа/регистрации против эмуляторов (разблокировано)
 
 **Реальные сценарии входа/регистрации** против Firebase Auth/Firestore/Redis-эмуляторов + сиды.
-Требует Docker (в окружении отсутствует). Вернуться после установки Docker.
+
+- [x] 47.1 Установлен Docker Desktop 29.7.2 + `docker compose` v5.3.1 (macOS arm64)
+- [x] 47.2 Поднят стек эмуляторов (`docker-compose.yml`): официальный Firebase Emulator Suite
+      (Auth 9099 / Firestore 8080 / Storage 9199 / UI 4000) + Redis 6379. Заменены удалённые/устаревшие
+      сторонние образы (`spurin/firebase-auth-emulator` и др.) на Emulator Suite
+      (`docker/firebase/Dockerfile` + `firebase.json` + `storage.rules`)
+- [ ] 47.3 Настроить бэкенд на эмуляторы: `FIRESTORE_EMULATOR_HOST` / `FIREBASE_AUTH_EMULATOR_HOST`
+      в `.env` + `connectAuthEmulator` для client SDK `firebase/auth`
+- [ ] 47.4 Сиды (seed-данные пользователя/компании) в эмуляторы
+- [ ] 47.5 Реальные сценарии входа/регистрации против эмуляторов (тесты)
 
 ---
 

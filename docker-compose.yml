@@ -1,29 +1,23 @@
-version: '3.8'
-
 services:
-  # Firebase Auth эмулятор
-  firebase-auth:
-    image: spurin/firebase-auth-emulator:latest
-    container_name: rhythm-firebase-auth
+  # Firebase Emulator Suite (Auth + Firestore + Storage) — официальные эмуляторы Google.
+  # Заменяет удалённые/устаревшие сторонние образы (spurin/firebase-auth-emulator,
+  # mtlynch/firestore-emulator, oittaa/gcp-storage-emulator), часть которых больше
+  # не существует в Docker Hub.
+  firebase-emulators:
+    build:
+      context: ./docker/firebase
+    container_name: rhythm-firebase-emulators
     ports:
-      - '9099:9099'
-    environment:
-      - FIREBASE_AUTH_EMULATOR_HOST=0.0.0.0
-      - FIREBASE_AUTH_EMULATOR_PORT=9099
+      - '4000:4000' # Emulator UI
+      - '8080:8080' # Firestore
+      - '9099:9099' # Auth
+      - '9199:9199' # Storage
     volumes:
-      - firebase-auth-data:/app/data
-
-  # Firestore эмулятор
-  firestore:
-    image: mtlynch/firestore-emulator:latest
-    container_name: rhythm-firestore
-    ports:
-      - '8080:8080'
-    environment:
-      - FIRESTORE_PROJECT_ID=rhy-thm-su
-      - FIRESTORE_LISTEN_ADDRESS=0.0.0.0:8080
-    volumes:
-      - firestore-data:/data
+      # Кэш скачанных бинарников эмуляторов (Firestore JAR и т.д.) — чтобы не
+      # перекачивать при каждом пересоздании контейнера.
+      - firebase-emulator-cache:/root/.cache/firebase/emulators
+      - ./firebase.json:/firebase/firebase.json:ro
+      - ./storage.rules:/firebase/storage.rules:ro
 
   # Redis — кэш сессий и signup-данных
   redis:
@@ -35,18 +29,6 @@ services:
       - redis-data:/data
     command: redis-server --appendonly yes
 
-  # Firebase Storage эмулятор (опционально)
-  firebase-storage:
-    image: oittaa/gcp-storage-emulator:latest
-    container_name: rhythm-firebase-storage
-    ports:
-      - '9199:9199'
-    environment:
-      - PORT=9199
-    volumes:
-      - firebase-storage-data:/storage
-
 volumes:
-  firebase-auth-data:
-  firestore-data:
-  firebase-storage-data:
+  firebase-emulator-cache:
+  redis-data:

@@ -493,8 +493,27 @@ systemctl restart rhythm-server
 
 ### Docker Compose (Firebase эмуляторы)
 
+Для «реальных» сценариев входа/регистрации поднимается стек эмуляторов Firebase + Redis:
+
 ```bash
-docker compose up -d
+docker compose up -d             # сборка + запуск (первый раз — несколько минут)
+docker compose ps                # статус контейнеров
+docker compose logs -f firebase-emulators
+docker compose down              # остановить (данные эмуляторов сбрасываются)
 ```
 
-Запускает Firebase Auth, Firestore, Storage эмуляторы для локальной разработки.
+Состав (`docker-compose.yml`):
+
+- **`firebase-emulators`** — официальный Firebase Emulator Suite (Auth + Firestore + Storage).
+  Собирается из `docker/firebase/Dockerfile` (Node 20 + Java 21 + firebase-tools, т.к. firebase-tools ≥14
+  требует JDK 21+). Конфиг — `firebase.json`, правила Storage — `storage.rules`.
+- **`redis`** — кэш сессий и signup-данных.
+
+Порты на хосте: Emulator UI `4000`, Firestore `8080`, Auth `9099`, Storage `9199`, Redis `6379`.
+
+Данные эмуляторов хранятся in-memory (сбрасываются при перезапуске) — сиды применяются программно.
+Кэш скачанных бинарников эмуляторов персистится в volume `firebase-emulator-cache`.
+
+Подключение бэкенда к эмуляторам — через `packages/backend/.env`:
+`FIRESTORE_EMULATOR_HOST=localhost:8080` и `FIREBASE_AUTH_EMULATOR_HOST=localhost:9099`
+(Admin SDK подхватывает их автоматически).
