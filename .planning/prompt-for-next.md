@@ -2,41 +2,38 @@
 
 ## Дата
 
-16.08.2026 (сессия 38)
+16.08.2026 (сессия 39)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 22.7 (P0) — unit-тесты `models/partner/services`
+### Этап 22.8 (P0) — unit-тесты `models/google/services` — get-data
 
-- Написаны unit-тесты 3 сервисов (10 новых тестов, 3 новых спека):
-  - `models/partner/services/increase-follower/tests/increase-follower.test.ts`
-  - `models/partner/services/increase-register-started/tests/increase-register-started.test.ts`
-  - `models/partner/services/increase-register-ended/tests/increase-register-ended.test.ts`
-- Создана фикстура `models/partner/mocks/index.ts` (`createMockPartner` + `MOCK_PARTNER_ID`),
-  не тянет firebase.
-- increase-follower: покрыт update (convertToDot), инициализация followers=1, set нового партнёра.
-- increase-register-started/ended: мокается `libs/firebase` (`db.batch()`); покрыты кейсы
-  `partnerId null` / `doc не найден` / инкремент счётчика + дополнение `registerStartedData`/`registeredData`.
-- `SignupData` импортируется из чистого пути `models/auth/signup/types` (не из `models/auth`,
-  чтобы не тянуть handlers → firebase/redis).
+- Написан unit-тест `models/google/services/get-data/tests/get-data.test.ts` (4 теста, 1 новый спек).
+- `serviceGoogleGetData` мокается `axios` целиком (`jest.mock('axios')` + `jest.Mocked<typeof axios>`).
+- Покрыты кейсы: вызов `axios.get(url, { timeout: 240000 })`, возврат `response.data`,
+  `undefined` при отсутствии `data`, проброс ошибки от axios.
+- Этим закрыт этап 22 (все `models/*/services` покрыты unit-тестами).
 
 ### Цифры покрытия
 
-Backend теперь **153 suites / 1045 тестов** (unit 518 + shared 377 + validators 150).
-Обновлены `PLAN.md` (22.7 → `[x]`), `TEST-AUDIT.md`, `.clinerules/test-policy.md` (итоги).
+Backend теперь **154 suites / 1049 тестов** (unit 522 + shared 377 + validators 150).
+Обновлены `PLAN.md` (22.8 → `[x]`), `TEST-AUDIT.md`, `.clinerules/test-policy.md` (итоги).
 
 ## Следующие шаги
 
-1. **22.8 (P0):** unit-тесты `models/google/services` — get-data.
-2. Затем **этап 23 (P0):** guards/interceptors/decorators (23.1–23.4).
+1. **Этап 23 (P0):** guards/interceptors/decorators:
+   - 23.1 `FirebaseAuthGuard` — `extractSessionCookie` (парсинг `uid/session`) + `canActivate` (мок `admin.auth()`)
+   - 23.2 `CheckVersionInterceptor` — 409 при рассинхроне версии
+   - 23.3 `LoggingInterceptor` — фильтрация internalUsers + `getUserId`
+   - 23.4 `CurrentUser` decorator
 
 ## Коммит
 
-`test: unit-тесты partner-сервисов (increase-follower/register-started/register-ended)`
+`test: unit-тесты google-сервиса get-data`
 
 ## Предупреждения/заметки
 
-- **VERSION теперь `2.38.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
+- **VERSION теперь `2.39.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
   `packages/backend/src/app/config/index.ts`) — синхронно. `ASSEMBLY_DATE` = `2026-08-16`.
 - **Общий мок Firestore** — в `models/tests/mocks/firestore.ts`:
   - `createMockDocRef` (get/update/set/delete), `createMockColRef` (add/doc/where/orderBy/limit/get),
@@ -49,6 +46,7 @@ Backend теперь **153 suites / 1045 тестов** (unit 518 + shared 377 +
   затем `db.batch as jest.Mock` и `batch.set/update/commit` как jest.fn (commit → `mockResolvedValue(undefined)`).
 - **Для `FieldValue.delete()`** (`firebase-admin/firestore`) мокай модуль:
   `jest.mock('firebase-admin/firestore', () => ({ FieldValue: { delete: jest.fn(() => 'sentinel') } }))`.
+- **Для `axios`** (`serviceGoogleGetData`) мокай `jest.mock('axios')` + `axios as jest.Mocked<typeof axios>`.
 - **Фикстура Template** — `models/templates/mocks/index.ts` (`createMockTemplate(overrides)`), не тянет firebase.
 - **Фикстура ViewItem** — `models/dashboard-view/mocks/index.ts` (`createMockViewItem(overrides)`), не тянет firebase.
 - **Фикстура Partner** — `models/partner/mocks/index.ts` (`createMockPartner(overrides)`), не тянет firebase.

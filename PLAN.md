@@ -32,7 +32,7 @@
 - [x] 22.5 `dashboard-view/services` (get-bunches, get-view-items, get-all-views, create-group-items, update, delete-group)
 - [x] 22.6 `templates/services` (get-templates, get-bunches-updated, update, delete)
 - [x] 22.7 `partner/services` (increase-follower, increase-register-started, increase-register-ended)
-- [ ] 22.8 `google/services` (get-data)
+- [x] 22.8 `google/services` (get-data)
 
 **Этап 23. guards / interceptors / decorators**
 
