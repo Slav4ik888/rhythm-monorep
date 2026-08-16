@@ -25,8 +25,8 @@
 
 Сервисы сейчас покрыты только косвенно (integration-тесты контроллеров). Покрыть юнитами с моками Firestore/Redis/Email.
 
-- [ ] 22.1 Фикстуры/моки Firestore, Redis, Email (общий `tests/mocks/` или per-service)
-- [ ] 22.2 `auth/signup/services` (create-new-company, create-new-user, complection-user) + `auth/login/services` (check-is-user-disabled)
+- [x] 22.1 Фикстуры/моки Firestore (общий `models/tests/mocks/firestore.ts`); Redis/Email — добавятся в этапе 25 по мере надобности
+- [x] 22.2 `auth/signup/services` (create-new-company, create-new-user, complection-user) + `auth/login/services` (check-is-user-disabled)
 - [ ] 22.3 `user/services` (get, update, find-user-by-email, find-user-by-id, set-verification, check-user-verification)
 - [ ] 22.4 `company/services` (get, update, delete-sheet)
 - [ ] 22.5 `dashboard-view/services` (get-bunches, get-view-items, get-all-views, create-group-items, update, delete-group)

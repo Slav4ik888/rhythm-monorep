@@ -128,7 +128,7 @@ npx playwright test --project=admin        # Только админ
 - Модели контроллеры импортируют напрямую (не через DI) — мокай их через `jest.mock('../../../models/...')`.
 - **`FirebaseAuthGuard`:** НЕ импортируй реальный guard — он тянет `models` → `libs/redis`, оставляет открытый handle и вешает завершение jest. Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(FirebaseAuthGuard).useValue({ canActivate })`.
 
-**Итого (бэкенд):** 127 suites, 993 теста (unit 466 + shared 377 + validators 150), включая integration-тесты всех 10 контроллеров.
+**Итого (бэкенд):** 131 suites, 999 тестов (unit 472 + shared 377 + validators 150), включая integration-тесты всех 10 контроллеров.
 
 ## Приоритет блоков для покрытия тестами (Фронтенд)
 
@@ -152,8 +152,8 @@ npx playwright test --project=admin        # Только админ
 | customer | `e2e/customer/profile.spec.ts` | 2     |
 | admin    | `e2e/admin/dashboard.spec.ts`  | 2     |
 
-**Итого (весь проект):** 127 suites (backend) + 377 suites (frontend) + 6 suites (e2e) = **510 suites**;
-993 теста (backend) + 2926 тестов (frontend) + 22 теста (e2e) = **3941 тест**.
+**Итого (весь проект):** 131 suites (backend) + 377 suites (frontend) + 6 suites (e2e) = **514 suites**;
+999 тестов (backend) + 2926 тестов (frontend) + 22 теста (e2e) = **3947 тестов**.
 
 **Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — smoke-тесты (guest/customer/admin) +
 сценарии входа/регистрации (моки `/api/*`), реферальной программы (`?ref=`), PWA (манифест + SW). **Lint:** 0 ошибок.
