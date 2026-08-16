@@ -9,24 +9,6 @@ const { createLogger, format, transports } = winston,
 
 const myFormat = printf(({ level, message, label, timestamp }) => `${timestamp} [${label}] ${level}: ${message}`);
 
-const loggerServer = createLogger({
-  level: 'info',
-  // format: winston.format.json(),
-  format: combine(
-    // format.json(),
-    label({ label: 'server' }),
-    timestamp(),
-    myFormat,
-  ),
-  // defaultMeta: {service: 'course-service'},
-  transports: [
-    // сюда будут попадать ошибки уровня error
-    new transports.File({ filename: path.join(__dirname, rootPath, 'errors.log'), level: 'error' }),
-    // Сюда будет валиться всё
-    new transports.File({ filename: path.join(__dirname, rootPath, 'server.log') }),
-  ],
-});
-
 const loggerApp = createLogger({
   level: 'info',
   format: combine(label({ label: 'app' }), timestamp(), myFormat),
@@ -136,7 +118,6 @@ const loggerUrl = createLogger({
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  loggerServer.add(new transports.Console({ format: combine(format.colorize(), format.simple()) }));
   loggerApp.add(new transports.Console({ format: combine(format.colorize(), format.simple()) }));
   loggerAuth.add(new transports.Console({ format: combine(format.colorize(), format.simple()) }));
   loggerLogin.add(new transports.Console({ format: combine(format.colorize(), format.simple()) }));
@@ -152,7 +133,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export {
-  loggerServer,
   loggerApp,
   loggerAuth,
   loggerLogin,

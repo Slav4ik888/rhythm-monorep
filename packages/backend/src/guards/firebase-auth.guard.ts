@@ -3,15 +3,23 @@
 // Верифицирует Firebase session cookie и добавляет user в request
 
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import type { FastifyRequest } from 'fastify';
 import { admin } from '../libs/firebase/config/admin-sdk';
 import { loggerAuth } from '../libs/loggers';
 import models from '../models';
+import type { User } from '../models/user';
 import { cfg } from '../app/config';
+
+/** FastifyRequest, в который FirebaseAuthGuard кладёт аутентифицированного пользователя */
+interface AuthenticatedRequest extends FastifyRequest {
+  cookies?: Record<string, string>;
+  user?: User;
+}
 
 @Injectable()
 export class FirebaseAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
     try {
       const sessionCookie = this.extractSessionCookie(request);
@@ -22,7 +30,7 @@ export class FirebaseAuthGuard implements CanActivate {
 
       const decodedIdToken = await admin.auth().verifySessionCookie(sessionCookie, true);
 
-      const user = await models.user.serviceFindUserById(decodedIdToken?.uid);
+      const user = await models.user.serviceFindUserById(decodedIdToken.uid);
 
       if (!user) {
         throw new UnauthorizedException('User not found');
@@ -33,8 +41,9 @@ export class FirebaseAuthGuard implements CanActivate {
       loggerAuth.info(`[FBAuth] user=${user.id}`);
 
       return true;
-    } catch (err: any) {
-      loggerAuth.error(`[FBAuth] verification error: ${err.message || err}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      loggerAuth.error(`[FBAuth] verification error: ${message}`);
 
       if (err instanceof UnauthorizedException) {
         throw err;
@@ -46,7 +55,7 @@ export class FirebaseAuthGuard implements CanActivate {
 
   /** Извлекает session cookie из Fastify-запроса */
   // eslint-disable-next-line class-methods-use-this
-  private extractSessionCookie(request: any): string | null {
+  private extractSessionCookie(request: AuthenticatedRequest): string | null {
     const cookies = request.cookies || {};
     const cookieValue: string = cookies[cfg.COOKIE_NAME] || '';
 

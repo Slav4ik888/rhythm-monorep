@@ -5,14 +5,15 @@
 
 import { CallHandler, ExecutionContext, HttpException, HttpStatus, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import type { FastifyRequest } from 'fastify';
 import { cfg } from '../app/config';
 import { loggerApp } from '../libs/loggers';
 
 @Injectable()
 export class CheckVersionInterceptor implements NestInterceptor {
   // eslint-disable-next-line class-methods-use-this
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest<FastifyRequest>();
     // Fastify хранит заголовки в нижнем регистре
     const clientVersion = request.headers['x-client-version'];
     const serverVersion = cfg.VERSION;

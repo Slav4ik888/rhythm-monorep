@@ -2,69 +2,58 @@
 
 ## Дата
 
-16.08.2026 (сессия 44)
+16.08.2026 (сессия 45)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 27 (P3) — smoke-тесты frontend `widgets/` и `pages/` (закрыт)
+### Этап 28 (P4) — чистка техдолга и документация API (закрыт)
 
-Добавлено 15 smoke-suite / 19 тестов (все `.test.tsx` → попадают только в `test:unit`,
-т.к. `test:widgets` матчит только `*.test.ts`):
+1. **28.1 Мёртвый код удалён:**
+   - `loggerServer` из `libs/loggers/winston/index.ts` (блок + console + export);
+   - `libs/firebase/auth/get-session-data-fastify.ts` (не использовался — guard реализует свою `extractSessionCookie`);
+   - вложенный `packages/frontend/package-lock.json` (артефакт до монорепо);
+   - `packages/backend/src/sh` (мусорный JSON «Rate limit exceeded»).
+2. **28.2 `internalUsers` → config:** в `app/config/index.ts` добавлен `cfg.INTERNAL_USERS`
+   (env `INTERNAL_USERS`, ID через запятую; дефолт — `DEFAULT_INTERNAL_USERS`). `LoggingInterceptor`
+   читает список из `cfg.INTERNAL_USERS`. Обновлён `.env.example` и мок конфига в тесте.
+3. **28.3 `any` → типы:** `firebase-auth.guard.ts` (`AuthenticatedRequest extends FastifyRequest` +
+   `catch (err: unknown)`), `logging.interceptor.ts` (`LoggingRequest`), `check-version.interceptor.ts`
+   (`FastifyRequest`). `Observable<any>` → `Observable<unknown>`.
+4. **28.4 Swagger / OpenAPI:** установлен `@nestjs/swagger@11.4.6` (в `packages/backend`). В `main.ts`
+   `DocumentBuilder` (title/version из `cfg`) + `SwaggerModule.setup('api/docs', ...)`.
+   Документированы ВСЕ 10 контроллеров: `@ApiTags` (9 тегов), `@ApiOperation`, `@ApiResponse`, `@ApiParam`
+   (для logs). Итог: 25 эндпоинтов, Swagger UI `/api/docs`, OpenAPI JSON `/api/docs-json`. Проверено вживую.
+5. **28.5 Дробление:** ревизия — оба файла ≤ 500 строк (`store.ts` 465, `body-content/index.tsx` 352),
+   дробление по DoD test-policy НЕ требуется.
 
-- **27.1 `widgets/` (9):** message-bar, page-loader, auth/accept-cookie, footer, navbar, sidebar,
-  dashboard-view/panel, dashboard-data/datebar, hints.
-- **27.2 `pages/` (6):** root, demo, company-profile, user-profile, dashboard, company.
+### Прочее
 
-Подход: `renderPage` (Theme + MemoryRouter) + реальные Zustand-сторы (`useXStore.setState`) +
-точечный `jest.mock` тяжёлых коллабораторов. Мок `app/providers/routes` — как в старых smoke-тестах страниц.
-
-### Инфраструктурные правки (для поддержки smoke-тестов)
-
-- **`render-page/index.tsx`:** тема теперь собирается через `getThemeByName(muiTheme, {...})` + `createTheme(...)`
-  (как в `UIConfiguratorProvider`). Раньше была упрощённая сборка (только `customPalette`) — падала на
-  `palette.navbar`/`palette.sidebar` в Navbar/Sidebar. `createTheme` обязателен — иначе ломаются
-  `breakpoints.up/down` (MUI styleFunctionSx).
-- **`setup-tests.ts`:** добавлены моки `IntersectionObserver`/`ResizeObserver` (фабрики-ФУНКЦИИ, а не class —
-  линт `max-classes-per-file`) и `react-helmet-async` (пассивный Helmet/HelmetProvider).
-
-### Цифры покрытия
-
-Frontend теперь **427 suites / 3053 теста** (unit 225/1548, entities 49/390, features 12/35,
-shared 121/961, widgets 20/119). Весь проект: **603 suites / 4190 тестов**.
-Обновлены `PLAN.md` (27.1–27.2 → `[x]`), `.clinerules/test-policy.md`, `.planning/codebase/TEST-AUDIT.md`.
+- `VERSION` → **2.45.0** (синхронно в `packages/frontend/src/app/config/index.ts` и
+  `packages/backend/src/app/config/index.ts`), `ASSEMBLY_DATE` = `2026-08-16`.
+- Обновлены `PLAN.md` (28.1–28.5 → `[x]`), `README.dev.md` (раздел «Технический долг»),
+  `.planning/codebase/TEST-AUDIT.md` (Swagger/мёртвый код/`any`/internalUsers).
 
 ## Следующие шаги
 
-1. **Этап 28 (P4):** чистка техдолга:
-   - 28.1 Удалить мёртвый код: `loggerServer`, `get-session-data-fastify.ts`, вложенный
-     `packages/frontend/package-lock.json`, `packages/backend/src/sh`.
-   - 28.2 Вынести `internalUsers` из `LoggingInterceptor` в env/config.
-   - 28.3 Заменить `any` на типы (`FastifyRequest`) в guard/interceptors.
-   - 28.4 Swagger / OpenAPI для API-контрактов.
-   - 28.5 Дробление `entities/dashboard-view/model/store.ts` (465) и
-     `widgets/dashboard-view/body-content/index.tsx` (352).
-2. (Отложено, нужен Docker) реальные сценарии входа/регистрации против Firebase-эмуляторов + сиды.
+1. (Отложено, нужен Docker) реальные сценарии входа/регистрации против Firebase Auth/Firestore/Redis-эмуляторов + сиды.
+2. Опционально — полные схемы запросов/ответов в Swagger: DTO-классы + `@ApiProperty`/`@ApiBody`
+   (сейчас задокументированы маршруты/теги/операции/коды, но без JSON-схем тел).
+3. Опционально — добить frontend-пробелы из `TEST-AUDIT.md`: smoke для `widgets/dashboard-templates`,
+   `page-error`, `offers`, `ui-configurator`, `version`, `logo-btn`, `demo/goto-demo-btn`;
+   unit для `features/{company,dashboard-data,dashboard-templates,hints,ui,user}`.
 
 ## Коммит
 
-`test: smoke-тесты frontend widgets/ и pages/`
+`refactor: чистка техдолга + Swagger/OpenAPI (этап 28)`
 
 ## Предупреждения/заметки
 
-- **VERSION теперь `2.44.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
-  `packages/backend/src/app/config/index.ts`) — синхронно. `ASSEMBLY_DATE` = `2026-08-16`.
-- **`widgets/dashboard-view` — НЕ импортировать баррель в тестах**: он тянет
-  `body-content` → `dashboard-render` → `highcharts`, который падает в jsdom на `CSS.supports`.
-  Импортировать leaf: `import { DashboardBodyPanel } from 'widgets/dashboard-view/panel'`.
-- **`HintsContainer`:** целевой элемент подсказки (`<div id='...'/>`) должен быть в `document.body`
-  ДО рендера (компонент ищет его через `document.getElementById` в фазе рендера). `useHintsStore.setState`
-  задаёт `currentHintId`; мокать `features/hints` не нужно.
-- **MUI TextField** рендерит label и legend с одинаковым текстом — в smoke-тестах профилей использовать
-  `getByLabelText(...)`, а не `getByText(...)` (иначе «multiple elements found»).
-- **Smoke-тесты `.test.tsx`** не попадают в `test:widgets` (матч `*.test.ts`) — только в `test:unit`.
-  При подсчёте suites это нормально.
-- **Паттерны моков в smoke-тестах:** dashboard/datebar изолируют `features/dashboard-data`; panel —
-  `features/dashboard-view` + `widgets/dashboard-templates` + `entities/dashboard-templates`; dashboard-страница —
-  `widgets/sidebar`, `widgets/dashboard-view`, `widgets/view-configurator`, `widgets/dashboard-templates`,
-  `shared/api/hooks`.
+- **Swagger Fastify не требует `@fastify/swagger`/`@fastify/swagger-ui`** — `@nestjs/swagger` сам
+  бандлит `swagger-ui-dist` и использует уже установленный `@fastify/static`. Ставился только один пакет.
+- **`cfg.INTERNAL_USERS`** — если env `INTERNAL_USERS` пуст, берётся дефолт из `DEFAULT_INTERNAL_USERS`.
+  В `logging.interceptor.test.ts` мок конфига теперь обязан содержать `INTERNAL_USERS`.
+- **Guard/интерсепторы типизированы `FastifyRequest`** — `request.cookies` доступен только как опциональное
+  расширение (`cookies?: Record<string,string>`), т.к. `@fastify/cookie` НЕ подключён (реально куки читаются из `headers.cookie`).
+- **`decodedIdToken.uid`** в guard теперь без `?.` (типизирован `DecodedIdToken.uid: string`).
+- Фоновый сервер для smoke-проверки Swagger останавливался через `pkill -f 'ts-node src/main.ts'`.
 - Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.

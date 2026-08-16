@@ -3,16 +3,21 @@
 // Заменяет controllers/google/get-data
 
 import { Controller, Post, Body, Req, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { googleGetDataModel, GoogleGetDataArgs } from '../../models/google/handlers';
 import { serviceGetCompany } from '../../models/company';
 import { admin } from '../../libs/firebase/config/admin-sdk';
 import { cfg } from '../../app/config';
 
+@ApiTags('dashboard')
 @Controller('api')
 export class GoogleController {
   // Маршрут без префикса модуля — как в Koa-роутере (prefix '/api' + '/getData')
   // и во фронтенде (API_PATHS.google.getData = '/getData')
   @Post('/getData')
+  @ApiOperation({ summary: 'Получение данных из Google Sheets', description: 'POST /api/getData' })
+  @ApiResponse({ status: 200, description: 'Данные из Google Таблицы' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   async getData(@Body() body: GoogleGetDataArgs, @Req() request: any): Promise<string> {
     try {

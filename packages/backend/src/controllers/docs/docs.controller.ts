@@ -3,12 +3,16 @@
 // Заменяет controllers/docs/get-policy/index.ts
 
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getPolicyModel } from '../../models/docs/handlers/get-policy';
 
+@ApiTags('docs')
 @Controller('api')
 export class DocsController {
   // eslint-disable-next-line class-methods-use-this
   @Get('/getPolicy')
+  @ApiOperation({ summary: 'Получение политики конфиденциальности', description: 'GET /api/getPolicy' })
+  @ApiResponse({ status: 200, description: 'Текст политики' })
   async getPolicy(): Promise<{ policy: string }> {
     return getPolicyModel();
   }

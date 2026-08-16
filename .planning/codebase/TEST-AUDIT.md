@@ -40,7 +40,7 @@
   В integration-тестах guard **мокается** (нельзя импортировать — тянет `models` → `libs/redis`, открытый handle);
   unit-тесты мокают `admin-sdk`, `libs/loggers` и `models` (default-экспорт с `__esModule: true`).
 - ✅ `interceptors/check-version.interceptor.ts` — 409 при несовпадении `X-Client-Version`.
-- ✅ `interceptors/logging.interceptor.ts` — фильтрация `internalUsers` (захардкоженные ID) + `getUserId` из куки.
+- ✅ `interceptors/logging.interceptor.ts` — фильтрация `internalUsers` (список из `cfg.INTERNAL_USERS`) + `getUserId` из куки.
 - ✅ `decorators/current-user.decorator.ts` — извлечение `request.user` (фабрика вытаскивается через `ROUTE_ARGS_METADATA`).
 
 ### 3. `libs/*` — ✅ покрыты (сессия 42)
@@ -87,20 +87,22 @@ not-found(1), not-access(1), policy(1)).
 
 ## Технический долг / улучшения (обнаружено в аудите)
 
+> Прогресс (сессия 45): Swagger добавлен, мёртвый код удалён, `any` в guard/interceptors заменён
+> на `FastifyRequest`, `internalUsers` вынесен в config.
+
 1. **Rate limiting** — ✅ реализован (сессия 41): `@nestjs/throttler@6.5.0` на auth-эндпоинтах
    (`AuthController`: 10/мин default, login 5/мин, reset 3/мин — против перебора паролей и спама ссылками).
    Не-auth эндпоинты лимитами не покрыты — при необходимости расширить.
-2. **Swagger / OpenAPI** — не реализован (заявлен «в будущем»).
-3. **Мёртвый код:**
-   - `libs/loggers/winston/index.ts` — `loggerServer` не используется;
-   - `libs/firebase/auth/get-session-data-fastify.ts` — не используется;
-   - `packages/frontend/package-lock.json` — артефакт до монорепо;
-   - `packages/backend/src/sh` — мусорный JSON-файл (125 байт, «Rate limit exceeded»), случайный артефакт.
-4. **Крупные файлы (кандидаты на дробление по test-policy >500 строк):** формально >500 нет, но близко:
-   - `entities/dashboard-view/model/store.ts` (465);
+2. **Swagger / OpenAPI** — ✅ реализован (сессия 45): `@nestjs/swagger@11.4.6` + Fastify-адаптер.
+   Swagger UI на `/api/docs`, OpenAPI JSON на `/api/docs-json`. Документированы все 10 контроллеров
+   (9 тегов, 25 эндпоинтов: `@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiParam`).
+3. **Мёртвый код** — ✅ удалён (сессия 45): `loggerServer`, `get-session-data-fastify.ts`,
+   `packages/frontend/package-lock.json`, `packages/backend/src/sh`.
+4. **Крупные файлы (кандидаты на дробление по test-policy >500 строк):** формально >500 нет:
+   - `entities/dashboard-view/model/store.ts` (465) — под порогом, дробление отложено;
    - `widgets/dashboard-view/body-content/index.tsx` (352);
    - `entities/dashboard-templates/model/store.ts` (281);
    - `shared/api/hooks/use-dashboard-view-queries.ts` (199).
-5. **Типизация `any`:** в `firebase-auth.guard.ts`, `logging.interceptor.ts` (`request: any`, `err: any`) —
-   заменить на `FastifyRequest` / типизированные ошибки.
-6. **Захардкоженные ID** (`internalUsers`) в `logging.interceptor.ts` — вынести в env/config.
+5. **Типизация `any`** — ✅ в `firebase-auth.guard.ts`, `logging.interceptor.ts`, `check-version.interceptor.ts`
+   заменена на `FastifyRequest` / типизированные ошибки (сессия 45).
+6. **Захардкоженные ID** (`internalUsers`) — ✅ вынесены в `cfg.INTERNAL_USERS` (env `INTERNAL_USERS`, сессия 45).

@@ -3,13 +3,17 @@
 // Заменяет controllers/params-company/get/index.ts
 
 import { Controller, Get, Post, Query, Body, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getParamsCompanyModel, GetParamsCompanyArgs } from '../../models/params-company/handlers/get';
 import { Company } from '../../models/company';
 
+@ApiTags('params-company')
 @Controller('api')
 export class ParamsCompanyController {
   // eslint-disable-next-line class-methods-use-this
   @Get('/paramsCompany/get')
+  @ApiOperation({ summary: 'Получение параметров компании', description: 'GET /api/paramsCompany/get' })
+  @ApiResponse({ status: 200, description: 'Параметры компании' })
   async getParamsCompanyGet(@Query() query: GetParamsCompanyArgs): Promise<Company> {
     try {
       return await getParamsCompanyModel(query);
@@ -24,6 +28,8 @@ export class ParamsCompanyController {
 
   // eslint-disable-next-line class-methods-use-this
   @Post('/paramsCompany/get')
+  @ApiOperation({ summary: 'Получение параметров компании', description: 'POST /api/paramsCompany/get' })
+  @ApiResponse({ status: 200, description: 'Параметры компании' })
   @HttpCode(200)
   async postParamsCompanyGet(@Body() body: GetParamsCompanyArgs): Promise<Company> {
     try {

@@ -5,25 +5,29 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import type { FastifyRequest } from 'fastify';
 import { loggerUrl } from '../libs/loggers';
 import { cfg } from '../app/config';
 
+/** Форма тела запроса, которую читает интерсептор логирования */
+interface LoggingBody {
+  companyId?: string;
+}
+
+/** FastifyRequest + опциональный парсинг cookies (@fastify/cookie может быть не подключён) */
+interface LoggingRequest extends FastifyRequest<{ Body: LoggingBody }> {
+  cookies?: Record<string, string>;
+}
+
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest<LoggingRequest>();
     const userId = this.getUserId(request);
     const companyId = request.body?.companyId || '';
 
-    // Пропускаем логи для служебных пользователей
-    const internalUsers = [
-      'pT5sk0UDkzgVGXtCRLjk72h4jwV2',
-      'wQ51kIvT2xPNVa2uuU0qhcjzqJB3',
-      'xcUt9EYBrUbJd3JKiUf05Oxpp5f2',
-      '4749Iuxb6ZbOfQsDuPp6ChSIvaI3',
-    ];
-
-    if (!internalUsers.includes(userId)) {
+    // Пропускаем логи для служебных пользователей (список — в config INTERNAL_USERS)
+    if (!cfg.INTERNAL_USERS.includes(userId)) {
       const user = userId || 'quest';
       const ci = companyId ? `[ci]: ${companyId}` : '';
       loggerUrl.info(`[r]: ${request.url} ${ci} [u]: ${user} [ref]: ${request.headers?.referer || ''}`);
@@ -40,7 +44,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
   /** Извлекает userId из куки запроса */
   // eslint-disable-next-line class-methods-use-this
-  private getUserId(request: any): string {
+  private getUserId(request: LoggingRequest): string {
     const cookies = request.cookies || {};
     const cookieValue = cookies[cfg.COOKIE_NAME] || '';
     if (!cookieValue) {

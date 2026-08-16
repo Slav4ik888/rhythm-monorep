@@ -11,9 +11,9 @@ jest.mock('../../libs/loggers', () => ({
   loggerUrl: { info: jest.fn(), error: jest.fn() },
 }));
 
-// Фиксируем имя cookie для предсказуемых ассертов.
+// Фиксируем имя cookie и список служебных пользователей для предсказуемых ассертов.
 jest.mock('../../app/config', () => ({
-  cfg: { COOKIE_NAME: 'rhythm' },
+  cfg: { COOKIE_NAME: 'rhythm', INTERNAL_USERS: ['pT5sk0UDkzgVGXtCRLjk72h4jwV2'] },
 }));
 
 const loggerUrlInfoMock = loggerUrl.info as jest.Mock;

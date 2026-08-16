@@ -3,6 +3,7 @@
 // Заменяет controllers/dashboard/bunch/get, view/createGroupItems, view/update, view/delete
 
 import { Controller, Post, Patch, Body, HttpException, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getBunchesModel, ReqGetBunches, ResGetBunches } from '../../models/dashboard-view/handlers-bunch/get';
 import {
   createGroupViewItemsModel,
@@ -18,11 +19,14 @@ import { deleteViewItemModel, DeleteViews, DeleteViewsArgs } from '../../models/
 import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 
+@ApiTags('dashboard')
 @Controller('api')
 export class DashboardController {
   // POST /api/dashboard/bunch/get — получение групп дашборда (публичный)
   // eslint-disable-next-line class-methods-use-this
   @Post('/dashboard/bunch/get')
+  @ApiOperation({ summary: 'Получение групп элементов дашборда', description: 'POST /api/dashboard/bunch/get' })
+  @ApiResponse({ status: 200, description: 'Группы элементов дашборда' })
   @HttpCode(200)
   async bunchGet(@Body() body: ReqGetBunches): Promise<ResGetBunches> {
     try {
@@ -38,6 +42,9 @@ export class DashboardController {
   // POST /api/dashboard/view/createGroupItems — создание элементов дашборда
   // eslint-disable-next-line class-methods-use-this
   @Post('/dashboard/view/createGroupItems')
+  @ApiOperation({ summary: 'Создание элементов дашборда', description: 'POST /api/dashboard/view/createGroupItems' })
+  @ApiResponse({ status: 200, description: 'Элементы созданы' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)
   async viewCreateGroupItems(
@@ -60,6 +67,9 @@ export class DashboardController {
   // shared/api/hooks/use-dashboard-view-queries.ts), как и Koa-роутер (router.patch).
   // eslint-disable-next-line class-methods-use-this
   @Patch('/dashboard/view/update')
+  @ApiOperation({ summary: 'Обновление элементов дашборда', description: 'PATCH /api/dashboard/view/update' })
+  @ApiResponse({ status: 200, description: 'Элементы обновлены' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)
   async viewUpdate(@Body() body: UpdateViewItem, @CurrentUser() user: any): Promise<UpdateViewItem> {
@@ -77,6 +87,9 @@ export class DashboardController {
   // POST /api/dashboard/view/delete — удаление элементов дашборда
   // eslint-disable-next-line class-methods-use-this
   @Post('/dashboard/view/delete')
+  @ApiOperation({ summary: 'Удаление элементов дашборда', description: 'POST /api/dashboard/view/delete' })
+  @ApiResponse({ status: 200, description: 'Элементы удалены' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)
   async viewDelete(@Body() body: DeleteViews, @CurrentUser() user: any): Promise<any> {

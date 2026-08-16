@@ -78,11 +78,11 @@
 
 **Этап 28. Чистка и документация API**
 
-- [ ] 28.1 Удалить мёртвый код: `loggerServer`, `get-session-data-fastify.ts`, вложенный `packages/frontend/package-lock.json`, `packages/backend/src/sh`
-- [ ] 28.2 Вынести `internalUsers` из `LoggingInterceptor` в env/config
-- [ ] 28.3 Заменить `any` на типы (`FastifyRequest`) в guard/interceptors
-- [ ] 28.4 Swagger / OpenAPI для API-контрактов
-- [ ] 28.5 Дробление крупных файлов (`entities/dashboard-view/model/store.ts` (465), `widgets/dashboard-view/body-content/index.tsx` (352))
+- [x] 28.1 Удалить мёртвый код: `loggerServer`, `get-session-data-fastify.ts`, вложенный `packages/frontend/package-lock.json`, `packages/backend/src/sh`
+- [x] 28.2 Вынести `internalUsers` из `LoggingInterceptor` в env/config (`cfg.INTERNAL_USERS`, env `INTERNAL_USERS`)
+- [x] 28.3 Заменить `any` на типы (`FastifyRequest`) в guard/interceptors
+- [x] 28.4 Swagger / OpenAPI для API-контрактов (`@nestjs/swagger`, Swagger UI на `/api/docs`)
+- [x] 28.5 Дробление крупных файлов — ревизия: оба файла ≤ 500 строк (465 и 352), дробление не требуется по DoD test-policy
 
 ### Отложено (блокировано окружением)
 

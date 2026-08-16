@@ -393,12 +393,15 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 
 ## Технический долг и мёртвый код
 
-- `packages/backend/src/libs/loggers/winston/index.ts`: `loggerServer` не используется (после удаления Koa `app/index.ts`); `loggerApp` используется — в `CheckVersionInterceptor`.
-- `packages/backend/src/libs/firebase/auth/get-session-data-fastify.ts` — не используется (FirebaseAuthGuard реализует свою `extractSessionCookie`); кандидат на удаление.
-- Вложенный `packages/frontend/package-lock.json` — артефакт до монорепо, можно удалить (как ранее был удалён backend-вариант).
-- `packages/backend/src/sh` — мусорный JSON-файл (125 байт, текст «Rate limit exceeded»), случайный артефакт shell-редиректа; удалить.
-- **Rate limiting не реализован** — заявлен в требованиях (`README.md` / `.clinerules`), но в коде нет `@nestjs/throttler` (или аналога). Требует внедрения на auth-эндпоинтах (`/api/auth/*`).
-- **Swagger / OpenAPI** — не реализован (заявлен «в будущем»); API-контракты пока не задокументированы.
+- (Сессия 45) Мёртвый код удалён: `loggerServer` (winston), `get-session-data-fastify.ts`,
+  вложенный `packages/frontend/package-lock.json`, `packages/backend/src/sh`.
+- `loggerApp` используется — в `CheckVersionInterceptor`; остальные логгеры — по доменам.
+- **Rate limiting** — реализован (`@nestjs/throttler` на auth-эндпоинтах, см. PLAN.md этап 24).
+- **Swagger / OpenAPI** — реализован (сессия 45): `@nestjs/swagger@11.4.6` + Fastify-адаптер.
+  Swagger UI на `/api/docs`, OpenAPI JSON на `/api/docs-json`. Документированы все контроллеры
+  (9 тегов, 25 эндпоинтов: `@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiParam`).
+- **`INTERNAL_USERS`** — служебные пользователи (их логи не пишутся в `url.log`) задаются через
+  env `INTERNAL_USERS` (ID через запятую); дефолт — `DEFAULT_INTERNAL_USERS` в `app/config/index.ts`.
 
 ## E2E-тесты (Playwright)
 
