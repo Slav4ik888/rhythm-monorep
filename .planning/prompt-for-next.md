@@ -2,41 +2,41 @@
 
 ## Дата
 
-16.08.2026 (сессия 37)
+16.08.2026 (сессия 38)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 22.6 (P0) — unit-тесты `models/templates/services`
+### Этап 22.7 (P0) — unit-тесты `models/partner/services`
 
-- Написаны unit-тесты 4 сервисов (8 новых тестов, 4 новых спека):
-  - `models/templates/services/get-templates/tests/get-templates.test.ts`
-  - `models/templates/services/get-bunches-updated/tests/get-bunches-updated.test.ts`
-  - `models/templates/services/update/tests/update.test.ts`
-  - `models/templates/services/delete/tests/delete.test.ts`
-- Создана фикстура `models/templates/mocks/index.ts` (`createMockTemplate` + `MOCK_TEMPLATE_BUNCH_ID_1/2`),
-  переиспользующая `createMockViewItem` из `dashboard-view/mocks` (firebase не тянет).
-- Для update/delete (через `db.batch()`) мокается `libs/firebase`; для delete также
-  `firebase-admin/firestore` (`FieldValue.delete()` → sentinel).
-- update-сервис покрыт тремя кейсами: create (batch.set), update (convertToDot), fullSet (целиком).
+- Написаны unit-тесты 3 сервисов (10 новых тестов, 3 новых спека):
+  - `models/partner/services/increase-follower/tests/increase-follower.test.ts`
+  - `models/partner/services/increase-register-started/tests/increase-register-started.test.ts`
+  - `models/partner/services/increase-register-ended/tests/increase-register-ended.test.ts`
+- Создана фикстура `models/partner/mocks/index.ts` (`createMockPartner` + `MOCK_PARTNER_ID`),
+  не тянет firebase.
+- increase-follower: покрыт update (convertToDot), инициализация followers=1, set нового партнёра.
+- increase-register-started/ended: мокается `libs/firebase` (`db.batch()`); покрыты кейсы
+  `partnerId null` / `doc не найден` / инкремент счётчика + дополнение `registerStartedData`/`registeredData`.
+- `SignupData` импортируется из чистого пути `models/auth/signup/types` (не из `models/auth`,
+  чтобы не тянуть handlers → firebase/redis).
 
 ### Цифры покрытия
 
-Backend теперь **150 suites / 1035 тестов** (unit 508 + shared 377 + validators 150).
-Обновлены `PLAN.md` (22.6 → `[x]`), `TEST-AUDIT.md`, `.clinerules/test-policy.md` (итоги).
+Backend теперь **153 suites / 1045 тестов** (unit 518 + shared 377 + validators 150).
+Обновлены `PLAN.md` (22.7 → `[x]`), `TEST-AUDIT.md`, `.clinerules/test-policy.md` (итоги).
 
 ## Следующие шаги
 
-1. **22.7 (P0):** unit-тесты `models/partner/services` — increase-follower, increase-register-started, increase-register-ended.
-2. **22.8 (P0):** unit-тесты `models/google/services` — get-data.
-3. Затем **этап 23 (P0):** guards/interceptors/decorators (23.1–23.4).
+1. **22.8 (P0):** unit-тесты `models/google/services` — get-data.
+2. Затем **этап 23 (P0):** guards/interceptors/decorators (23.1–23.4).
 
 ## Коммит
 
-`test: unit-тесты templates-сервисов (get-templates/get-bunches-updated/update/delete)`
+`test: unit-тесты partner-сервисов (increase-follower/register-started/register-ended)`
 
 ## Предупреждения/заметки
 
-- **VERSION теперь `2.37.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
+- **VERSION теперь `2.38.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
   `packages/backend/src/app/config/index.ts`) — синхронно. `ASSEMBLY_DATE` = `2026-08-16`.
 - **Общий мок Firestore** — в `models/tests/mocks/firestore.ts`:
   - `createMockDocRef` (get/update/set/delete), `createMockColRef` (add/doc/where/orderBy/limit/get),
@@ -51,6 +51,7 @@ Backend теперь **150 suites / 1035 тестов** (unit 508 + shared 377 +
   `jest.mock('firebase-admin/firestore', () => ({ FieldValue: { delete: jest.fn(() => 'sentinel') } }))`.
 - **Фикстура Template** — `models/templates/mocks/index.ts` (`createMockTemplate(overrides)`), не тянет firebase.
 - **Фикстура ViewItem** — `models/dashboard-view/mocks/index.ts` (`createMockViewItem(overrides)`), не тянет firebase.
+- **Фикстура Partner** — `models/partner/mocks/index.ts` (`createMockPartner(overrides)`), не тянет firebase.
 - **`convertToDot`** даёт dot-нотацию: в `expect.objectContaining` используй ключи вида
   `'template-1.lastChange.userId'`, `'bunch-1'`.
 - Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.

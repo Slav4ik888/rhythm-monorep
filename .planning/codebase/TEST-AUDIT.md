@@ -7,7 +7,7 @@
 
 | Слой               | Suites | Тесты | Комментарий                                       |
 | ------------------ | ------ | ----- | ------------------------------------------------- |
-| Backend unit       | 83     | 508   | контроллеры (integration) + часть models          |
+| Backend unit       | 86     | 518   | контроллеры (integration) + часть models          |
 | Backend shared     | 50     | 377   | `src/shared/utils/**`                             |
 | Backend validators | 17     | 150   | `src/libs/validators/**` + схемы                  |
 | Frontend           | 377    | 2926  | entities/shared/helpers/lib + часть widgets/pages |
@@ -21,9 +21,9 @@
 ~35 сервисных файлов, 754 строки. Покрыты только косвенно через integration-тесты контроллеров;
 на уровне юнитов (с моками Firestore/Redis/Email) — нет.
 
-> Прогресс (сессия 33–37): создан общий мок Firestore (`models/tests/mocks/firestore.ts`),
-> unit-тестами покрыты auth-сервисы, user-сервисы, company-сервисы, dashboard-view-сервисы
-> и templates-сервисы (✅ ниже). Остальные сервисы — в очереди (этапы 22.7–22.8).
+> Прогресс (сессия 33–38): создан общий мок Firestore (`models/tests/mocks/firestore.ts`),
+> unit-тестами покрыты auth-, user-, company-, dashboard-view-, templates- и partner-сервисы
+> (✅ ниже). Остался google-сервис (этап 22.8).
 
 - ✅ `models/auth/signup/services/` — create-new-company, create-new-user, complection-user
 - ✅ `models/auth/login/services/` — check-is-user-disabled
@@ -31,7 +31,7 @@
 - ✅ `models/company/services/` — get, update, delete-sheet
 - ✅ `models/dashboard-view/services/` — get-bunches, get-view-items, get-all-views, create-group-items, update, delete-group
 - ✅ `models/templates/services/` — get-templates, get-bunches-updated, update, delete
-- `models/partner/services/` — increase-follower, increase-register-started, increase-register-ended
+- ✅ `models/partner/services/` — increase-follower, increase-register-started, increase-register-ended
 - `models/google/services/` — get-data
 
 ### 2. Guards / Interceptors / Decorators — 0 тестов
