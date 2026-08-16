@@ -5,14 +5,14 @@
 
 ## Текущее покрытие (факт)
 
-| Слой               | Suites | Тесты | Комментарий                                                         |
-| ------------------ | ------ | ----- | ------------------------------------------------------------------- |
-| Backend unit       | 91     | 546   | контроллеры (integration) + models + guards/interceptors/decorators |
-| Backend shared     | 50     | 377   | `src/shared/utils/**`                                               |
-| Backend validators | 17     | 150   | `src/libs/validators/**` + схемы                                    |
-| Frontend           | 377    | 2926  | entities/shared/helpers/lib + часть widgets/pages                   |
-| E2E (Playwright)   | 6      | 22    | guest/customer/admin + PWA-manifest                                 |
-| E2E PWA (prod)     | 1      | 6     | `e2e/pwa/offline.spec.ts`                                           |
+| Слой               | Suites | Тесты | Комментарий                                                                             |
+| ------------------ | ------ | ----- | --------------------------------------------------------------------------------------- |
+| Backend unit       | 103    | 588   | контроллеры (integration) + models + guards/interceptors/decorators + libs/views/config |
+| Backend shared     | 50     | 377   | `src/shared/utils/**`                                                                   |
+| Backend validators | 17     | 150   | `src/libs/validators/**` + схемы                                                        |
+| Frontend           | 377    | 2926  | entities/shared/helpers/lib + часть widgets/pages                                       |
+| E2E (Playwright)   | 6      | 22    | guest/customer/admin + PWA-manifest                                                     |
+| E2E PWA (prod)     | 1      | 6     | `e2e/pwa/offline.spec.ts`                                                               |
 
 ## Backend — что НЕ покрыто
 
@@ -43,17 +43,19 @@
 - ✅ `interceptors/logging.interceptor.ts` — фильтрация `internalUsers` (захардкоженные ID) + `getUserId` из куки.
 - ✅ `decorators/current-user.decorator.ts` — извлечение `request.user` (фабрика вытаскивается через `ROUTE_ARGS_METADATA`).
 
-### 3. `libs/*` — 0 тестов
+### 3. `libs/*` — ✅ покрыты (сессия 42)
 
-- `libs/firebase/` — create-session-fastify, set-cookie-fastify, admin-sdk, batchs, fire
-- `libs/redis/` — session get/set, signup get/set/update-answer-time
-- `libs/emails/` — send-mail, send-group-mail, email-config
+- ✅ `libs/firebase/auth/` — create-session-fastify, set-cookie-fastify
+- ✅ `libs/redis/` — session get/set, signup get/set/update-answer-time (мок `libs/redis/init`)
+- ✅ `libs/emails/` — send-mail, send-group-mail (моки pug/juice/nodemailer)
 
-### 4. Прочее
+Не покрыты (конфиг с module-level side effects, низкий приоритет): `libs/firebase/config/` (admin-sdk, batchs, fire).
 
-- `views/errors/` — `get-error-message` (119 строк), `err-code`
-- `config/load-env.ts`
-- `shared/utils/random/index.ts` (168 строк) — проверить наличие теста
+### 4. Прочее — ✅ покрыты (сессия 42)
+
+- ✅ `views/errors/` — `get-error-message`, `err-code`
+- ✅ `config/load-env.ts`
+- `shared/utils/random/index.ts` (168 строк) — проверить наличие теста (вне этапа 25)
 
 ## Frontend — что НЕ покрыто
 

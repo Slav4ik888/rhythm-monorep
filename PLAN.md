@@ -53,11 +53,11 @@
 
 **Этап 25. libs / views / config**
 
-- [ ] 25.1 `libs/firebase` (create-session-fastify, set-cookie-fastify)
-- [ ] 25.2 `libs/redis` (session get/set, signup get/set/update-answer-time)
-- [ ] 25.3 `libs/emails` (send-mail, send-group-mail)
-- [ ] 25.4 `views/errors` (get-error-message, err-code)
-- [ ] 25.5 `config/load-env`
+- [x] 25.1 `libs/firebase` (create-session-fastify, set-cookie-fastify)
+- [x] 25.2 `libs/redis` (session get/set, signup get/set/update-answer-time)
+- [x] 25.3 `libs/emails` (send-mail, send-group-mail)
+- [x] 25.4 `views/errors` (get-error-message, err-code)
+- [x] 25.5 `config/load-env`
 
 ### P2 — Тесты frontend API/хуков
 
