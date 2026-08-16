@@ -2,10 +2,11 @@
 // NestJS-контроллер для params-company (миграция с Koa)
 // Заменяет controllers/params-company/get/index.ts
 
-import { Controller, Get, Post, Query, Body, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, HttpCode } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getParamsCompanyModel, GetParamsCompanyArgs } from '../../models/params-company/handlers/get';
 import { Company } from '../../models/company';
+import { toHttpException } from '../../libs/errors';
 import { CompanyDto } from '../../dto/company.dto';
 import { GetParamsCompanyDto } from './dto';
 
@@ -26,12 +27,8 @@ export class ParamsCompanyController {
   async getParamsCompanyGet(@Query() query: GetParamsCompanyArgs): Promise<Company> {
     try {
       return await getParamsCompanyModel(query);
-    } catch (err: any) {
-      // Пробрасываем ошибки из модели (с сохранением statusCode и body)
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -44,11 +41,8 @@ export class ParamsCompanyController {
   async postParamsCompanyGet(@Body() body: GetParamsCompanyArgs): Promise<Company> {
     try {
       return await getParamsCompanyModel(body);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 }

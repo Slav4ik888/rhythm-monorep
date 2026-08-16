@@ -112,6 +112,16 @@
 - [x] 49.3 Подключены в контроллеры: `@ApiBody({ type })`, `@ApiResponse({ status, type })`, `@ApiQuery` (params-company GET). Типы `@Body()`/`@Query()` оставлены модельными (DTO — только декораторами)
 - [x] 49.4 Верификация: `SwaggerModule.createDocument` → 25 путей, 49 схем; `tsc`, `lint` (0), backend (170/1115) и frontend (446/3093) тесты — зелёные
 
+### Этап 50 — Чистка техдолга: типизация `any` в контроллерах бэкенда
+
+**Устранение `any` в NestJS-контроллерах** (оставшийся техдолг из TEST-AUDIT, пункт «Типизация any»).
+
+- [x] 50.1 Общий хелпер ошибок `libs/errors/` (`ApiError`, `isApiError`, `toHttpException`) + unit-тест
+- [x] 50.2 `@CurrentUser() user: any` → `User`; `@Body() body: { companyData: any }` → `PartialCompany`
+- [x] 50.3 `catch (err: any)` → `catch (err: unknown)` с единой конвертацией в `toHttpException` (все 10 контроллеров)
+- [x] 50.4 `Promise<any>` → конкретные типы (`PartialCompany`, `SuccessResponseDto`, `FastifyReply`, `Record<string, never>`); `@Req() request: any` → типизированный `RequestWithCookies` (google)
+- [x] 50.5 Верификация: `tsc`, `lint` (0), backend-тесты (171 suites / 1119 тестов) — зелёные
+
 ---
 
 ## Правила ведения плана

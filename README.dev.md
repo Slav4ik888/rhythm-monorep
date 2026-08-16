@@ -412,6 +412,13 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
   (`/* eslint-disable max-classes-per-file */`).
 - **`INTERNAL_USERS`** — служебные пользователи (их логи не пишутся в `url.log`) задаются через
   env `INTERNAL_USERS` (ID через запятую); дефолт — `DEFAULT_INTERNAL_USERS` в `app/config/index.ts`.
+- **Типизация `any` в контроллерах** (сессия 50): `@CurrentUser() user: any` → `User`,
+  `catch (err: any)` → `catch (err: unknown)` с единой конвертацией в `HttpException` через
+  хелпер `libs/errors/` (`ApiError`, `isApiError`, `toHttpException`). `Promise<any>` заменены на
+  конкретные типы. Единственный контроллер с особым catch — `google` (пробрасывает `HttpException`,
+  отдельно обрабатывает `response.status` axios-ошибки Google Apps Script → 502). Ошибки моделей
+  по-прежнему кидаются как `Object.assign(new Error(...), { statusCode, body })` — `toHttpException`
+  конвертирует их в `HttpException(statusCode, body)`.
 
 ## E2E-тесты (Playwright)
 

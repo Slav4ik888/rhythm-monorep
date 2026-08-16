@@ -2,12 +2,15 @@
 // NestJS-контроллер для company (миграция с Koa)
 // Заменяет controllers/company/update/index.ts и controllers/company/delete-sheet/index.ts
 
-import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { updateCompanyModel, UpdateCompanyArgs } from '../../models/company/handlers/update';
 import { companyDeleteSheetModel, DeleteSheetArgs } from '../../models/company/handlers/delete-sheet';
 import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
+import { toHttpException } from '../../libs/errors';
+import type { User } from '../../models/user';
+import type { PartialCompany } from '../../models/company/types';
 import { CompanyDto } from '../../dto/company.dto';
 import { DeleteSheetDto, UpdateCompanyDto } from './dto';
 
@@ -22,18 +25,15 @@ export class CompanyController {
   @ApiResponse({ status: 200, description: 'Компания обновлена', type: CompanyDto })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
-  async update(@Body() body: { companyData: any }, @CurrentUser() user: any): Promise<any> {
+  async update(@Body() body: { companyData: PartialCompany }, @CurrentUser() user: User): Promise<PartialCompany> {
     try {
       const args: UpdateCompanyArgs = {
         companyData: body.companyData,
         userId: user.id,
       };
       return await updateCompanyModel(args);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -44,7 +44,10 @@ export class CompanyController {
   @ApiResponse({ status: 200, description: 'Лист удалён', type: DeleteSheetDto })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
-  async deleteSheet(@Body() body: { companyId: string; sheetId: string }, @CurrentUser() user: any): Promise<any> {
+  async deleteSheet(
+    @Body() body: { companyId: string; sheetId: string },
+    @CurrentUser() user: User,
+  ): Promise<{ companyId: string; sheetId: string }> {
     try {
       const args: DeleteSheetArgs = {
         companyId: body.companyId,
@@ -53,11 +56,8 @@ export class CompanyController {
       };
       await companyDeleteSheetModel(args);
       return body;
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 }

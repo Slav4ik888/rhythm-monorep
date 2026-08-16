@@ -105,5 +105,6 @@ not-found(1), not-access(1), policy(1)).
    - `entities/dashboard-templates/model/store.ts` (281);
    - `shared/api/hooks/use-dashboard-view-queries.ts` (199).
 5. **Типизация `any`** — ✅ в `firebase-auth.guard.ts`, `logging.interceptor.ts`, `check-version.interceptor.ts`
-   заменена на `FastifyRequest` / типизированные ошибки (сессия 45).
+   заменена на `FastifyRequest` / типизированные ошибки (сессия 45); `any` в контроллерах устранён (сессия 50):
+   `@CurrentUser() user: any` → `User`, `catch (err: any)` → `catch (err: unknown)` + `libs/errors/toHttpException`.
 6. **Захардкоженные ID** (`internalUsers`) — ✅ вынесены в `cfg.INTERNAL_USERS` (env `INTERNAL_USERS`, сессия 45).

@@ -2,13 +2,14 @@
 // NestJS-контроллер для templates (миграция с Koa)
 // Заменяет controllers/templates/{get-bunches-updated, get-templates, update, delete}
 
-import { Controller, Get, Post, Body, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getBunchesUpdatedModel } from '../../models/templates/handlers/get-bunches-updated';
 import { getTemplatesModel, ReqGetTemplates, ResGetTemplates } from '../../models/templates/handlers/get-templates';
 import { updateTemplateModel, UpdateTemplate } from '../../models/templates/handlers/update';
 import { deleteTemlateModel, DeleteTemplate } from '../../models/templates/handlers/delete';
 import { BunchesUpdated } from '../../shared/lib/structures/bunch';
+import { toHttpException } from '../../libs/errors';
 import { DeleteTemplateDto, ReqGetTemplatesDto, ResGetTemplatesDto, UpdateTemplateDto } from './dto';
 
 @ApiTags('templates')
@@ -28,11 +29,8 @@ export class TemplatesController {
   async getBunchesUpdated(): Promise<BunchesUpdated> {
     try {
       return await getBunchesUpdatedModel();
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -45,11 +43,8 @@ export class TemplatesController {
   async getTemplates(@Body() body: ReqGetTemplates): Promise<ResGetTemplates> {
     try {
       return await getTemplatesModel(body);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -66,11 +61,8 @@ export class TemplatesController {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { userId: _uid, ...rest } = body;
       return await updateTemplateModel({ ...rest, userId });
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -83,11 +75,8 @@ export class TemplatesController {
   async deleteTemplate(@Body() body: DeleteTemplate): Promise<DeleteTemplate> {
     try {
       return await deleteTemlateModel(body);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 }

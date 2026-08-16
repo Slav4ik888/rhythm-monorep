@@ -2,7 +2,7 @@
 // NestJS-контроллер для auth (миграция с Koa)
 // Заменяет controllers/auth/login, signup, reset-email-password
 
-import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, Res, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, HttpCode, Res, UseGuards } from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
@@ -28,6 +28,7 @@ import {
   ResetEmailPasswordResult,
 } from '../../models/auth/reset-email-password';
 import { setCookieFastify } from '../../libs/firebase/auth/set-cookie-fastify';
+import { toHttpException } from '../../libs/errors';
 import { AuthByLogin } from '../../models/auth/login/types';
 import { SignupData, SignupDataEnd } from '../../models/auth/signup/types';
 import { MessageResponseDto, SuccessMessageResponseDto } from '../../dto/common.dto';
@@ -55,7 +56,7 @@ export class AuthController {
   @ApiResponse({ status: 429, description: 'Превышен лимит запросов' })
   @HttpCode(200)
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
-  async loginByEmail(@Body() body: { authByLogin: AuthByLogin }, @Res() reply: FastifyReply): Promise<any> {
+  async loginByEmail(@Body() body: { authByLogin: AuthByLogin }, @Res() reply: FastifyReply): Promise<FastifyReply> {
     try {
       const args: LoginArgs = { authByLogin: body.authByLogin };
       const result: LoginResult = await loginModel(args);
@@ -64,11 +65,8 @@ export class AuthController {
       await setCookieFastify(reply, result.userCredential, result.user, 'login');
 
       return reply.send({ user: result.user, company: result.company, message: result.message });
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -83,11 +81,8 @@ export class AuthController {
     try {
       const args: SignupByEmailStartArgs = { signupData: body.signupData };
       return await signupByEmailStartModel(args);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -102,11 +97,8 @@ export class AuthController {
     try {
       const args: SignupSendCodeArgs = { signupData: body.signupData };
       return await signupSendCodeModel(args);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -121,7 +113,10 @@ export class AuthController {
     type: SignupByEmailEndResponseDto,
   })
   @HttpCode(200)
-  async signupByEmailEnd(@Body() body: { signupDataEnd: SignupDataEnd }, @Res() reply: FastifyReply): Promise<any> {
+  async signupByEmailEnd(
+    @Body() body: { signupDataEnd: SignupDataEnd },
+    @Res() reply: FastifyReply,
+  ): Promise<FastifyReply> {
     try {
       const args: SignupByEmailEndArgs = { signupDataEnd: body.signupDataEnd };
       const result: SignupByEmailEndResult = await signupByEmailEndModel(args);
@@ -134,11 +129,8 @@ export class AuthController {
         newCompanyData: result.newCompanyData,
         message: result.message,
       });
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -166,11 +158,8 @@ export class AuthController {
         });
       }
       return result;
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 }

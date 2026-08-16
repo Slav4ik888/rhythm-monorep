@@ -2,54 +2,48 @@
 
 ## Дата
 
-16.08.2026 (сессия 49)
+16.08.2026 (сессия 50)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 49 — Swagger: детальные DTO-схемы запросов/ответов (закрыт)
+### Этап 50 — Чистка техдолга: типизация `any` в контроллерах бэкенда (закрыт)
 
-Добавлены детальные схемы запросов/ответов для всех 25 эндпоинтов (Swagger UI `/api/docs` уже был, но без DTO).
+Устранён `any` во всех 10 NestJS-контроллерах.
 
-1. **Общие DTO сущностей** — `packages/backend/src/dto/`:
-   - `base.dto.ts` (`FixDateDto`, `ItemBaseDto`), `common.dto.ts` (`MessageResponseDto`, `SuccessMessageResponseDto`, `SuccessResponseDto`);
-   - `user.dto.ts` (`UserDto`, `PersonDto`, `FioDto`, `UserPartnerDataDto`, `UserSettingsDto`);
-   - `company.dto.ts` (`CompanyDto`, `GoogleDataDto`, `CustomSettingsDto`, `ColorSettingsDto`, сущности доступа);
-   - `view-item.dto.ts` (`ViewItemDto`, `ViewItemStylesDto`, `ViewItemSettingsDto`, `ViewItemChartsDto`, chart-DTO);
-   - `template.dto.ts` (`TemplateDto`).
-2. **DTO контроллеров** — `packages/backend/src/controllers/<name>/dto/` (auth, user, company, dashboard, templates, partner, params-company, google, docs).
-3. **Подключены** через `@ApiBody({ type })`, `@ApiResponse({ status, type })`, `@ApiQuery` (params-company GET).
-4. **Верификация:** `SwaggerModule.createDocument` → 25 путей, 49 схем; `tsc`, `lint` (0), backend (170 suites/1115 тестов) и frontend (446/3093) — зелёные.
-5. `VERSION` → **2.49.0** (синхронно в обоих `config/index.ts`). Обновлены `PLAN.md` (этап 49) и `README.dev.md` (Swagger DTO-схемы).
-6. **Рефакторинг подключения эмуляторов** (в этой же сессии): `FIRESTORE_EMULATOR_HOST` /
-   `FIREBASE_AUTH_EMULATOR_HOST` убраны из `.env`/`.env.example` (закомментированы). Теперь
-   обычный `npm run dev` ходит в **боевой** Firebase, а эмуляторы включаются только в
-   npm-скриптах: `test:emulators` (адреса в `config/jest/setup-emulators.ts`) и
-   `seed:emulators` (адреса инлайн в `packages/backend/package.json`). Комментировать `.env`
-   больше не нужно.
+1. **Общий хелпер ошибок** `packages/backend/src/libs/errors/`:
+   - `api-error.ts` (`ApiError` — Error + statusCode/body/response), `is-api-error.ts` (`isApiError`),
+     `to-http-exception.ts` (`toHttpException` — единая конвертация в `HttpException`), `index.ts`;
+   - unit-тест `libs/errors/tests/to-http-exception.test.ts` (4 теста).
+2. **`@CurrentUser() user: any` → `User`** (user, company, dashboard), `@Body() body: { companyData: any }` → `PartialCompany` (company).
+3. **`catch (err: any)` → `catch (err: unknown)` + `throw toHttpException(err)`** во всех контроллерах,
+   кроме `google` (там особая логика: проброс `HttpException` + `response.status` axios → 502).
+4. **`Promise<any>` → конкретные типы**: `PartialCompany`, `SuccessResponseDto`, `FastifyReply`,
+   `Record<string, never>`, `{ companyId; sheetId }`; `@Req() request: any` → `RequestWithCookies` (google).
+5. `VERSION` → **2.50.0** (синхронно в обоих `config/index.ts`). Обновлены `PLAN.md` (этап 50),
+   `README.dev.md`, `.clinerules/test-policy.md` (171 suites / 1119 тестов).
+6. **Верификация:** `tsc --noEmit` (0), `lint` (0), backend (171/1119) — зелёные.
 
 ## Следующие шаги
 
-1. **Опционально — расширить эмулятор-тесты:** getAuth с session cookie (`admin.auth().createSessionCookie` + `verifySessionCookie`), сброс пароля.
-2. **Дальше — по плану развития:** этап 2 (оплата/эквайринг) либо чистка техдолга.
+1. **Осталось из «Следующих шагов» прошлой сессии:** расширить эмулятор-тесты (getAuth с session cookie, сброс пароля) — опционально.
+2. **Оставшийся техдолг (кандидаты):**
+   - TODO по правам доступа/валидации в `models/*/handlers` (`// TODO: Permissions`, `validateUser` и т.п.) — пропущенная server-side логика;
+   - Rate limiting на не-auth эндпоинтах;
+   - недостающие unit-тесты: `shared/utils/random/index.ts`, `entities/blocks`, `entities/company-type`, `entities/statistic-type`, `api-paths.ts`, `query-keys.ts`.
+3. **Дальше — по плану развития:** этап 2 (оплата/эквайринг).
 
 ## Коммит
 
-`docs: Swagger — детальные DTO-схемы запросов/ответов для всех 25 эндпоинтов (этап 49)`
+`refactor: типизация any в контроллерах бэкенда + общий хелпер ошибок libs/errors (этап 50)`
 
 ## Предупреждения/заметки
 
-- **DTO подключаются к контроллерам ТОЛЬКО декораторами** (`@ApiBody`/`@ApiResponse`/`@ApiQuery`), а типы
-  `@Body()`/`@Query()` остаются модельными. Если заменить `@Body()` на DTO-класс — всплывут структурные
-  несовпадения (`CompanyDto.status: string` vs enum `CompanyStatus`, `SignupDataDto.partnerId?` vs обязательный
-  в `SignupData`) → ошибки типов. Зафиксировано в README.dev.md.
-- В DTO-файлах несколько классов на файл → `/* eslint-disable max-classes-per-file */` (проект жёстко держит
-  1 класс/файл в обычном коде — не убирай disable в DTO).
-- Проверка Swagger-генерации без поднятия сервера: `Test.createTestingModule({ imports: [AppModule] })` +
-  `FastifyAdapter` → `SwaggerModule.createDocument` (см. README.dev.md).
-- `VERSION` бэкенда сверяется с фронтом в `CheckVersionInterceptor` (409 при рассинхроне) — обновлять синхронно.
-- Данные эмуляторов in-memory (сбрасываются при `docker compose down`); после рестарта нужен `npm run seed:emulators`.
-- `test:emulators` / `seed:emulators` — отдельные npm-скрипты, НЕ входят в обычный `npm test`.
-- **Эмуляторы не задаются в `.env`.** Обычный `npm run dev` → боевой Firebase. Для прогона dev
-  против эмуляторов — раскомментируй обе строки в `.env` (см. комментарий там). Не клади
-  `FIRESTORE_EMULATOR_HOST`/`FIREBASE_AUTH_EMULATOR_HOST` в `/etc/rhythm/rhythm-server.env` (прод).
-- Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.
+- Ошибки моделей по-прежнему кидаются как `Object.assign(new Error(...), { statusCode, body })`.
+  `toHttpException` (`libs/errors`) конвертирует их в `HttpException(statusCode, body)`; прочие ошибки → 500 `{ general }`.
+- `google.controller` — единственный с особым catch: пробрасывает `HttpException`, отдельно ловит
+  `response.status` axios-ошибки Google Apps Script (→ 502). Не переводи его на общий `toHttpException` бездумно.
+- В ESLint `@typescript-eslint/no-explicit-any` отключён (0), но `unused-imports/no-unused-imports` — error:
+  после замены catch обязательно убирай ставшие неиспользуемыми `HttpException`/`HttpStatus` из импортов.
+- `strict` в `tsconfig.json` бэкенда НЕ включён; `tsc --noEmit -p packages/backend/tsconfig.json` — быстрый typecheck.
+- Актуальные цифры тестов — `.clinerules/test-policy.md`; эмулятор-тесты — отдельные npm-скрипты
+  (`test:emulators` / `seed:emulators`), НЕ входят в обычный `npm test`.

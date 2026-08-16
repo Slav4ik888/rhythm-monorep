@@ -2,13 +2,15 @@
 // NestJS-контроллер для user (миграция с Koa)
 // Заменяет controllers/user/get-auth/index.ts, controllers/user/update/index.ts, controllers/user/logout/index.ts
 
-import { Controller, Get, Post, Body, HttpException, HttpStatus, HttpCode, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, UseGuards, Res } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 import { getAuthModel, GetAuthArgs, ResGetAuth } from '../../models/user/handlers/get-auth';
 import { updateUserModel, UpdateUserArgs } from '../../models/user/handlers/update';
 import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
+import { toHttpException } from '../../libs/errors';
+import type { User } from '../../models/user';
 import { PartialUser } from '../../models/user/types';
 import { SuccessResponseDto } from '../../dto/common.dto';
 import { ResGetAuthDto, UpdateUserDto } from './dto';
@@ -24,18 +26,15 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Данные пользователя и компании', type: ResGetAuthDto })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(FirebaseAuthGuard)
-  async getAuth(@CurrentUser() user: any): Promise<ResGetAuth> {
+  async getAuth(@CurrentUser() user: User): Promise<ResGetAuth> {
     try {
       const args: GetAuthArgs = {
         userId: user.id,
         companyId: user.companyId,
       };
       return await getAuthModel(args);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -48,7 +47,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)
-  async update(@Body() body: { userData: PartialUser }, @CurrentUser() user: any): Promise<any> {
+  async update(@Body() body: { userData: PartialUser }, @CurrentUser() user: User): Promise<SuccessResponseDto> {
     try {
       const args: UpdateUserArgs = {
         userData: body.userData,
@@ -56,11 +55,8 @@ export class UserController {
       };
       await updateUserModel(args);
       return { success: true };
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 

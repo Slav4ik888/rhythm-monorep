@@ -9,6 +9,13 @@ import { serviceGetCompany } from '../../models/company';
 import { admin } from '../../libs/firebase/config/admin-sdk';
 import { cfg } from '../../app/config';
 import { GoogleGetDataDto } from './dto';
+import { isApiError, type ApiError } from '../../libs/errors';
+import type { FastifyRequest } from 'fastify';
+
+/** FastifyRequest с cookies (плагин @fastify/cookie) */
+interface RequestWithCookies extends FastifyRequest {
+  cookies?: Record<string, string>;
+}
 
 @ApiTags('dashboard')
 @Controller('api')
@@ -21,33 +28,35 @@ export class GoogleController {
   @ApiResponse({ status: 200, description: 'Данные из Google Таблицы' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
-  async getData(@Body() body: GoogleGetDataArgs, @Req() request: any): Promise<string> {
+  async getData(@Body() body: GoogleGetDataArgs, @Req() request: RequestWithCookies): Promise<string> {
     try {
       // Условная проверка доступа (как checkUserSession в Koa):
       // публичный дашборд — авторизация не требуется, иначе — нужна сессия
       await this.checkAccess(body.companyId, body.dashboardSheetId, request);
 
       return await googleGetDataModel(body);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Пробрасываем уже сформированные HttpException (401 из checkAccess и т.п.)
       if (err instanceof HttpException) throw err;
 
       // Ошибки бизнес-логики модели (выбрасываются с полями statusCode и body)
-      if (err?.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
+      if (isApiError(err)) {
+        throw new HttpException((err.body as object | string) || err.message, err.statusCode);
       }
 
       // Ошибка при обращении к внешнему сервису Google Apps Script (axios),
       // напр. ссылка невалидна или деплой скрипта удалён
-      if (err?.response?.status) {
-        console.error('[GoogleController] Google Apps Script error:', err?.response?.status, err?.message);
+      const responseStatus = (err as ApiError).response?.status;
+      if (typeof responseStatus === 'number') {
+        console.error('[GoogleController] Google Apps Script error:', responseStatus, (err as Error).message);
         throw new HttpException(
           { general: 'Не удалось получить данные из Google Таблицы. Проверьте корректность ссылки на таблицу.' },
           HttpStatus.BAD_GATEWAY,
         );
       }
 
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = err instanceof Error ? err.message : String(err);
+      throw new HttpException({ general: message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -56,7 +65,11 @@ export class GoogleController {
    * Для публичных дашбордов (dashboardPublicAccess[dashboardSheetId]) авторизация не требуется —
    * поведение полностью совпадает с Koa-контроллером controllers/google/get-data.
    */
-  private async checkAccess(companyId: string, dashboardSheetId: string | undefined, request: any): Promise<void> {
+  private async checkAccess(
+    companyId: string,
+    dashboardSheetId: string | undefined,
+    request: RequestWithCookies,
+  ): Promise<void> {
     if (!companyId || !dashboardSheetId) return;
 
     const company = await serviceGetCompany(companyId);
@@ -79,7 +92,7 @@ export class GoogleController {
 
   /** Извлекает session cookie из Fastify-запроса (аналогично FirebaseAuthGuard) */
   // eslint-disable-next-line class-methods-use-this
-  private extractSessionCookie(request: any): string | null {
+  private extractSessionCookie(request: RequestWithCookies): string | null {
     const cookies = request.cookies || {};
     const cookieValue: string = cookies[cfg.COOKIE_NAME] || '';
 

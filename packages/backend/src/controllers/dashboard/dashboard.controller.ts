@@ -2,7 +2,7 @@
 // NestJS-контроллер для dashboard (миграция с Koa)
 // Заменяет controllers/dashboard/bunch/get, view/createGroupItems, view/update, view/delete
 
-import { Controller, Post, Patch, Body, HttpException, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Post, Patch, Body, HttpCode, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getBunchesModel, ReqGetBunches, ResGetBunches } from '../../models/dashboard-view/handlers-bunch/get';
 import {
@@ -18,6 +18,8 @@ import {
 import { deleteViewItemModel, DeleteViews, DeleteViewsArgs } from '../../models/dashboard-view/handlers-view/delete';
 import { FirebaseAuthGuard } from '../../guards/firebase-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
+import { toHttpException } from '../../libs/errors';
+import type { User } from '../../models/user';
 import { CreateGroupViewItemsDto, DeleteViewsDto, ReqGetBunchesDto, ResGetBunchesDto, UpdateViewItemDto } from './dto';
 
 @ApiTags('dashboard')
@@ -33,11 +35,8 @@ export class DashboardController {
   async bunchGet(@Body() body: ReqGetBunches): Promise<ResGetBunches> {
     try {
       return await getBunchesModel(body);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -52,16 +51,13 @@ export class DashboardController {
   @UseGuards(FirebaseAuthGuard)
   async viewCreateGroupItems(
     @Body() body: CreateGroupViewItems,
-    @CurrentUser() user: any,
+    @CurrentUser() user: User,
   ): Promise<CreateGroupViewItems> {
     try {
       const args: CreateGroupViewItemsArgs = { ...body, userId: user.id };
       return await createGroupViewItemsModel(args);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -76,15 +72,12 @@ export class DashboardController {
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)
-  async viewUpdate(@Body() body: UpdateViewItem, @CurrentUser() user: any): Promise<UpdateViewItem> {
+  async viewUpdate(@Body() body: UpdateViewItem, @CurrentUser() user: User): Promise<UpdateViewItem> {
     try {
       const args: UpdateViewItemArgs = { ...body, userId: user.id };
       return await updateGroupViewItemsModel(args);
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 
@@ -97,16 +90,13 @@ export class DashboardController {
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @HttpCode(200)
   @UseGuards(FirebaseAuthGuard)
-  async viewDelete(@Body() body: DeleteViews, @CurrentUser() user: any): Promise<any> {
+  async viewDelete(@Body() body: DeleteViews, @CurrentUser() user: User): Promise<Record<string, never>> {
     try {
       const args: DeleteViewsArgs = { ...body, userId: user.id };
       await deleteViewItemModel(args);
       return {};
-    } catch (err: any) {
-      if (err.statusCode) {
-        throw new HttpException(err.body || err.message, err.statusCode);
-      }
-      throw new HttpException({ general: err.message || 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (err: unknown) {
+      throw toHttpException(err);
     }
   }
 }
