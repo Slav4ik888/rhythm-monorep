@@ -63,9 +63,9 @@
 
 **Этап 26. `shared/api`**
 
-- [ ] 26.1 `api.ts` — interceptors, обработка 409 (сброс SW + reload), повтор запросов
-- [ ] 26.2 `hooks/` — use-auth-query, use-company-queries, use-dashboard-data-query, use-dashboard-view-queries
-- [ ] 26.3 `features/*` (company, dashboard-templates, hints, user, docs, partner)
+- [x] 26.1 `api.ts` — interceptors, обработка 409 (сброс SW + reload), повтор запросов
+- [x] 26.2 `hooks/` — use-auth-query, use-company-queries, use-dashboard-data-query, use-dashboard-view-queries
+- [x] 26.3 `features/*` (company, dashboard-templates, dashboard-view, hints, user, docs, partner)
 
 ### P3 — Smoke-тесты frontend UI
 

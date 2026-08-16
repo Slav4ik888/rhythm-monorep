@@ -2,54 +2,58 @@
 
 ## Дата
 
-16.08.2026 (сессия 42)
+16.08.2026 (сессия 43)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 25 (P2) — unit-тесты libs / views / config (закрыт)
+### Этап 26 (P2) — тесты frontend `shared/api` (закрыт)
 
-Покрыты юнитами все пункты этапа 25 (+12 suites / +42 теста):
+Покрыты юнитами все пункты этапа 26 (+14 suites / +45 тестов в единичном зачёте;
+с учётом перекрытия testMatch между конфигами — +35 suites / +108 запусков тестов):
 
-- **25.1 `libs/firebase`** — `create-session-fastify` (admin.createSessionCookie → redisSetSession →
-  Set-Cookie заголовок), `set-cookie-fastify` (getIdToken(true) → createSessionFastify).
-- **25.2 `libs/redis`** — session get/set, signup get/set/update-answer-time (мок `libs/redis/init`:
-  `client.hGetAll/hSet`).
-- **25.3 `libs/emails`** — `send-mail` (рендер pug → juice → transport.sendMail), `send-group-mail`
-  (рассылка по списку + логирование успеха/ошибки).
-- **25.4 `views/errors`** — `get-error-message` (все ветки switch + default), `err-code` (значения enum).
-- **25.5 `config/load-env`** — подгрузка `.env` вне production (2 ветки).
+- **26.1 `api.ts`** — response-interceptor: обработка 409 Conflict (`updateRequired`) →
+  сброс Service Worker + очистка `window.caches` + `location.reload()`, защита от зацикливания
+  (не чаще 1 reload / 3 сек через `sessionStorage['vcheck-reload']`), проброс ошибок для прочих статусов.
+- **26.2 `hooks/`** — use-auth-query, use-company-queries, use-dashboard-data-query,
+  use-dashboard-view-queries (success/error ветки, `enabled`, обновление Zustand-сторов).
+- **26.3 `features/*`** — shared/api/features (company, dashboard-templates, dashboard-view, hints, user) +
+  features/docs/get-policy + features/partner.
 
 ### Цифры покрытия
 
-Backend теперь **170 suites / 1115 тестов** (unit 588 + shared 377 + validators 150).
-Обновлены `PLAN.md` (25.1–25.5 → `[x]`), `TEST-AUDIT.md`, `.clinerules/test-policy.md` (итоги).
+Frontend теперь **412 suites / 3034 тестов** (unit 210/1529, entities 49/390, features 12/35,
+shared 121/961, widgets 20/119). Весь проект: **588 suites / 4171 тестов**.
+Обновлены `PLAN.md` (26.1–26.3 → `[x]`), `.clinerules/test-policy.md`, `.planning/codebase/TEST-AUDIT.md`.
 
 ## Следующие шаги
 
-1. **Этап 26 (P2):** тесты frontend `shared/api`:
-   - 26.1 `api.ts` — interceptors, обработка 409 (сброс SW + reload), повтор запросов
-   - 26.2 `hooks/` — use-auth-query, use-company-queries, use-dashboard-data-query, use-dashboard-view-queries
-   - 26.3 `features/*` (company, dashboard-templates, hints, user, docs, partner)
-2. **Этап 27 (P3):** smoke-тесты frontend `widgets/` и `pages/`.
-3. **Этап 28 (P4):** чистка техдолга (мёртвый код, `internalUsers`, `any`→типы, Swagger, дробление).
+1. **Этап 27 (P3):** smoke-тесты frontend `widgets/` и `pages/`:
+   - 27.1 `widgets/` — auth, sidebar, navbar, footer, dashboard-view, dashboard-data, hints,
+     message-bar, page-loader
+   - 27.2 `pages/` — dashboard, company, company-profile, user-profile, demo, root
+2. **Этап 28 (P4):** чистка техдолга (мёртвый код, `internalUsers`, `any`→типы, Swagger, дробление
+   `entities/dashboard-view/model/store.ts` (465) и `widgets/dashboard-view/body-content/index.tsx` (352)).
 
 ## Коммит
 
-`test: unit-тесты libs/views/config (firebase, redis, emails, errors, load-env)`
+`test: unit-тесты frontend shared/api (api.ts, hooks, features)`
 
 ## Предупреждения/заметки
 
-- **VERSION теперь `2.42.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
+- **VERSION теперь `2.43.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
   `packages/backend/src/app/config/index.ts`) — синхронно. `ASSEMBLY_DATE` = `2026-08-16`.
-- **`require` в тестах запрещён** линтером (`@typescript-eslint/no-require-imports` — error).
-  Для перезагрузки модуля в тесте используй `await import('../load-env')` (после `jest.resetModules()`).
-- **Мок module-level side effect (nodemailer в `send-mail.test.ts`):** фабрика `jest.mock` должна быть
-  самодостаточной (создавать transport внутри), а ссылку получать после импорта:
-  `const transport = (createTransport as jest.Mock).mock.results[0].value;` — `clearMocks` чистит
-  `mock.results` перед каждым тестом, но сам объект (и его jest.fn) сохраняется по ссылке.
-  НЕ ссылайся в фабрике на `const`, объявленный ниже import — будет TDZ.
-- **Redis-хелперы** импортируют `client` из `libs/redis/init` (который реально коннектится к Redis) —
-  в тестах мокай `jest.mock('../../../../init', () => ({ client: { hGetAll: jest.fn(), hSet: jest.fn() } }))`.
-- **`Date.now`** в set-signup/update-answer-time фиксируется через `jest.spyOn(Date, 'now').mockReturnValue(...)`
-  - `jest.restoreAllMocks()` в `afterEach`.
+- **Тесты `shared/api/features/*` попадают сразу в два конфига** (`test:shared` по `**/shared/**`
+  и `test:features` по `**/features/**`) — это нормально, при подсчёте suites учитывай перекрытие.
+- **Мок axios:** самодостаточная фабрика `jest.mock('axios', () => ({ default: { create: () => instance } }))`,
+  где `instance = { get/post/patch: jest.fn(), interceptors: { request/response: { use: jest.fn() } } }`.
+  Ссылку на instance получай через импортированный `api` (`import { api } from 'shared/api'`).
+- **Мок Zustand-сторов:** `getState()` должен возвращать ОДИН и тот же state-объект (замкнутый в фабрике),
+  иначе каждый вызов вернёт новые `jest.fn` и проверки `toHaveBeenCalled` не сойдутся. Сам хук-мок —
+  callable функция `(selector) => selector ? selector(state) : state` + `.getState()/.setState()`.
+- **`clearMocks: true`** чистит `mock.calls/results` перед каждым тестом, но сам объект instance и его
+  `jest.fn` сохраняются по ссылке (как и в этапе 25). `mockResolvedValue` переустанавливай в `beforeEach`.
+- **Хуки TanStack Query:** оборачивай `renderHook` в `QueryClientProvider` (helper
+  `shared/api/hooks/tests/test-utils.tsx`). `retry` в хуках переопределяет `defaultOptions.retry: false`,
+  поэтому при тестах ошибок дожидайся вызова store-колбэка (`failGetData` и т.п.) в `queryFn`, а не `isError`
+  (retry откладывает error-состояние).
 - Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.

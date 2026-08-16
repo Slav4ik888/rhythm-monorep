@@ -10,7 +10,7 @@
 | Backend unit       | 103    | 588   | контроллеры (integration) + models + guards/interceptors/decorators + libs/views/config |
 | Backend shared     | 50     | 377   | `src/shared/utils/**`                                                                   |
 | Backend validators | 17     | 150   | `src/libs/validators/**` + схемы                                                        |
-| Frontend           | 377    | 2926  | entities/shared/helpers/lib + часть widgets/pages                                       |
+| Frontend           | 412    | 3034  | entities/shared/helpers/lib + часть widgets/pages                                       |
 | E2E (Playwright)   | 6      | 22    | guest/customer/admin + PWA-manifest                                                     |
 | E2E PWA (prod)     | 1      | 6     | `e2e/pwa/offline.spec.ts`                                                               |
 
@@ -59,15 +59,17 @@
 
 ## Frontend — что НЕ покрыто
 
-### 1. `shared/api` — 0 тестов (приоритет 🥇)
+### 1. `shared/api` — ✅ покрыто (сессия 43)
 
 `api.ts` (axios-клиент: interceptors, обработка 409 от `CheckVersionInterceptor` → сброс SW + reload),
 `hooks/` (use-auth-query, use-company-queries, use-dashboard-data-query, use-dashboard-view-queries),
-`features/` (company, dashboard-templates, dashboard-view, hints, user), `api-paths.ts`, `query-keys.ts`.
+`features/` (company, dashboard-templates, dashboard-view, hints, user).
 
-### 2. `features/*` — покрыт только dashboard-view (4 спека), остальные 8 — 0
+Не покрыты (вне этапа 26): `api-paths.ts`, `query-keys.ts` (простые константы-объекты).
 
-company, dashboard-data, dashboard-templates, docs, hints, partner, ui, user.
+### 2. `features/*` — покрыты dashboard-view (4 спека), docs, partner; остальные 6 — 0
+
+company, dashboard-data, dashboard-templates, hints, ui, user.
 
 ### 3. `widgets/*` — покрыты только dashboard-render (14) и view-configurator (6)
 
