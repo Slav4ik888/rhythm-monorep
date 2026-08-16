@@ -28,7 +28,7 @@
 - [x] 22.1 Фикстуры/моки Firestore (общий `models/tests/mocks/firestore.ts`); Redis/Email — добавятся в этапе 25 по мере надобности
 - [x] 22.2 `auth/signup/services` (create-new-company, create-new-user, complection-user) + `auth/login/services` (check-is-user-disabled)
 - [x] 22.3 `user/services` (get, update, find-user-by-email, find-user-by-id, set-verification, check-user-verification)
-- [ ] 22.4 `company/services` (get, update, delete-sheet)
+- [x] 22.4 `company/services` (get, update, delete-sheet)
 - [ ] 22.5 `dashboard-view/services` (get-bunches, get-view-items, get-all-views, create-group-items, update, delete-group)
 - [ ] 22.6 `templates/services` (get-templates, get-bunches-updated, update, delete)
 - [ ] 22.7 `partner/services` (increase-follower, increase-register-started, increase-register-ended)

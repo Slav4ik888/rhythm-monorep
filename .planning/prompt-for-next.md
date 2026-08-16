@@ -2,56 +2,50 @@
 
 ## Дата
 
-16.08.2026 (сессия 34)
+16.08.2026 (сессия 35)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 22.3 (P0) — unit-тесты `models/user/services`
+### Этап 22.4 (P0) — unit-тесты `models/company/services`
 
-- Написаны unit-тесты 6 сервисов (13 новых тестов, 6 новых спеков):
-  - `models/user/services/find-user-by-email/tests/find-user-by-email.test.ts`
-  - `models/user/services/find-user-by-id/tests/find-user-by-id.test.ts`
-  - `models/user/services/get/tests/check-user-verification.test.ts`
-  - `models/user/services/get/tests/set-verification.test.ts`
-  - `models/user/services/get/tests/get.test.ts`
-  - `models/user/services/update/tests/update.test.ts`
-- В общий мок `models/tests/mocks/firestore.ts` добавлена фабрика `createMockCollectionGroup`
-  (цепочка `collectionGroup().where().limit().get()` для find-user-by-email/id).
-
-### Исправление в общем моке Firestore
-
-- Починены фабрики `createMockColRef` / `createMockCollectionGroup`: раньше
-  `where/orderBy/limit` возвращали **внутренний** объект, из-за чего переопределённый
-  `get` (через `overrides`) терялся и цепочка `.where().get()` возвращала `docs: []`.
-  Теперь `where/orderBy/limit` возвращают финальный объект (с overrides).
+- Написаны unit-тесты 3 сервисов (5 новых тестов, 3 новых спека):
+  - `models/company/services/get/tests/get.test.ts`
+  - `models/company/services/update/tests/update.test.ts`
+  - `models/company/services/delete-sheet/tests/delete-sheet.test.ts`
+- `delete-sheet` тестируется с моком `firebase-admin/firestore` (`FieldValue.delete()` → sentinel),
+  чтобы не инициализировать firebase-admin в тестах.
 
 ### Цифры покрытия
 
-Backend теперь **137 suites / 1012 тестов** (unit 485 + shared 377 + validators 150).
-Обновлены `PLAN.md` (22.3 → `[x]`), `TEST-AUDIT.md`, `.clinerules/test-policy.md` (итоги).
+Backend теперь **140 suites / 1017 тестов** (unit 490 + shared 377 + validators 150).
+Обновлены `PLAN.md` (22.4 → `[x]`), `TEST-AUDIT.md`, `.clinerules/test-policy.md` (итоги).
 
 ## Следующие шаги
 
-1. **22.4 (P0):** unit-тесты `models/company/services` — get, update, delete-sheet
-   (использовать общий firestore-мок; смотреть `models/company/services/`).
-2. Дальше по списку `PLAN.md`: 22.5 dashboard-view → 22.6 templates → 22.7 partner → 22.8 google.
+1. **22.5 (P0):** unit-тесты `models/dashboard-view/services` — get-bunches, get-view-items,
+   get-all-views, create-group-items, update, delete-group
+   (использовать общий firestore-мок; смотреть `models/dashboard-view/services/`).
+2. Дальше по списку `PLAN.md`: 22.6 templates → 22.7 partner → 22.8 google.
 3. Затем **этап 23 (P0):** guard/interceptors/decorators.
 
 ## Коммит
 
-`test: unit-тесты user-сервисов (get/update/find/set-verification) + мок collectionGroup`
+`test: unit-тесты company-сервисов (get/update/delete-sheet)`
 
 ## Предупреждения/заметки
 
-- **VERSION теперь `2.34.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
+- **VERSION теперь `2.35.0`** в обоих файлах (`packages/frontend/src/app/config/index.ts`,
   `packages/backend/src/app/config/index.ts`) — синхронно. `ASSEMBLY_DATE` = `2026-08-16`.
-- **Мок firebase** в тестах, где сервис импортирует `User` из `models/user/index.ts`
-  (тот тянет services → firebase): `jest.mock('.../libs/firebase', () => ({ auth: {}, admin: {}, db: {} }))`.
-- **Для `db.collectionGroup(...)`** используй `createMockCollectionGroup` из `models/tests/mocks/firestore.ts`
-  (а `db` — `jest.mock` с `{ collectionGroup: jest.fn() }`).
-- **`serviceGetUser`** тестируется с моком внутренних `check-user-verification` / `set-verification`
-  (`jest.mock('../check-user-verification', ...)`), чтобы изолировать логику get.
-- **`serviceSetVerification`** шлёт письмо через `sendMail` — мокай `libs/emails`.
+- **Общий мок Firestore** — в `models/tests/mocks/firestore.ts`:
+  - `createMockDocRef` (get/update/set/delete), `createMockColRef` (add/doc/where/orderBy/limit/get),
+    `createMockCollectionGroup` (where/orderBy/limit/get для `db.collectionGroup`).
+  - Фабрики возвращают финальный объект (с overrides), цепочки `where/orderBy/limit` не теряют get.
+- **Для сервисов через `getRefDoc`** мокай помощники:
+  `jest.mock('.../helpers', () => ({ ...jest.requireActual('.../helpers/types'), getRefDoc: jest.fn() }))`.
+- **Для `FieldValue.delete()`** (`firebase-admin/firestore`) мокай модуль:
+  `jest.mock('firebase-admin/firestore', () => ({ FieldValue: { delete: jest.fn(() => 'sentinel') } }))`.
+- **Мок firebase** в тестах, где сервис тянет `models/*/index.ts` → services → `libs/firebase`:
+  `jest.mock('.../libs/firebase', () => ({ auth: {}, admin: {}, db: {} }))`.
 - **`convertToDot`** даёт dot-нотацию: в `expect.objectContaining` используй ключи вида
   `'lastChange.userId'`.
 - Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.
