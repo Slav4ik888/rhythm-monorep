@@ -36,18 +36,18 @@
 
 **Этап 23. guards / interceptors / decorators**
 
-- [ ] 23.1 `FirebaseAuthGuard` — `extractSessionCookie` (парсинг `uid/session`) + `canActivate` (мок `admin.auth()`)
-- [ ] 23.2 `CheckVersionInterceptor` — 409 при рассинхроне версии
-- [ ] 23.3 `LoggingInterceptor` — фильтрация internalUsers + `getUserId`
-- [ ] 23.4 `CurrentUser` decorator
+- [x] 23.1 `FirebaseAuthGuard` — `extractSessionCookie` (парсинг `uid/session`) + `canActivate` (мок `admin.auth()`)
+- [x] 23.2 `CheckVersionInterceptor` — 409 при рассинхроне версии
+- [x] 23.3 `LoggingInterceptor` — фильтрация internalUsers + `getUserId`
+- [x] 23.4 `CurrentUser` decorator
 
 ### P1 — Безопасность: Rate limiting
 
 **Этап 24. Rate limiting на auth-эндпоинтах** (заявлен в требованиях, не реализован)
 
-- [ ] 24.1 Подключить `@nestjs/throttler` (или Fastify-эквивалент) + конфигурация
-- [ ] 24.2 Применить на `/api/auth/login/byEmail`, `/api/auth/signup/*`, `/api/auth/login/resetEmailPassword`
-- [ ] 24.3 Integration-тесты: превышение лимита → 429
+- [x] 24.1 Подключить `@nestjs/throttler` (или Fastify-эквивалент) + конфигурация
+- [x] 24.2 Применить на `/api/auth/login/byEmail`, `/api/auth/signup/*`, `/api/auth/login/resetEmailPassword`
+- [x] 24.3 Integration-тесты: превышение лимита → 429
 
 ### P2 — Инфраструктурные unit-тесты backend
 

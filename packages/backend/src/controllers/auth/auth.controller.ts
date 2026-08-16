@@ -2,7 +2,8 @@
 // NestJS-контроллер для auth (миграция с Koa)
 // Заменяет controllers/auth/login, signup, reset-email-password
 
-import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, Res } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, Res, UseGuards } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { FastifyReply } from 'fastify';
 import { loginModel, LoginArgs, LoginResult } from '../../models/auth/login';
 import {
@@ -30,11 +31,14 @@ import { AuthByLogin } from '../../models/auth/login/types';
 import { SignupData, SignupDataEnd } from '../../models/auth/signup/types';
 
 @Controller('api')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   // POST /api/auth/login/byEmail — вход по email
+  // Лимит ужесточён против перебора паролей (5 запросов/мин на IP).
   // eslint-disable-next-line class-methods-use-this
   @Post('/auth/login/byEmail')
   @HttpCode(200)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   async loginByEmail(@Body() body: { authByLogin: AuthByLogin }, @Res() reply: FastifyReply): Promise<any> {
     try {
       const args: LoginArgs = { authByLogin: body.authByLogin };
@@ -110,9 +114,11 @@ export class AuthController {
   }
 
   // POST /api/auth/login/resetEmailPassword — сброс пароля
+  // Лимит ужесточён против спама ссылками восстановления (3 запроса/мин на IP).
   // eslint-disable-next-line class-methods-use-this
   @Post('/auth/login/resetEmailPassword')
   @HttpCode(200)
+  @Throttle({ default: { limit: 3, ttl: 60_000 } })
   async resetEmailPassword(@Body() body: { email: string }): Promise<ResetEmailPasswordResult> {
     try {
       const args: ResetEmailPasswordArgs = { email: body.email };

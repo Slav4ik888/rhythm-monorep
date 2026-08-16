@@ -4,6 +4,7 @@
 
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { DocsModule } from './controllers/docs/docs.module';
 import { ParamsCompanyModule } from './controllers/params-company/params-company.module';
 import { PartnerModule } from './controllers/partner/partner.module';
@@ -19,6 +20,14 @@ import { CheckVersionInterceptor } from './interceptors/check-version.intercepto
 
 @Module({
   imports: [
+    // Rate limiting (глобально, @Global()). По умолчанию 10 запросов/мин на IP.
+    // На auth-эндпоинтах лимиты переопределяются через @Throttle в AuthController.
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000,
+        limit: 10,
+      },
+    ]),
     DocsModule,
     ParamsCompanyModule,
     PartnerModule,

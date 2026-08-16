@@ -110,7 +110,7 @@ npx playwright test --project=admin        # Только админ
 
 | Контроллер     | Файл                                                                                      | Тесты |
 | -------------- | ----------------------------------------------------------------------------------------- | ----- |
-| Auth           | `packages/backend/src/controllers/auth/tests/auth.controller.spec.ts`                     | 10    |
+| Auth           | `packages/backend/src/controllers/auth/tests/auth.controller.spec.ts`                     | 12    |
 | Company        | `packages/backend/src/controllers/company/tests/company.controller.spec.ts`               | 6     |
 | Dashboard      | `packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts`           | 9     |
 | User           | `packages/backend/src/controllers/user/tests/user.controller.spec.ts`                     | 9     |
@@ -127,8 +127,9 @@ npx playwright test --project=admin        # Только админ
 - Держи `@nestjs/testing` версией, синхронной с `@nestjs/core` (сейчас `11.1.29`). Не удаляй зависимость.
 - Модели контроллеры импортируют напрямую (не через DI) — мокай их через `jest.mock('../../../models/...')`.
 - **`FirebaseAuthGuard`:** НЕ импортируй реальный guard — он тянет `models` → `libs/redis`, оставляет открытый handle и вешает завершение jest. Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(FirebaseAuthGuard).useValue({ canActivate })`.
+- **`ThrottlerGuard`** (`@nestjs/throttler`, глобально `ThrottlerModule.forRoot` в `app.module` + `@UseGuards` на `AuthController`): в бизнес-тестах отключай через `overrideGuard(ThrottlerGuard).useValue({ canActivate: () => true })`; тесты 429 — отдельный `describe` с `ThrottlerModule.forRoot([{ ttl, limit: 2 }])` без override и последовательными `app.inject` (см. `postSequentially` в `auth.controller.spec.ts`).
 
-**Итого (бэкенд):** 154 suites, 1049 тестов (unit 522 + shared 377 + validators 150), включая integration-тесты всех 10 контроллеров.
+**Итого (бэкенд):** 158 suites, 1073 тестов (unit 546 + shared 377 + validators 150), включая integration-тесты всех 10 контроллеров и unit-тесты guards/interceptors/decorators.
 
 ## Приоритет блоков для покрытия тестами (Фронтенд)
 
@@ -152,8 +153,8 @@ npx playwright test --project=admin        # Только админ
 | customer | `e2e/customer/profile.spec.ts` | 2     |
 | admin    | `e2e/admin/dashboard.spec.ts`  | 2     |
 
-**Итого (весь проект):** 154 suites (backend) + 377 suites (frontend) + 6 suites (e2e) = **537 suites**;
-1049 тестов (backend) + 2926 тестов (frontend) + 22 теста (e2e) = **3997 тестов**.
+**Итого (весь проект):** 158 suites (backend) + 377 suites (frontend) + 6 suites (e2e) = **541 suites**;
+1073 тестов (backend) + 2926 тестов (frontend) + 22 теста (e2e) = **4021 тестов**.
 
 **Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — smoke-тесты (guest/customer/admin) +
 сценарии входа/регистрации (моки `/api/*`), реферальной программы (`?ref=`), PWA (манифест + SW). **Lint:** 0 ошибок.

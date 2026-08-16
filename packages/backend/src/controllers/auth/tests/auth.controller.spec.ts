@@ -4,6 +4,7 @@
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthController } from '../auth.controller';
 import { loginModel } from '../../../models/auth/login';
 import { signupByEmailStartModel } from '../../../models/auth/signup/handlers/by-email-start';
@@ -41,13 +42,29 @@ const post = (app: NestFastifyApplication, url: string, payload: unknown) =>
     payload: payload as object,
   });
 
+// Последовательные запросы (важно для rate limiting: порядок определяет накопление счётчика).
+const postSequentially = async (app: NestFastifyApplication, url: string, payload: unknown, count: number) => {
+  const responses = [];
+  for (let i = 0; i < count; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    responses.push(await post(app, url, payload));
+  }
+  return responses;
+};
+
 describe('AuthController (integration)', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      // Большой лимит + мок guard: в этом блоке проверяется бизнес-логика,
+      // а не rate limiting (он покрыт отдельным describe ниже).
+      imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 1000 }])],
       controllers: [AuthController],
-    }).compile();
+    })
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
     await app.init();
@@ -240,5 +257,64 @@ describe('AuthController (integration)', () => {
       expect(response.statusCode).toBe(400);
       expect(response.json()).toEqual({ general: 'Неверная почта' });
     });
+  });
+});
+
+describe('AuthController — rate limiting (429)', () => {
+  let app: NestFastifyApplication;
+
+  beforeAll(async () => {
+    // Маленький лимит + реальный ThrottlerGuard (без override) — проверяем 429.
+    const moduleRef = await Test.createTestingModule({
+      imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 2 }])],
+      controllers: [AuthController],
+    }).compile();
+
+    app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('signup/byEmailStart: превышение дефолтного лимита (2) → 429', async () => {
+    signupByEmailStartModelMock.mockResolvedValue({ message: 'ok' });
+
+    const responses = await postSequentially(
+      app,
+      '/api/auth/signup/byEmailStart',
+      { signupData: { email: 'new@mail.ru' } },
+      3,
+    );
+
+    expect(responses[0].statusCode).toBe(200);
+    expect(responses[1].statusCode).toBe(200);
+    expect(responses[2].statusCode).toBe(429);
+  });
+
+  it('login/byEmail: лимит переопределён @Throttle (5), 6-й запрос → 429', async () => {
+    loginModelMock.mockResolvedValue({
+      user: { id: 'u1', email: 'korzan.va@mail.ru' },
+      company: { id: 'c1', companyName: 'Test' },
+      userCredential: { user: { getIdToken: jest.fn() } },
+      message: 'Login is successfully!',
+    });
+    setCookieFastifyMock.mockResolvedValue(undefined);
+
+    const responses = await postSequentially(
+      app,
+      '/api/auth/login/byEmail',
+      { authByLogin: { email: 'korzan.va@mail.ru', password: 'secret' } },
+      6,
+    );
+
+    expect(responses[4].statusCode).toBe(200);
+    expect(responses[5].statusCode).toBe(429);
   });
 });
