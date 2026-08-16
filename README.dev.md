@@ -524,10 +524,13 @@ docker compose down              # остановить (данные эмуля
 Данные эмуляторов хранятся in-memory (сбрасываются при перезапуске) — сиды применяются программно.
 Кэш скачанных бинарников эмуляторов персистится в volume `firebase-emulator-cache`.
 
-Подключение бэкенда к эмуляторам — через `packages/backend/.env`:
+Подключение бэкенда к эмуляторам задаётся **не в `.env`**, а точечно в npm-скриптах:
 `FIRESTORE_EMULATOR_HOST=localhost:8080` и `FIREBASE_AUTH_EMULATOR_HOST=localhost:9099`
-(Admin SDK подхватывает их автоматически; client SDK `firebase/auth` подключается через
-`connectAuthEmulator` в `libs/firebase/config/fire.ts`).
+задаются инлайн в `seed:emulators` (см. `packages/backend/package.json`) и в
+`config/jest/setup-emulators.ts` (для `test:emulators`). Поэтому обычный `npm run dev`
+ходит в боевой Firebase, а эмуляторы включаются только в эмуляторных сценариях — без
+ручного комментирования `.env`. (Admin SDK подхватывает эти переменные автоматически;
+client SDK `firebase/auth` подключается через `connectAuthEmulator` в `libs/firebase/config/fire.ts`.)
 
 **Важно — projectId.** Эмулятор запускается с `--project rhythm-g2d7` (см. `command` в
 `docker-compose.yml` / `CMD` в `docker/firebase/Dockerfile`). Это значение **должно совпадать**
@@ -551,8 +554,9 @@ npm run test:emulators -w packages/backend
 
 - `seed:emulators` — идемпотентный скрипт (`packages/backend/src/scripts/seed-emulators.ts`):
   создаёт владельца `owner@rhythm.test` / `Password123!` (Auth через `admin.auth().createUser`)
-  и активную компанию + пользователя в Firestore. Запускается только при заданных
-  `FIRESTORE_EMULATOR_HOST` / `FIREBASE_AUTH_EMULATOR_HOST` (защита от записи в боевой Firebase).
+  и активную компанию + пользователя в Firestore. Адреса эмуляторов задаются инлайн в npm-скрипте
+  (`FIRESTORE_EMULATOR_HOST`/`FIREBASE_AUTH_EMULATOR_HOST`), а скрипт отказывается работать без
+  них (защита от записи в боевой Firebase).
 - `test:emulators` — отдельный Jest-прогон (`jest.config-emulators.ts`, файлы `*.emulators.spec.ts`),
   покрывающий вход seed-пользователя и полный цикл регистрации (byEmailStart → код из Redis →
   byEmailEnd → вход). Не входит в обычный `npm test` (`.emulators.` исключён в `jest.config.ts`).

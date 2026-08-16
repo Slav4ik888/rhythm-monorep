@@ -34,6 +34,7 @@ process.env.SMTP_PASS = process.env.SMTP_PASS || 'test';
 // Логи — заглушка пароля доступа к /loggers/*.
 process.env.LOGS_PASS = process.env.LOGS_PASS || 'test-pass';
 
-// Адреса эмуляторов (совпадают с docker-compose.yml). Если .env уже задал свои — не трогаем.
+// Адреса эмуляторов (совпадают с docker-compose.yml). Задаём явно, чтобы эмуляторные
+// тесты не зависели от .env (обычный `npm run dev` должен ходить в боевой Firebase).
 process.env.FIRESTORE_EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || 'localhost:8080';
 process.env.FIREBASE_AUTH_EMULATOR_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST || 'localhost:9099';

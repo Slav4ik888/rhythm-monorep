@@ -20,6 +20,12 @@
 3. **Подключены** через `@ApiBody({ type })`, `@ApiResponse({ status, type })`, `@ApiQuery` (params-company GET).
 4. **Верификация:** `SwaggerModule.createDocument` → 25 путей, 49 схем; `tsc`, `lint` (0), backend (170 suites/1115 тестов) и frontend (446/3093) — зелёные.
 5. `VERSION` → **2.49.0** (синхронно в обоих `config/index.ts`). Обновлены `PLAN.md` (этап 49) и `README.dev.md` (Swagger DTO-схемы).
+6. **Рефакторинг подключения эмуляторов** (в этой же сессии): `FIRESTORE_EMULATOR_HOST` /
+   `FIREBASE_AUTH_EMULATOR_HOST` убраны из `.env`/`.env.example` (закомментированы). Теперь
+   обычный `npm run dev` ходит в **боевой** Firebase, а эмуляторы включаются только в
+   npm-скриптах: `test:emulators` (адреса в `config/jest/setup-emulators.ts`) и
+   `seed:emulators` (адреса инлайн в `packages/backend/package.json`). Комментировать `.env`
+   больше не нужно.
 
 ## Следующие шаги
 
@@ -43,4 +49,7 @@
 - `VERSION` бэкенда сверяется с фронтом в `CheckVersionInterceptor` (409 при рассинхроне) — обновлять синхронно.
 - Данные эмуляторов in-memory (сбрасываются при `docker compose down`); после рестарта нужен `npm run seed:emulators`.
 - `test:emulators` / `seed:emulators` — отдельные npm-скрипты, НЕ входят в обычный `npm test`.
+- **Эмуляторы не задаются в `.env`.** Обычный `npm run dev` → боевой Firebase. Для прогона dev
+  против эмуляторов — раскомментируй обе строки в `.env` (см. комментарий там). Не клади
+  `FIRESTORE_EMULATOR_HOST`/`FIREBASE_AUTH_EMULATOR_HOST` в `/etc/rhythm/rhythm-server.env` (прод).
 - Актуальные цифры тестов — в `.clinerules/test-policy.md`; аудит — `.planning/codebase/TEST-AUDIT.md`.

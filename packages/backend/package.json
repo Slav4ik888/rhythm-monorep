@@ -14,7 +14,7 @@
     "test:unit": "jest --config ./config/jest/jest.config.ts",
     "test:emulators": "RUN_EMULATOR_TESTS=1 jest --config ./config/jest/jest.config-emulators.ts",
     "test": "npm run test:unit && npm run test:shared && npm run test:validators",
-    "seed:emulators": "ts-node src/scripts/seed-emulators.ts"
+    "seed:emulators": "FIRESTORE_EMULATOR_HOST=localhost:8080 FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 ts-node src/scripts/seed-emulators.ts"
   },
   "author": "Vyacheslav",
   "license": "ISC",

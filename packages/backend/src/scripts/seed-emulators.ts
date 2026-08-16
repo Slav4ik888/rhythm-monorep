@@ -6,7 +6,8 @@
 // «входа» можно было прогнать против реального Auth-эмулятора. Сценарий «регистрации»
 // создаёт пользователя/компанию на лету и в сидах не нуждается.
 
-// Важно: .env должен подгрузиться ДО импорта libs/firebase (admin-sdk читает
+// Важно: переменные окружения (секреты из .env + адреса эмуляторов из npm-скрипта
+// seed:emulators) должны быть в process.env ДО импорта libs/firebase (admin-sdk читает
 // FIRESTORE_EMULATOR_HOST / FIREBASE_AUTH_EMULATOR_HOST на этапе getFirestore()).
 import '../config/load-env';
 import { admin, db } from '../libs/firebase';
@@ -27,7 +28,8 @@ async function seed() {
   if (!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_HOST) {
     throw new Error(
       'Отказано: FIRESTORE_EMULATOR_HOST / FIREBASE_AUTH_EMULATOR_HOST не заданы. ' +
-        'Запусти эмуляторы (docker compose up -d) и пропиши переменные в packages/backend/.env',
+        'Запусти эмуляторы (docker compose up -d) и используй npm run seed:emulators ' +
+        '(адреса эмуляторов задаются инлайн в npm-скрипте).',
     );
   }
 
