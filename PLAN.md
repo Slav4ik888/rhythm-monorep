@@ -156,6 +156,19 @@
       Бизнес-тесты переведены на `ThrottlerModule.forRoot([{ ttl: 60_000, limit: 1000 }])` + `overrideGuard(ThrottlerGuard)`.
 - [x] 52.4 Верификация: `tsc`, `lint` (0), backend (181 suites / 1178 тестов), frontend (446 suites / 3093 теста) — зелёные.
 
+### Этап 53 — Unit-тесты пропущенных frontend-модулей
+
+**Закрытие пункта техдолга «недостающие unit-тесты» из TEST-AUDIT** (раздел «Не покрыты»: `api-paths.ts`, `query-keys.ts` и сущности без тестов).
+
+- [x] 53.1 `shared/helpers/random` — unit-тесты всех функций (`getRandomNumber`, `getRandomNumbers`, `getRandomEngLitera`,
+      `getRandomPasswordChar`, `getRandomLetters` + fixed-length, `getRandomElement`, `getRandomBoolean`, `getMixedArray`).
+- [x] 53.2 `shared/api/api-paths.ts` — регрессионный тест эндпоинтов (сверка с глоссарием) + проверка отсутствия `/api`-префикса.
+- [x] 53.3 `shared/api/query-keys.ts` — тест генераторов ключей TanStack Query.
+- [x] 53.4 `entities/statistic-type` — тесты конфига `STATISTIC_PERIOD_TYPE` и утилит
+      `gelStatisticPeriodLabel`/`gelStatisticPeriodColor`.
+- [x] 53.5 `entities/company-type` (`CompanyTypeChip`) и `entities/blocks` (`DashboardBoxContainer`) — smoke-тесты (`.test.tsx`).
+- [x] 53.6 Верификация: `lint` (0), backend (181 suites / 1178 тестов), frontend (460 suites / 3189 тестов) — зелёные.
+
 ---
 
 ## Правила ведения плана

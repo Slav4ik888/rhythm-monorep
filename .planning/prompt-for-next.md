@@ -2,53 +2,57 @@
 
 ## Дата
 
-16.08.2026 (сессия 52)
+16.08.2026 (сессия 53)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 52 — Rate limiting на не-auth эндпоинтах (закрыт)
+### Этап 53 — Unit-тесты пропущенных frontend-модулей (закрыт)
 
-Закрыт пункт техдолга «Rate limiting на не-auth эндпоинтах» (продолжение этапа 24, где лимиты были только на auth).
+Закрыт пункт техдолга «недостающие unit-тесты» (раздел «Не покрыты» из TEST-AUDIT). Добавлено 8 тест-файлов (+50 тестов):
 
-1. **`@UseGuards(ThrottlerGuard)`** добавлен на публичные read-эндпоинты (лимит по умолчанию из `app.module` — 10 запросов/мин на IP):
-   - `ParamsCompanyController` (GET+POST `/paramsCompany/get`) — на уровне класса;
-   - `DashboardController.bunchGet` (POST `/dashboard/bunch/get`) — `@UseGuards(OptionalFirebaseAuthGuard, ThrottlerGuard)`;
-   - `TemplatesController` — `getBunchesUpdated` (GET) и `getTemplates` (POST) — на уровне методов;
-   - `DocsController.getPolicy` (GET) — на уровне класса;
-   - `GoogleController.getData` (POST) — на уровне класса.
-2. **Swagger:** `@ApiResponse({ status: 429 })` добавлен для всех перечисленных эндпоинтов.
-3. **Integration-тесты:** в каждый из 5 контроллер-спеков добавлен отдельный `describe` «rate limiting (429)»
-   (`ThrottlerModule.forRoot([{ ttl: 60_000, limit: 2 }])` без override guard + последовательные `app.inject`);
-   бизнес-тесты переведены на `ThrottlerModule.forRoot([{ ttl: 60_000, limit: 1000 }])` + `overrideGuard(ThrottlerGuard)`.
-4. `VERSION` → **2.52.0** (синхронно в обоих `config/index.ts`). Обновлены `PLAN.md` (этап 52),
-   `.clinerules/test-policy.md` (цифры + заметка про ThrottlerGuard).
+1. **`shared/helpers/random`** → `tests/random.test.ts` (19 тестов) — полное покрытие: `getRandomNumber`,
+   `getRandomNumbers`, `getRandomEngLitera`, `getRandomPasswordChar`, `getRandomLetters` + fixed-length
+   (3/5/10/20/28), `getRandomElement`, `getRandomBoolean`, `getMixedArray` (детерминированно через `jest.spyOn(Math, 'random')`).
+2. **`shared/api/api-paths.ts`** → `api-paths.test.ts` (8 тестов) — сверка всех эндпоинтов с глоссарием +
+   проверка, что пути начинаются с `/` и не содержат `/api`-префикс (рекурсивный сбор значений).
+3. **`shared/api/query-keys.ts`** → `query-keys.test.ts` (5 тестов) — генераторы ключей TanStack Query.
+4. **`entities/statistic-type`** → `model/config/tests/statistic-type.test.ts` (5) + `get-statistic-period-label/tests/` (5) +
+   `get-statistic-period-color/tests/` (4) — конфиг `STATISTIC_PERIOD_TYPE`, `arrayStatisticPeriodType` и утилиты
+   (приоритет customSettings → тема → fallback).
+5. **`entities/company-type`** → `ui/company-type/tests/company-type.test.tsx` (2) — smoke `CompanyTypeChip`
+   (рендер в `ThemeProvider` с `light-custom-palette`).
+6. **`entities/blocks`** → `ui/cards/block/tests/block.test.tsx` (2) — smoke `DashboardBoxContainer`
+   (тема собирается через `getThemeByName`, как в `shared/lib/tests/render-page`).
+
+`VERSION` → **2.53.0** (синхронно в обоих `config/index.ts`). Обновлены `PLAN.md` (этап 53), `.clinerules/test-policy.md` (цифры).
 
 ## Следующие шаги
 
 1. **Оставшийся техдолг (кандидаты):**
-   - TODO по правам доступа в `models/helpers/get-ref-doc` и `models/base/types` (`// TODO: remove from this`, `// TODO: алгоритм этого`) — косметика/низкий приоритет;
+   - TODO-комментарии в `models/base/types/base.ts` (`// TODO: remove from this`, `// TODO: алгоритм этого`) и
+     закомментированные строки в `models/helpers/get-ref-doc/index.ts` — косметика/низкий приоритет (можно удалить);
    - `isEditAccess` (временный запрет Конструктора) пока **не проверяется на бэке** — намеренно пропущено,
      чтобы не заблокировать владельца (дефолт `false` в `creatorUser`). Решить, кто и как его включает, прежде чем добавлять гейт;
-   - недостающие unit-тесты: `shared/utils/random/index.ts`, `entities/blocks`, `entities/company-type`, `entities/statistic-type`, `api-paths.ts`, `query-keys.ts`;
    - опционально: расширить эмулятор-тесты (getAuth с session cookie, сброс пароля).
 2. **Дальше — по плану развития:** этап 2 (оплата/эквайринг).
 
 ## Коммит
 
-`feat: rate limiting на не-auth эндпоинтах (этап 52)`
+`test: unit-тесты пропущенных frontend-модулей (этап 53)`
 
 ## Предупреждения/заметки
 
-- Лимит для не-auth read-эндпоинтов — общий дефолт `ThrottlerModule.forRoot` (10/мин на IP). Если окажется
-  слишком строгим для `getData` (внешний вызов Google Apps Script на обновлении дашборда) — переопределить
-  через `@Throttle({ default: { limit, ttl } })` на конкретном эндпоинте, не меняя глобальный дефолт.
-- Ошибки моделей кидаются как `Object.assign(new Error(...), { statusCode, body })`; 403 формирует `assert*`
-  в `models/company/access/assert.ts` через `ERROR_NAME.PERMISSONS_NOT_ALLOWED` (текст «Нет разрешения на данную операцию»).
-- `templates/update` и `templates/delete` под guard (`FirebaseAuthGuard`) — в integration-тестах guard мокается
-  пустым классом + `overrideGuard`. В `dashboard.controller.spec.ts` два guard-заглушки → `/* eslint-disable max-classes-per-file */`.
-- `dashboard/bunch/get` использует `OptionalFirebaseAuthGuard` (не кидает 401, кладёт `request.user` если есть cookie);
-  `@CurrentUser()` там — `User | undefined`.
-- Ключ публичного доступа для главной вкладки — `NO_SHEET_ID = 'no_sheetId'` (`dashboard-view/consts`).
+- Frontend-тесты запускаются 5 конфигами: `test:unit` (базовый `jest.config.js`, testMatch `**/?(*.)+(spec|test).[tj]s?(x)`
+  — ловит ВСЕ `.test.ts`/`.test.tsx`), затем `test:entities`/`test:features`/`test:shared`/`test:widgets`
+  (каждый ловит только `**/<слой>/**/*.test.ts` — БЕЗ `.test.tsx`). Итог: `.test.ts`-файлы считаются дважды
+  (в `unit` и в своём слое), а `.test.tsx` — только в `unit`. Поэтому сумма suite по конфигам ≠ число уникальных файлов.
+- UI smoke-тесты сущностей пишутся как `.test.tsx` и попадают только в `test:unit`; чистые утилиты/константы — `.test.ts`.
+- Для компонентов, читающих кастомную тему (`palette.gradients` и т.п.), собирай тему через
+  `createTheme(getThemeByName(muiTheme, { mode: 'light', navbarColor: 'navbar_white', sidebarColor: 'sidebar_black' }))`
+  — как в `shared/lib/tests/render-page/index.tsx`. Простая `createTheme(customPalette)` не даст `palette.gradients`.
+- Линтер требует одинарные кавычки в JSX-атрибутах (`jsx-quotes`).
+- Фактический путь `random` — `shared/helpers/random` (в старом TODO значился `shared/utils/random`, такого пути нет).
 - `strict` в `tsconfig.json` бэкенда НЕ включён; `npx tsc --noEmit -p packages/backend/tsconfig.json` — быстрый typecheck.
-- Актуальные цифры тестов (после сессии 52): backend **181 suites / 1178 тестов** (unit 112/644 + shared 52/384 +
-  validators 17/150), frontend 446 suites / 3093 теста, e2e 22 теста. Обновлять в `.clinerules/test-policy.md`.
+- Актуальные цифры тестов (после сессии 53): backend **181 suites / 1178 тестов** (unit 112/644 + shared 52/384 +
+  validators 17/150), frontend **460 suites / 3189 тестов** (unit 247/1624 + entities 52/404 + features 17/49 +
+  shared 124/993 + widgets 20/119), e2e 22 теста. Обновлять в `.clinerules/test-policy.md`.

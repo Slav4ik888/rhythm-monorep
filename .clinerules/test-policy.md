@@ -153,8 +153,8 @@ npx playwright test --project=admin        # Только админ
 | customer | `e2e/customer/profile.spec.ts` | 2     |
 | admin    | `e2e/admin/dashboard.spec.ts`  | 2     |
 
-**Итого (весь проект):** 181 suites (backend) + 446 suites (frontend) + 6 suites (e2e) = **633 suites**;
-1178 тестов (backend) + 3093 теста (frontend) + 22 теста (e2e) = **4293 теста**.
+**Итого (весь проект):** 181 suites (backend) + 460 suites (frontend) + 6 suites (e2e) = **647 suites**;
+1178 тестов (backend) + 3189 тестов (frontend) + 22 теста (e2e) = **4389 тестов**.
 
 **Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — smoke-тесты (guest/customer/admin) +
 сценарии входа/регистрации (моки `/api/*`), реферальной программы (`?ref=`), PWA (манифест + SW). **Lint:** 0 ошибок.
