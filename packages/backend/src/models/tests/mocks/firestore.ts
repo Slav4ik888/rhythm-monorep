@@ -21,6 +21,14 @@ export interface MockColRef {
   get: jest.Mock;
 }
 
+/** Мок Query (результат collectionGroup/where/orderBy/limit). */
+export interface MockQueryRef {
+  where: jest.Mock;
+  orderBy: jest.Mock;
+  limit: jest.Mock;
+  get: jest.Mock;
+}
+
 /** Мок DocumentReference (результат getRefDoc). */
 export const createMockDocRef = (overrides: Partial<MockDocRef> = {}): MockDocRef => ({
   id: 'mock-doc-id',
@@ -42,12 +50,39 @@ export const createMockColRef = (overrides: Partial<MockColRef> = {}): MockColRe
     get: jest.fn(),
   };
 
-  ref.add.mockResolvedValue(createMockDocRef());
-  ref.doc.mockImplementation(() => createMockDocRef());
-  ref.where.mockReturnValue(ref);
-  ref.orderBy.mockReturnValue(ref);
-  ref.limit.mockReturnValue(ref);
-  ref.get.mockResolvedValue({ docs: [], size: 0, empty: true });
+  const result = { ...ref, ...overrides };
 
-  return { ...ref, ...overrides };
+  if (!overrides.add) result.add.mockResolvedValue(createMockDocRef());
+  if (!overrides.doc) result.doc.mockImplementation(() => createMockDocRef());
+  if (!overrides.get) result.get.mockResolvedValue({ docs: [], size: 0, empty: true });
+
+  // Цепочка where/orderBy/limit должна возвращать финальный объект (с overrides),
+  // иначе `.where(...).get()` теряет переопределённый get.
+  result.where.mockReturnValue(result);
+  result.orderBy.mockReturnValue(result);
+  result.limit.mockReturnValue(result);
+
+  return result;
+};
+
+/** Мок Query (цепочка collectionGroup().where().limit().get()). */
+export const createMockCollectionGroup = (overrides: Partial<MockQueryRef> = {}): MockQueryRef => {
+  const query: MockQueryRef = {
+    where: jest.fn(),
+    orderBy: jest.fn(),
+    limit: jest.fn(),
+    get: jest.fn(),
+  };
+
+  const result = { ...query, ...overrides };
+
+  if (!overrides.get) result.get.mockResolvedValue({ docs: [], size: 0, empty: true });
+
+  // Цепочка where/orderBy/limit должна возвращать финальный объект (с overrides),
+  // иначе `.where(...).limit(...).get()` теряет переопределённый get.
+  result.where.mockReturnValue(result);
+  result.orderBy.mockReturnValue(result);
+  result.limit.mockReturnValue(result);
+
+  return result;
 };

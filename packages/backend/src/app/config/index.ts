@@ -3,7 +3,7 @@
 import { day } from '../../shared/utils/dates';
 
 export const cfg = {
-  VERSION: '2.33.0',
+  VERSION: '2.34.0',
   COOKIE_NAME: 'rhythm',
   SESSION_EXP: day(1), // Срок действия сессии (это максимально доступный в Firebase)
   SITE_URL: process.env.SITE_URL || 'https://rhy.thm.su',

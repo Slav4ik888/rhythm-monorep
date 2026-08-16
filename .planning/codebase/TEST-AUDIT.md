@@ -7,7 +7,7 @@
 
 | Слой               | Suites | Тесты | Комментарий                                       |
 | ------------------ | ------ | ----- | ------------------------------------------------- |
-| Backend unit       | 64     | 472   | контроллеры (integration) + часть models          |
+| Backend unit       | 70     | 485   | контроллеры (integration) + часть models          |
 | Backend shared     | 50     | 377   | `src/shared/utils/**`                             |
 | Backend validators | 17     | 150   | `src/libs/validators/**` + схемы                  |
 | Frontend           | 377    | 2926  | entities/shared/helpers/lib + часть widgets/pages |
@@ -21,12 +21,12 @@
 ~35 сервисных файлов, 754 строки. Покрыты только косвенно через integration-тесты контроллеров;
 на уровне юнитов (с моками Firestore/Redis/Email) — нет.
 
-> Прогресс (сессия 33): создан общий мок Firestore (`models/tests/mocks/firestore.ts`),
-> unit-тестами покрыты auth-сервисы (✅ ниже). Остальные сервисы — в очереди (этапы 22.3–22.8).
+> Прогресс (сессия 33–34): создан общий мок Firestore (`models/tests/mocks/firestore.ts`),
+> unit-тестами покрыты auth-сервисы и user-сервисы (✅ ниже). Остальные сервисы — в очереди (этапы 22.4–22.8).
 
 - ✅ `models/auth/signup/services/` — create-new-company, create-new-user, complection-user
 - ✅ `models/auth/login/services/` — check-is-user-disabled
-- `models/user/services/` — get, update, find-user-by-email, find-user-by-id, set-verification, check-user-verification
+- ✅ `models/user/services/` — get, update, find-user-by-email, find-user-by-id, set-verification, check-user-verification
 - `models/company/services/` — get, update, delete-sheet
 - `models/dashboard-view/services/` — get-bunches, get-view-items, get-all-views, create-group-items, update, delete-group
 - `models/templates/services/` — get-templates, get-bunches-updated, update, delete
