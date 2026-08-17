@@ -1,52 +1,51 @@
-import { Email, ItemBase } from '../../base'
-import { UserPartnerData } from './partner'
-import { Person } from './person'
-import { Role } from './roles'
-import { UserSettings } from './user-settings'
-
-
+import { Email, ItemBase } from '../../base';
+import { UserPartnerData } from './partner';
+import { Person } from './person';
+import { Role } from './roles';
+import { UserSettings } from './user-settings';
 
 /** Типы состояние пользователя */
 export enum UserStatus {
-  NEW      = 'NEW',      // Зарегистрировался
+  NEW = 'NEW', // Зарегистрировался
   VERIFIED = 'VERIFIED', // Подтвердил регистрацию
-  ACTIVE   = 'ACTIVE',   // Активный
+  ACTIVE = 'ACTIVE', // Активный
   DISABLED = 'DISABLED', // Отключенный
-  DELETED  = 'DELETED',  // Удалённый
+  DELETED = 'DELETED', // Удалённый
 }
-
 
 /** При выборе нового элемента с помощью ListSelect  */
 export type NewUserStatus = {
-  status: UserStatus
-}
-
+  status: UserStatus;
+};
 
 /**
  * Пользователь
  * v.2025-10-17
  */
 export interface User extends ItemBase {
-  companyId     : string
+  companyId: string;
 
-  person        : Person
-  email         : Email  // korzan.va@mail.ru
-  permissions   : boolean // Разрешения на обработку персональных данных
+  person: Person;
+  email: Email; // korzan.va@mail.ru
+  permissions: boolean; // Разрешения на обработку персональных данных
 
-  role          : Role
-  emailVerified : boolean
-  status        : UserStatus
+  role: Role;
+  emailVerified: boolean;
+  status: UserStatus;
 
-  isEditAccess? : boolean // Временный запрет для всех на доступ к Конструктору
-  settings?     : UserSettings
+  // Заглушка на время разработки: включает режим редактирования (Конструктор)
+  // индивидуально — вручную через консоль Firebase. В перспективе — включать
+  // автоматически пользователям на платном тарифе.
+  isEditAccess?: boolean;
+  settings?: UserSettings;
 
-  partner       : UserPartnerData
+  partner: UserPartnerData;
 
   // TODO:
   // lastAction    : number // Время последнего действия
 }
 
 export type PartialUser = Partial<User> & {
-  companyId : string
-  id        : string
-}
+  companyId: string;
+  id: string;
+};

@@ -114,7 +114,7 @@ npx playwright test --project=admin        # Только админ
 | Company        | `packages/backend/src/controllers/company/tests/company.controller.spec.ts`               | 6     |
 | Dashboard      | `packages/backend/src/controllers/dashboard/tests/dashboard.controller.spec.ts`           | 9     |
 | User           | `packages/backend/src/controllers/user/tests/user.controller.spec.ts`                     | 9     |
-| Partner        | `packages/backend/src/controllers/partner/tests/partner.controller.spec.ts`               | 3     |
+| Partner        | `packages/backend/src/controllers/partner/tests/partner.controller.spec.ts`               | 4     |
 | Templates      | `packages/backend/src/controllers/templates/tests/templates.controller.spec.ts`           | 9     |
 | Docs           | `packages/backend/src/controllers/docs/tests/docs.controller.spec.ts`                     | 2     |
 | Loggers        | `packages/backend/src/controllers/loggers/tests/loggers.controller.spec.ts`               | 6     |
@@ -127,9 +127,9 @@ npx playwright test --project=admin        # Только админ
 - Держи `@nestjs/testing` версией, синхронной с `@nestjs/core` (сейчас `11.1.29`). Не удаляй зависимость.
 - Модели контроллеры импортируют напрямую (не через DI) — мокай их через `jest.mock('../../../models/...')`.
 - **`FirebaseAuthGuard`:** НЕ импортируй реальный guard — он тянет `models` → `libs/redis`, оставляет открытый handle и вешает завершение jest. Мокай модуль пустым классом-токеном + задавай поведение через `overrideGuard(FirebaseAuthGuard).useValue({ canActivate })`.
-- **`ThrottlerGuard`** (`@nestjs/throttler`, глобально `ThrottlerModule.forRoot` в `app.module` + `@UseGuards(ThrottlerGuard)` на `AuthController` и публичных read-эндпоинтах `paramsCompany/get`, `dashboard/bunch/get`, `templates/getBunchesUpdated`, `templates/getTemplates`, `getPolicy`, `getData`): в бизнес-тестах отключай через `overrideGuard(ThrottlerGuard).useValue({ canActivate: () => true })`; тесты 429 — отдельный `describe` с `ThrottlerModule.forRoot([{ ttl, limit: 2 }])` без override и последовательными `app.inject` (см. `postSequentially` в `auth.controller.spec.ts`).
+- **`ThrottlerGuard`** (`@nestjs/throttler`, глобально `ThrottlerModule.forRoot` в `app.module` + `@UseGuards(ThrottlerGuard)` на `AuthController` и публичных эндпоинтах `paramsCompany/get`, `dashboard/bunch/get`, `templates/getBunchesUpdated`, `templates/getTemplates`, `getPolicy`, `getData`, `partner/increaseFollower`): в бизнес-тестах отключай через `overrideGuard(ThrottlerGuard).useValue({ canActivate: () => true })`; тесты 429 — отдельный `describe` с `ThrottlerModule.forRoot([{ ttl, limit: 2 }])` без override и последовательными `app.inject` (см. `postSequentially` в `auth.controller.spec.ts`).
 
-**Итого (бэкенд):** 181 suites, 1178 тестов (unit 644 + shared 384 + validators 150), включая integration-тесты всех 10 контроллеров, unit-тесты guards/interceptors/decorators, unit-тесты libs/views/config и unit-тесты access-модуля (`models/company/access`).
+**Итого (бэкенд):** 181 suites, 1179 тестов (unit 645 + shared 384 + validators 150), включая integration-тесты всех 10 контроллеров, unit-тесты guards/interceptors/decorators, unit-тесты libs/views/config и unit-тесты access-модуля (`models/company/access`).
 
 ## Приоритет блоков для покрытия тестами (Фронтенд)
 
@@ -154,7 +154,7 @@ npx playwright test --project=admin        # Только админ
 | admin    | `e2e/admin/dashboard.spec.ts`  | 2     |
 
 **Итого (весь проект):** 181 suites (backend) + 460 suites (frontend) + 6 suites (e2e) = **647 suites**;
-1178 тестов (backend) + 3189 тестов (frontend) + 22 теста (e2e) = **4389 тестов**.
+1179 тестов (backend) + 3189 тестов (frontend) + 22 теста (e2e) = **4390 тестов**.
 
 **Покрытие фронтенда:** unit/integration — есть; E2E (Playwright) — smoke-тесты (guest/customer/admin) +
 сценарии входа/регистрации (моки `/api/*`), реферальной программы (`?ref=`), PWA (манифест + SW). **Lint:** 0 ошибок.

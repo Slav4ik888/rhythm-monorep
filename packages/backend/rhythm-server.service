@@ -1,9 +1,8 @@
 [Unit]
 Description=NodeJS Server for Rhythm (NestJS)
-After=network.target
-# Рекомендация: добавить зависимость от Redis, чтобы бэкенд не стартовал раньше кэша
-# (в production при недоступном Redis сервер завершится с ошибкой, см. src/libs/redis/init.ts).
-# Пример: After=network.target redis.service
+# Бэкенд не должен стартовать раньше сети и Redis:
+# в production при недоступном Redis сервер завершится с ошибкой (см. src/libs/redis/init.ts).
+After=network.target redis.service
 
 [Service]
 Type=simple

@@ -2,7 +2,8 @@
 // NestJS-контроллер для partner (миграция с Koa)
 // Заменяет controllers/partner/increase-follower/index.ts
 
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { increaseFollowerModel, IncreaseFollowerConfig } from '../../models/partner/handlers/increase-follower';
 import { toHttpException } from '../../libs/errors';
@@ -20,7 +21,10 @@ export class PartnerController {
     description: 'Счётчик увеличен',
     schema: { type: 'object', properties: { status: { type: 'string', example: 'ok' } } },
   })
+  @ApiResponse({ status: 429, description: 'Превышен лимит запросов' })
   @HttpCode(200)
+  // Rate limiting на публичном эндпоинте (защита от спама/накрутки счётчика). Лимит по умолчанию из app.module (10/мин).
+  @UseGuards(ThrottlerGuard)
   async increaseFollower(@Body() body: IncreaseFollowerConfig): Promise<{ status: string }> {
     try {
       await increaseFollowerModel(body);

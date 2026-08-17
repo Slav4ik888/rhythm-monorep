@@ -396,10 +396,17 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 - (Сессия 45) Мёртвый код удалён: `loggerServer` (winston), `get-session-data-fastify.ts`,
   вложенный `packages/frontend/package-lock.json`, `packages/backend/src/sh`.
 - `loggerApp` используется — в `CheckVersionInterceptor`; остальные логгеры — по доменам.
-- **Rate limiting** — реализован (`@nestjs/throttler` на auth-эндпоинтах, см. PLAN.md этап 24).
+- **Rate limiting** — реализован (`@nestjs/throttler`): auth-эндпоинты (этап 24) + публичные
+  read-эндпоинты и `increaseFollower` (этапы 52/55). Дефолтный лимит — 10 запросов/мин на IP.
 - **Swagger / OpenAPI** — реализован (сессия 45): `@nestjs/swagger@11.4.6` + Fastify-адаптер.
   Swagger UI на `/api/docs`, OpenAPI JSON на `/api/docs-json`. Документированы все контроллеры
   (9 тегов, 25 эндпоинтов: `@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiParam`).
+  В production Swagger **отключён** (`main.ts`: `SwaggerModule.setup` только при `NODE_ENV !== 'production'`).
+- **Firebase-правила (production).** `firebase.json`/`storage.rules` в репо применяются только к локальным
+  эмуляторам (монтируются в docker-compose). Боевые правила Firestore/Storage настраиваются в Firebase Console
+  (`firebase deploy --only firestore|storage`). `storage.rules` закрыт (`allow read, write: if false`).
+  Firestore: вся работа идёт через бэкенд (Admin SDK), поэтому правила должны стоять в режиме «закрыто»
+  (`allow read, write: if false`) — как второй контур защиты.
 - **Swagger DTO-схемы** (сессия 49): детальные схемы запросов/ответов для всех 25 эндпоинтов.
   DTO лежат в `packages/backend/src/dto/` (сущности: `user.dto`, `company.dto`, `view-item.dto`,
   `template.dto`, `base.dto`, `common.dto`) и `packages/backend/src/controllers/<name>/dto/`
@@ -419,6 +426,11 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
   отдельно обрабатывает `response.status` axios-ошибки Google Apps Script → 502). Ошибки моделей
   по-прежнему кидаются как `Object.assign(new Error(...), { statusCode, body })` — `toHttpException`
   конвертирует их в `HttpException(statusCode, body)`.
+
+- **`isEditAccess` — заглушка на время разработки.** Включает режим редактирования (Конструктор)
+  индивидуально: вручную через консоль Firebase установить `isEditAccess: true` в документе
+  `users/{uid}`. Дефолт `false` (в `creatorUser`), на бэке НЕ проверяется — гейт только на фронте
+  (`DashboardSetEditBtn`). В перспективе — включать автоматически пользователям на платном тарифе.
 
 ## E2E-тесты (Playwright)
 

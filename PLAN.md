@@ -169,6 +169,26 @@
 - [x] 53.5 `entities/company-type` (`CompanyTypeChip`) и `entities/blocks` (`DashboardBoxContainer`) — smoke-тесты (`.test.tsx`).
 - [x] 53.6 Верификация: `lint` (0), backend (181 suites / 1178 тестов), frontend (460 suites / 3189 тестов) — зелёные.
 
+### Этап 54 — Чистка техдолга (косметика)
+
+**Удаление мёртвых TODO-комментариев и закомментированного кода** (закрытие пункта «Оставшийся техдолг (кандидаты)» из prompt-for-next сессии 53).
+
+- [x] 54.1 Удалены TODO-комментарии в `models/base/types/base.ts` (`// TODO: remove from this`, `// TODO: алгоритм этого`)
+      и в его фронтовом близнеце `entities/base/types/base.ts`.
+- [x] 54.2 Удалены закомментированные строки в `models/helpers/get-ref-doc/index.ts`.
+- [x] 54.3 Верификация: `lint` (0), backend (181 suites / 1178 тестов), frontend (460 suites / 3189 тестов) — зелёные.
+- [x] 54.4 Решение: **платёжный модуль (этап 2, оплата/эквайринг) временно отменён** — до отдельного распоряжения.
+
+### Этап 55 — Production-защита (rate limiting + Swagger + Firebase-правила)
+
+**Закрытие замечаний из ревизии production-готовности.**
+
+- [x] 55.1 `POST /api/increaseFollower` под `ThrottlerGuard` (защита от спама/накрутки счётчика) + `@ApiResponse(429)`.
+- [x] 55.2 Swagger `/api/docs` отключён в production (`main.ts`: только при `NODE_ENV !== 'production'`).
+- [x] 55.3 `storage.rules` закрыт (`allow read, write: if false`).
+- [x] 55.4 Integration-тест 429 для `increaseFollower` (+1 тест).
+- [x] 55.5 Верификация: `lint` (0), backend (181 suites / 1179 тестов) — зелёные.
+
 ---
 
 ## Правила ведения плана

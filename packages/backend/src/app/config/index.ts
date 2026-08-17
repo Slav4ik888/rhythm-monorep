@@ -12,7 +12,7 @@ const DEFAULT_INTERNAL_USERS = [
 ];
 
 export const cfg = {
-  VERSION: '2.53.0',
+  VERSION: '2.55.0',
   COOKIE_NAME: 'rhythm',
   SESSION_EXP: day(1), // Срок действия сессии (это максимально доступный в Firebase)
   SITE_URL: process.env.SITE_URL || 'https://rhy.thm.su',

@@ -19,23 +19,26 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // OpenAPI / Swagger — документация API-контрактов (Swagger UI на /api/docs)
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle(cfg.SITE_TITLE_FULL)
-    .setDescription('API информационной панели руководителя «Ритм»')
-    .setVersion(cfg.VERSION)
-    .addTag('auth', 'Авторизация и регистрация')
-    .addTag('user', 'Пользователь и личный кабинет')
-    .addTag('company', 'Управление компанией')
-    .addTag('dashboard', 'Дашборды')
-    .addTag('templates', 'Шаблоны дашбордов')
-    .addTag('partner', 'Реферальная программа')
-    .addTag('params-company', 'Параметры компании')
-    .addTag('docs', 'Документы')
-    .addTag('logs', 'Логи (служебные)')
-    .build();
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, swaggerDocument);
+  // OpenAPI / Swagger — документация API-контрактов (Swagger UI на /api/docs).
+  // Доступна только вне production: в проде не публикуем контракт API наружу.
+  if (process.env.NODE_ENV !== 'production') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle(cfg.SITE_TITLE_FULL)
+      .setDescription('API информационной панели руководителя «Ритм»')
+      .setVersion(cfg.VERSION)
+      .addTag('auth', 'Авторизация и регистрация')
+      .addTag('user', 'Пользователь и личный кабинет')
+      .addTag('company', 'Управление компанией')
+      .addTag('dashboard', 'Дашборды')
+      .addTag('templates', 'Шаблоны дашбордов')
+      .addTag('partner', 'Реферальная программа')
+      .addTag('params-company', 'Параметры компании')
+      .addTag('docs', 'Документы')
+      .addTag('logs', 'Логи (служебные)')
+      .build();
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, swaggerDocument);
+  }
 
   const port = process.env.PORT || 7575;
   await app.listen(port, '0.0.0.0');
