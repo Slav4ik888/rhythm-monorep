@@ -2,52 +2,52 @@
 
 ## Дата
 
-16.08.2026 (сессия 55)
+17.08.2026 (сессия 56)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 55 — Production-защита (rate limiting + Swagger + Firebase-правила)
+### Этап 56 — Фикс деплоя: package-lock.json блокирует git pull
 
-Закрыты замечания из ревизии production-готовности (вопрос пользователя перед запуском в прод):
+На деплое (`bash deploy.sh` на VPS) `git pull` падал с ошибкой:
+`Your local changes to the following files would be overwritten by merge: package-lock.json`.
 
-1. `POST /api/increaseFollower` — навешен `ThrottlerGuard` (защита от спама/накрутки счётчика; дефолтный
-   лимит 10/мин на IP) + `@ApiResponse(429)`. Integration-тест 429 добавлен (partner.controller.spec.ts: 4 теста).
-2. Swagger `/api/docs` отключён в production (`main.ts`: `SwaggerModule.setup` только при `NODE_ENV !== 'production'`).
-3. `storage.rules` закрыт (`allow read, write: if false`; Storage пока не используется).
+Причина: на сервере `npm install` (другая версия npm, чем локально node 26 / npm 11,
+lockfileVersion 3) перезаписывал `package-lock.json`; изменённый tracked-файл блокировал merge.
 
-`VERSION` → **2.55.0** (синхронно в обоих `config/index.ts`). Обновлены `PLAN.md` (этап 55),
-`README.dev.md`, `.clinerules/test-policy.md` (цифры: backend 1179 тестов).
+Исправления:
+
+1. `deploy.sh` `git_pull`: `git pull` → `git fetch origin` + `git reset --hard origin/main`
+   (сервер — чистая выкладка кода; секреты в `/etc/rhythm/`, сборки gitignored).
+2. `deploy.sh` `install_dependencies`: `npm install` → `npm ci` (строго по lock-файлу, не правит его).
+3. `README.dev.md`: ручной сценарий деплоя обновлён.
+
+`VERSION` НЕ поднимался — изменение инфраструктурное, клиентский код/сборка не затронуты.
 
 ## Следующие шаги
 
-1. **Перед публикацией в прод остаётся проверить на сервере / в Firebase Console** (вне кода):
-   - Firestore Security Rules — в Firebase Console установить режим «закрыто» (`allow read, write: if false`);
-   - `LOGS_PASS` — задать в `/etc/rhythm/rhythm-server.env` (иначе лог открывается при пустом пароле);
-   - Redis в проде — убедиться, что запущен; добавить `After=network.target redis.service` в `rhythm-server.service`;
-   - секреты `/etc/rhythm/rhythm-server.env` + `/etc/rhythm/firebase-adminsdk.json` созданы и актуальны.
-2. **Платёжный модуль (этап 2) — временно отменён** (решение сессии 54). Зарезервированы коллекция
-   `transactions` и поле `partner.paid`.
-3. **Оставшийся техдолг:**
-   - `isEditAccess` — **заглушка на время разработки** (включается индивидуально, вручную через Firebase Console —
-     `isEditAccess: true` в `users/{uid}`). На бэке не проверяется (гейт только на фронте, `DashboardSetEditBtn`).
-     В перспективе — включать автоматически пользователям на платном тарифе.
-   - опционально: расширить эмулятор-тесты (getAuth с session cookie, сброс пароля).
+1. Запушить изменения на GitHub и на сервере разово снять блокировку:
+   ```bash
+   cd /var/www/vtempe/data/rhythm2
+   git checkout -- package-lock.json
+   git pull
+   bash deploy.sh
+   ```
+2. Дальше деплой — просто `bash deploy.sh` (скрипт сам сбросит дерево и поставит зависимости через `npm ci`).
+3. Вернуться к пунктам «Следующие шаги» сессии 55 (проверки перед публикацией в прод: Firebase rules,
+   `LOGS_PASS`, Redis, секреты `/etc/rhythm/`).
 
 ## Коммит
 
-`feat: production-защита — rate limiting increaseFollower, отключение Swagger в проде, закрытие storage.rules`
+`fix: деплой — git fetch + reset --hard вместо git pull, npm ci вместо npm install`
 
 ## Предупреждения/заметки
 
-- Frontend-тесты запускаются 5 конфигами: `test:unit` (базовый `jest.config.js`, testMatch `**/?(*.)+(spec|test).[tj]s?(x)`
-  — ловит ВСЕ `.test.ts`/`.test.tsx`), затем `test:entities`/`test:features`/`test:shared`/`test:widgets`
-  (каждый ловит только `**/<слой>/**/*.test.ts` — БЕЗ `.test.tsx`). Итог: `.test.ts`-файлы считаются дважды.
-- UI smoke-тесты сущностей — `.test.tsx` (только в `test:unit`); чистые утилиты/константы — `.test.ts`.
-- Для компонентов, читающих кастомную тему (`palette.gradients`), собирай тему через
-  `createTheme(getThemeByName(muiTheme, { mode: 'light', navbarColor: 'navbar_white', sidebarColor: 'sidebar_black' }))`.
-- Линтер требует одинарные кавычки в JSX-атрибутах (`jsx-quotes`).
-- `strict` в `tsconfig.json` бэкенда НЕ включён; `npx tsc --noEmit -p packages/backend/tsconfig.json` — быстрый typecheck.
-- `firebase.json`/`storage.rules` в репо — только для локальных эмуляторов; боевые Firebase-правила — в Firebase Console.
-- Актуальные цифры тестов (после сессии 55): backend **181 suites / 1179 тестов** (unit 112/645 + shared 52/384 +
-  validators 17/150), frontend **460 suites / 3189 тестов** (unit 247/1624 + entities 52/404 + features 17/49 +
-  shared 124/993 + widgets 20/119), e2e 22 теста. Обновлять в `.clinerules/test-policy.md`.
+- На сервере НЕ использовать `npm install` (правит lock-файл при другой версии npm) — только `npm ci`;
+  при реальном обновлении зависимостей править lock локально и коммитить его.
+- `git reset --hard origin/main` в deploy.sh сбрасывает ЛЮБЫЕ локальные изменения tracked-файлов на сервере —
+  осознанно: секреты/сборки вне git (см. README.dev.md, «Серверная инфраструктура (prod)»).
+- Актуальные цифры тестов (без изменений после сессии 55): backend **181 suites / 1179 тестов**,
+  frontend **460 suites / 3189 тестов**, e2e 22 теста. Источник цифр — `.clinerules/test-policy.md`.
+- Frontend-тесты запускаются 5 конфигами (`test:unit` ловит ВСЕ `.spec/test.ts(x)`, затем
+  `test:entities`/`test:features`/`test:shared`/`test:widgets` — только `**/<слой>/**/*.test.ts` без `.test.tsx`).
+- Линтер требует одинарные кавычки в JSX-атрибутах (`jsx-quotes`); `strict` в tsconfig бэкенда НЕ включён.

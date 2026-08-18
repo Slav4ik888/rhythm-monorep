@@ -189,6 +189,17 @@
 - [x] 55.4 Integration-тест 429 для `increaseFollower` (+1 тест).
 - [x] 55.5 Верификация: `lint` (0), backend (181 suites / 1179 тестов) — зелёные.
 
+### Этап 56 — Фикс деплоя: package-lock.json блокирует git pull
+
+**Причина:** `npm install` на сервере (версия npm отличается от локальной) перезаписывает
+`package-lock.json`, из-за чего `git pull` падал с «local changes would be overwritten».
+
+- [x] 56.1 `deploy.sh`: `git pull` → `git fetch origin` + `git reset --hard origin/main`
+      (сервер — чистая выкладка кода, секреты и сборки вне git).
+- [x] 56.2 `deploy.sh`: `npm install` → `npm ci` (ставит строго по lock-файлу, не перезаписывает его).
+- [x] 56.3 `README.dev.md`: ручной сценарий деплоя обновлён (`git fetch + reset --hard`, `npm ci`).
+- [x] 56.4 `VERSION` не поднимался: изменение инфраструктурное, не затрагивает клиентский код/сборку.
+
 ---
 
 ## Правила ведения плана

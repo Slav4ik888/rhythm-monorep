@@ -69,16 +69,24 @@ parse_arguments() {
   done
 }
 
-# Обновление кода из git (обязательно из каталога монорепозитория)
+# Обновление кода из git (обязательно из каталога монорепозитория).
+# Сервер — «чистая» выкладка кода: секреты живут в /etc/rhythm/, сборки — в gitignored
+# каталогах. Поэтому вместо `git pull` (который падает при любых локальных изменениях
+# в tracked-файлах, например package-lock.json, перезаписанном `npm install`) делаем
+# fetch + reset --hard: рабочее дерево принудительно приводится к origin/main.
 git_pull() {
-  log "⬇️  Обновление кода (git pull)..."
-  run_command "cd $REPO_DIR && git pull"
+  log "⬇️  Обновление кода (git fetch + reset --hard origin/main)..."
+  run_command "cd $REPO_DIR && git fetch origin"
+  run_command "cd $REPO_DIR && git reset --hard origin/main"
 }
 
-# Установка зависимостей (монорепо: корневой package.json + workspaces)
+# Установка зависимостей (монорепо: корневой package.json + workspaces).
+# `npm ci` ставит строго по package-lock.json и НЕ перезаписывает lock-файл
+# (в отличие от `npm install`, который при другой версии npm правит его —
+# из-за этого следующий `git pull` падал с «local changes would be overwritten»).
 install_dependencies() {
-  log "📦 Установка зависимостей..."
-  run_command "cd $REPO_DIR && npm install"
+  log "📦 Установка зависимостей (npm ci)..."
+  run_command "cd $REPO_DIR && npm ci"
 }
 
 # Функция сборки бэкенда (NestJS → packages/backend/server/)

@@ -494,8 +494,8 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
 
 # 2. Деплой (в каталоге монорепозитория)
 cd /var/www/vtempe/data/rhythm2
-git pull
-npm install
+git fetch origin && git reset --hard origin/main   # сервер — чистая выкладка кода (секреты/сборки вне git)
+npm ci                                             # строго по lock-файлу, НЕ перезаписывает его (npm install — нельзя)
 npm run build -w packages/backend      # TypeScript → packages/backend/server/
 npm run build -w packages/frontend     # Vite → packages/frontend/build/
 
