@@ -200,6 +200,23 @@
 - [x] 56.3 `README.dev.md`: ручной сценарий деплоя обновлён (`git fetch + reset --hard`, `npm ci`).
 - [x] 56.4 `VERSION` не поднимался: изменение инфраструктурное, не затрагивает клиентский код/сборку.
 
+### Этап 57 — Фикс: данные Google не кешировались в IndexedDB (перезагружались повторно)
+
+**Причина:** в `entities/dashboard-data/model/store.ts` три экшена (`setActivePeriod`,
+`setSelectedPeriod`, `finishGetData`) писали `dataState-*` в `LS.setDataState`, разворачивая весь
+Zustand-стор (`...state`). `state` включает action-функции стора, а IndexedDB (`HeavyStorage.set` →
+`db.put`) использует structured clone, который бросает `DataCloneError` на функциях. Ошибка глушилась
+`__devLog` (в production молчит), поэтому `dataState-*` жил только в in-memory кеше и терялся после
+релоада → `hasCachedData` в `pages/dashboard/ui/container.tsx` был `false`, и Google-данные грузились
+заново. `bunches-*`/`viewBunchesUpdated-*` кешировались корректно (пишут плоские объекты без функций).
+
+- [x] 57.1 `store.ts`: добавлен `pickDashboardData(state)` — выделяет только сериализуемые поля
+      `StateSchemaDashboardData`; заменены `...state` на `...pickDashboardData(state)` в трёх местах записи.
+- [x] 57.2 `store.test.ts`: добавлены тесты «сериализуемость данных в LS (IndexedDB)» (3 шт.) — проверяют,
+      что в `LS.setDataState` не попадают action-функции.
+- [x] 57.3 `README.dev.md`: добавлена заметка о DataCloneError в structured clone при записи в IndexedDB.
+- [x] 57.4 Верификация: `lint` (0), backend (181 suites / 1179 тестов), frontend (460 suites / 3195 тестов) — зелёные.
+
 ---
 
 ## Правила ведения плана

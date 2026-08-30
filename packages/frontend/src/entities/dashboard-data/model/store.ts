@@ -52,6 +52,25 @@ interface DashboardDataActions {
 
 export type DashboardDataStore = StateSchemaDashboardData & DashboardDataActions;
 
+/**
+ * Выделяет только сериализуемые поля данных (без action-функций Zustand) для
+ * сохранения в IndexedDB. IndexedDB использует structured clone и бросает
+ * DataCloneError на функциях, поэтому разворачивать весь стор (`...state`)
+ * в `LS.setDataState` нельзя — данные тогда никогда не персистятся.
+ */
+const pickDashboardData = (state: DashboardDataStore): StateSchemaDashboardData => ({
+  loading: state.loading,
+  errors: state.errors,
+  _isMounted: state._isMounted,
+  startEntities: state.startEntities,
+  startDates: state.startDates,
+  lastUpdated: state.lastUpdated,
+  selectedPeriod: state.selectedPeriod,
+  activePeriod: state.activePeriod,
+  activeEntities: state.activeEntities,
+  activeDates: state.activeDates,
+});
+
 export const useDashboardDataStore = create<DashboardDataStore>((set) => ({
   ...initialState,
 
@@ -71,7 +90,7 @@ export const useDashboardDataStore = create<DashboardDataStore>((set) => ({
       const { activeDates, activeEntities } = getEntitiesByPeriod(state.startEntities, state.startDates, activePeriod);
 
       LS.setDataState(companyId, {
-        ...state,
+        ...pickDashboardData(state),
         activePeriod,
         activeEntities,
         activeDates,
@@ -115,6 +134,7 @@ export const useDashboardDataStore = create<DashboardDataStore>((set) => ({
       const oldData = LS.getDataState(companyId) || ({} as StateSchemaDashboardData);
       LS.setDataState(companyId, {
         ...oldData,
+        ...pickDashboardData(state),
         activePeriod,
         selectedPeriod,
       });
@@ -145,7 +165,7 @@ export const useDashboardDataStore = create<DashboardDataStore>((set) => ({
       };
 
       LS.setDataState(companyId, {
-        ...state,
+        ...pickDashboardData(state),
         ...newState,
       });
 

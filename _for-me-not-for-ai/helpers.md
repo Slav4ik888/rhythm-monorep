@@ -14,11 +14,3 @@
 Вопрос, может что-то из этого нужно вынести в .clinerules/promt-for-dev.md или ещё куда, чтобы не затёрлось в следующей сессии?
 
 # После деплоя
-
-systemctl daemon-reload
-systemctl restart rhythm-server
-
-<!-- Проверить, что зависимость подхватилась, можно так: -->
-
-systemctl show rhythm-server -p After
-<!-- должно содержать: redis.service -->

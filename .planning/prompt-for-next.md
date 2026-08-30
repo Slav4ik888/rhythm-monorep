@@ -2,52 +2,54 @@
 
 ## Дата
 
-17.08.2026 (сессия 56)
+30.08.2026 (сессия 57)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 56 — Фикс деплоя: package-lock.json блокирует git pull
+### Этап 57 — Фикс: данные Google не кешировались в IndexedDB (перезагружались повторно)
 
-На деплое (`bash deploy.sh` на VPS) `git pull` падал с ошибкой:
-`Your local changes to the following files would be overwritten by merge: package-lock.json`.
+Баг (продакшен): без авторизации заходишь в публичную компанию А → Google-данные грузятся, ок →
+логинишься → возвращаешься по ссылке в компанию А → Google-данные грузятся ЗАНОВО (не должны,
+т.к. должны браться из IndexedDB).
 
-Причина: на сервере `npm install` (другая версия npm, чем локально node 26 / npm 11,
-lockfileVersion 3) перезаписывал `package-lock.json`; изменённый tracked-файл блокировал merge.
+Причина: в `entities/dashboard-data/model/store.ts` три экшена (`setActivePeriod`, `setSelectedPeriod`,
+`finishGetData`) писали `dataState-*` в `LS.setDataState` разворачивая весь Zustand-стор (`...state`).
+`state` включает action-функции стора, а IndexedDB (`HeavyStorage.set` → `db.put`) использует structured
+clone, который бросает `DataCloneError` на функциях. Ошибка глушилась `__devLog` (в production молчит),
+поэтому `dataState-*` жил только в in-memory кеше и терялся после релоада → `hasCachedData` в
+`pages/dashboard/ui/container.tsx` был `false` → повторная загрузка. `bunches-*`/`viewBunchesUpdated-*`
+кешировались корректно (пишут плоские объекты).
 
 Исправления:
 
-1. `deploy.sh` `git_pull`: `git pull` → `git fetch origin` + `git reset --hard origin/main`
-   (сервер — чистая выкладка кода; секреты в `/etc/rhythm/`, сборки gitignored).
-2. `deploy.sh` `install_dependencies`: `npm install` → `npm ci` (строго по lock-файлу, не правит его).
-3. `README.dev.md`: ручной сценарий деплоя обновлён.
+1. `store.ts`: добавлен `pickDashboardData(state)` (выделяет только сериализуемые поля
+   `StateSchemaDashboardData`), `...state` заменён на `...pickDashboardData(state)` в трёх местах.
+2. `store.test.ts`: +3 теста «сериализуемость данных в LS (IndexedDB)».
+3. `README.dev.md`: заметка о DataCloneError в structured clone при записи в IndexedDB.
+4. `VERSION` поднят до `2.56.0` в ДВУХ конфигах, `ASSEMBLY_DATE` = `2026-08-30`.
 
-`VERSION` НЕ поднимался — изменение инфраструктурное, клиентский код/сборка не затронуты.
+Верификация: `lint` (0), backend **181 suites / 1179 тестов**, frontend **460 suites / 3195 тестов** — зелёные.
 
 ## Следующие шаги
 
-1. Запушить изменения на GitHub и на сервере разово снять блокировку:
-   ```bash
-   cd /var/www/vtempe/data/rhythm2
-   git checkout -- package-lock.json
-   git pull
-   bash deploy.sh
-   ```
-2. Дальше деплой — просто `bash deploy.sh` (скрипт сам сбросит дерево и поставит зависимости через `npm ci`).
-3. Вернуться к пунктам «Следующие шаги» сессии 55 (проверки перед публикацией в прод: Firebase rules,
+1. Задеплоить фикс на прод (см. README.dev.md, сценарий деплоя) и проверить сценарий из бага:
+   публичная компания → логин → возврат по ссылке → данные должны взяться из IndexedDB без повторного
+   запроса `/api/getData`.
+2. Вернуться к пунктам «Следующие шаги» сессии 55/56 (проверки перед публикацией в прод: Firebase rules,
    `LOGS_PASS`, Redis, секреты `/etc/rhythm/`).
 
 ## Коммит
 
-`fix: деплой — git fetch + reset --hard вместо git pull, npm ci вместо npm install`
+`fix: dataState не сохранялся в IndexedDB из-за action-функций Zustand (DataCloneError)`
 
 ## Предупреждения/заметки
 
-- На сервере НЕ использовать `npm install` (правит lock-файл при другой версии npm) — только `npm ci`;
-  при реальном обновлении зависимостей править lock локально и коммитить его.
-- `git reset --hard origin/main` в deploy.sh сбрасывает ЛЮБЫЕ локальные изменения tracked-файлов на сервере —
-  осознанно: секреты/сборки вне git (см. README.dev.md, «Серверная инфраструктура (prod)»).
-- Актуальные цифры тестов (без изменений после сессии 55): backend **181 suites / 1179 тестов**,
-  frontend **460 suites / 3189 тестов**, e2e 22 теста. Источник цифр — `.clinerules/test-policy.md`.
+- НЕ разворачивать весь Zustand-стор (`...state`) в `LS.setDataState`/`HeavyStorage.set` — только
+  сериализуемые поля, иначе IndexedDB молча не заперсистит ключ (см. `pickDashboardData`).
+- `ASSEMBLY_DATE` в `packages/frontend/src/app/config/index.ts` должен совпадать с сегодняшней датой —
+  иначе падает тест `src/app/config/config.test.ts` («ASSEMBLY_DATE — сегодняшняя дата»).
 - Frontend-тесты запускаются 5 конфигами (`test:unit` ловит ВСЕ `.spec/test.ts(x)`, затем
   `test:entities`/`test:features`/`test:shared`/`test:widgets` — только `**/<слой>/**/*.test.ts` без `.test.tsx`).
+- Долгий `npm run test -w packages/frontend` (≈2-3 мин) — запускать в фоне (`nohup ... > /tmp/... &`), т.к.
+  таймаут инструмента 30 с.
 - Линтер требует одинарные кавычки в JSX-атрибутах (`jsx-quotes`); `strict` в tsconfig бэкенда НЕ включён.

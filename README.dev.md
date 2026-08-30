@@ -116,6 +116,14 @@ in-memory `Map` для мгновенного синхронного чтени�
   (`HeavyStorage.startSync()`). Same-tab синхронизация осталась на ручном
   `window.dispatchEvent(new Event('storage'))` (BroadcastChannel не доставляет сообщение отправителю).
 
+> **Важно при записи в IndexedDB.** `HeavyStorage` пишет значение через structured clone,
+> который **бросает `DataCloneError` на функциях** (в отличие от `JSON.stringify`, который их молча
+> отбрасывает). Поэтому нельзя разворачивать весь Zustand-стор (`...state`) в `LS.setDataState` —
+> action-функции стора попадут в значение, `db.put` упадёт (ошибка глушится `__devLog`, который
+> молчит в production), и ключ **никогда не заперсистится** — данные будут жить только в in-memory
+> кеше и перезагрузятся после релоада. Пиши только сериализуемые поля (см. `pickDashboardData` в
+> `entities/dashboard-data/model/store.ts`).
+
 ---
 
 ## Глоссарий доменных терминов

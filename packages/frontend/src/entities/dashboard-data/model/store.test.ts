@@ -277,4 +277,51 @@ describe('useDashboardDataStore', () => {
       expect(useDashboardDataStore.getState().loading).toBe(false);
     });
   });
+
+  describe('сериализуемость данных в LS (IndexedDB)', () => {
+    const getSaved = () => (LS.setDataState as jest.Mock).mock.calls.at(-1)?.[1];
+
+    it('finishGetData пишет в LS только данные, без action-функций', () => {
+      useDashboardDataStore.getState().finishGetData({
+        companyId: 'company-1',
+        startEntities: { 'kod-1': { kod: 'kod-1' } as any },
+        startDates: { month: [1, 2, 3] },
+      });
+
+      const saved = getSaved();
+      expect(saved.finishGetData).toBeUndefined();
+      expect(saved.setInitial).toBeUndefined();
+      expect(saved.startLoading).toBeUndefined();
+      expect(saved).toEqual(
+        expect.objectContaining({
+          startEntities: { 'kod-1': { kod: 'kod-1' } as any },
+          loading: false,
+        }),
+      );
+    });
+
+    it('setActivePeriod пишет в LS только данные, без action-функций', () => {
+      useDashboardDataStore.getState().setActivePeriod({
+        companyId: 'company-1',
+        period: { type: PeriodType.ONE_MONTH },
+      });
+
+      const saved = getSaved();
+      expect(saved.finishGetData).toBeUndefined();
+      expect(saved.setActivePeriod).toBeUndefined();
+      expect(saved.startLoading).toBeUndefined();
+    });
+
+    it('setSelectedPeriod пишет в LS только данные, без action-функций', () => {
+      useDashboardDataStore.getState().setSelectedPeriod({
+        companyId: 'company-1',
+        period: { type: PeriodType.THREE_MONTHS },
+      });
+
+      const saved = getSaved();
+      expect(saved.finishGetData).toBeUndefined();
+      expect(saved.setSelectedPeriod).toBeUndefined();
+      expect(saved.startLoading).toBeUndefined();
+    });
+  });
 });
