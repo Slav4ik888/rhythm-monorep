@@ -18,6 +18,7 @@ export const getInitialState = (companyId: string): StateSchemaDashboardData => 
     loading: false,
     errors: {},
     _isMounted: true,
+    companyId,
 
     startEntities: state?.startEntities || {},
     startDates: state?.startDates || {},

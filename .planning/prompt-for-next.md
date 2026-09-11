@@ -2,50 +2,54 @@
 
 ## Дата
 
-30.08.2026 (сессия 57)
+11.09.2026 (сессия 58)
 
 ## Контекст: что сделано в этой сессии
 
-### Этап 57 — Фикс: данные Google не кешировались в IndexedDB (перезагружались повторно)
+### Этап 58 — Фикс: утечка состояния dashboard-data между компаниями
 
-Баг (продакшен): без авторизации заходишь в публичную компанию А → Google-данные грузятся, ок →
-логинишься → возвращаешься по ссылке в компанию А → Google-данные грузятся ЗАНОВО (не должны,
-т.к. должны браться из IndexedDB).
+Баг (продакшен): гость обновил данные чужой компании Б (11.09) → залогинился в свою А → в дашборде
+показывалась «дата последнего обновления» от Б (11.09) и не отрисовывались графики, авто-загрузка
+`/api/getData` не срабатывала.
 
-Причина: в `entities/dashboard-data/model/store.ts` три экшена (`setActivePeriod`, `setSelectedPeriod`,
-`finishGetData`) писали `dataState-*` в `LS.setDataState` разворачивая весь Zustand-стор (`...state`).
-`state` включает action-функции стора, а IndexedDB (`HeavyStorage.set` → `db.put`) использует structured
-clone, который бросает `DataCloneError` на функциях. Ошибка глушилась `__devLog` (в production молчит),
-поэтому `dataState-*` жил только в in-memory кеше и терялся после релоада → `hasCachedData` в
-`pages/dashboard/ui/container.tsx` был `false` → повторная загрузка. `bunches-*`/`viewBunchesUpdated-*`
-кешировались корректно (пишут плоские объекты).
+Причина: глобальный Zustand-стор `dashboard-data` не был привязан к `companyId`. При переключении
+компании (логин / SPA-переход `:companyId` → `:companyId` без ремоунта) экшены
+`setSelectedPeriod`/`setActivePeriod` вызывались с новым `companyId`, но писали в кеш
+`dataState-${новыйCompanyId}` состояние стора предыдущей компании (`pickDashboardData(state)` содержал
+чужие `startEntities`/`lastUpdated`). Плюс `hasCachedData = !!startEntities` считал пустой объект `{}`
+за кеш, блокируя автозагрузку.
 
 Исправления:
 
-1. `store.ts`: добавлен `pickDashboardData(state)` (выделяет только сериализуемые поля
-   `StateSchemaDashboardData`), `...state` заменён на `...pickDashboardData(state)` в трёх местах.
-2. `store.test.ts`: +3 теста «сериализуемость данных в LS (IndexedDB)».
-3. `README.dev.md`: заметка о DataCloneError в structured clone при записи в IndexedDB.
-4. `VERSION` поднят до `2.56.0` в ДВУХ конфигах, `ASSEMBLY_DATE` = `2026-08-30`.
+1. `state-schema.ts`: в `StateSchemaDashboardData` добавлено поле `companyId?`.
+2. `store.ts`: в `setActivePeriod`/`setSelectedPeriod`/`finishGetData` добавлена защита от гонки —
+   `if (state.companyId && companyId !== state.companyId) return state;` (игнор «чужой» компании);
+   `finishGetData` прокидывает `companyId` в новое состояние.
+3. `get-initial-state/index.ts`: возвращает `companyId`.
+4. `pages/dashboard/ui/container.tsx`: `hasCachedData` теперь `Object.keys(startEntities ?? {}).length > 0`.
+5. `store.test.ts`: +4 теста изоляции по `companyId`.
+6. `VERSION` → `2.57.0` в ДВУХ конфигах, `ASSEMBLY_DATE` = `2026-09-11`.
 
-Верификация: `lint` (0), backend **181 suites / 1179 тестов**, frontend **460 suites / 3195 тестов** — зелёные.
+Верификация: `lint` (0), backend **181 suites / 1179 тестов**, frontend **460 suites** — зелёные.
 
 ## Следующие шаги
 
-1. Задеплоить фикс на прод (см. README.dev.md, сценарий деплоя) и проверить сценарий из бага:
-   публичная компания → логин → возврат по ссылке → данные должны взяться из IndexedDB без повторного
-   запроса `/api/getData`.
-2. Вернуться к пунктам «Следующие шаги» сессии 55/56 (проверки перед публикацией в прод: Firebase rules,
+1. Задеплоить фикс на прод (см. README.dev.md, сценарий деплоя) и воспроизвести сценарий:
+   гость → обновить чужую компанию → логин → вход в дашборд своей компании → должна показаться
+   корректная дата/данные своей компании без ручной загрузки.
+2. Вернуться к пунктам «Следующие шаги» сессий 55/56 (проверки перед публикацией в прод: Firebase rules,
    `LOGS_PASS`, Redis, секреты `/etc/rhythm/`).
 
 ## Коммит
 
-`fix: dataState не сохранялся в IndexedDB из-за action-функций Zustand (DataCloneError)`
+`fix: утечка состояния dashboard-data между компаниями (изоляция по companyId + hasCachedData)`
 
 ## Предупреждения/заметки
 
-- НЕ разворачивать весь Zustand-стор (`...state`) в `LS.setDataState`/`HeavyStorage.set` — только
-  сериализуемые поля, иначе IndexedDB молча не заперсистит ключ (см. `pickDashboardData`).
+- Стор `dashboard-data` — глобальный; данные изолируются по компании только через `companyId` в состоянии.
+  НЕ добавлять в `setActivePeriod`/`setSelectedPeriod`/`finishGetData` запись `LS.setDataState(companyId, ...)`
+  без проверки `companyId === state.companyId` — иначе вернётся баг утечки.
+- `hasCachedData` должен проверять НЕПУСТОТУ `startEntities`, а не truthy-объект (`{}` — truthy в JS).
 - `ASSEMBLY_DATE` в `packages/frontend/src/app/config/index.ts` должен совпадать с сегодняшней датой —
   иначе падает тест `src/app/config/config.test.ts` («ASSEMBLY_DATE — сегодняшняя дата»).
 - Frontend-тесты запускаются 5 конфигами (`test:unit` ловит ВСЕ `.spec/test.ts(x)`, затем

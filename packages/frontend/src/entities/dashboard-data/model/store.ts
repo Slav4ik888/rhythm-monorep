@@ -21,6 +21,7 @@ const initialState: StateSchemaDashboardData = {
   loading: false,
   errors: {},
   _isMounted: true,
+  companyId: undefined,
 
   startEntities: {},
   startDates: {},
@@ -62,6 +63,7 @@ const pickDashboardData = (state: DashboardDataStore): StateSchemaDashboardData 
   loading: state.loading,
   errors: state.errors,
   _isMounted: state._isMounted,
+  companyId: state.companyId,
   startEntities: state.startEntities,
   startDates: state.startDates,
   lastUpdated: state.lastUpdated,
@@ -82,6 +84,10 @@ export const useDashboardDataStore = create<DashboardDataStore>((set) => ({
 
   setActivePeriod: ({ companyId, period }) =>
     set((state) => {
+      // Защита от гонки переключения компании: экшен относится к другой компании —
+      // игнорируем, чтобы данные предыдущей компании не записались в кеш текущей.
+      if (state.companyId && companyId !== state.companyId) return state;
+
       const activePeriod = {
         ...state.activePeriod,
         ...period,
@@ -105,6 +111,10 @@ export const useDashboardDataStore = create<DashboardDataStore>((set) => ({
 
   setSelectedPeriod: ({ companyId, dateType, period }) =>
     set((state) => {
+      // Защита от гонки переключения компании: экшен относится к другой компании —
+      // игнорируем, чтобы данные предыдущей компании не записались в кеш текущей.
+      if (state.companyId && companyId !== state.companyId) return state;
+
       const type = period.type || state.selectedPeriod.type || PeriodType.NINE_MONTHS;
       const isCustomPeriod = type === PeriodType.CUSTOM;
       const isStartDate = dateType === 'start';
@@ -152,9 +162,14 @@ export const useDashboardDataStore = create<DashboardDataStore>((set) => ({
 
   finishGetData: ({ companyId, startEntities, startDates }) =>
     set((state) => {
+      // Защита от гонки переключения компании: если ответ /api/getData пришёл для
+      // компании, которая уже не активна — игнорируем, чтобы не затереть текущую.
+      if (state.companyId && companyId !== state.companyId) return state;
+
       const { activeDates, activeEntities } = getEntitiesByPeriod(startEntities, startDates, state.activePeriod);
 
       const newState = {
+        companyId,
         startEntities,
         startDates,
         lastUpdated: new Date().getTime(),

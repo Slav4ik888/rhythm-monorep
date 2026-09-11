@@ -37,6 +37,7 @@ const mockState: StateSchemaDashboardData = {
   loading: false,
   errors: {},
   _isMounted: true,
+  companyId: undefined,
 
   startEntities: {},
   startDates: {},
@@ -60,6 +61,7 @@ describe('useDashboardDataStore', () => {
       loading: false,
       errors: {},
       _isMounted: true,
+      companyId: undefined,
 
       startEntities: {},
       startDates: {},
@@ -275,6 +277,71 @@ describe('useDashboardDataStore', () => {
 
       expect(useDashboardDataStore.getState().errors).toEqual({});
       expect(useDashboardDataStore.getState().loading).toBe(false);
+    });
+  });
+
+  describe('изоляция по companyId (защита от гонки переключения компании)', () => {
+    const bindToCompany = (companyId: string) => {
+      useDashboardDataStore.setState({
+        companyId,
+        startEntities: { 'kod-a': { kod: 'kod-a' } as any },
+        startDates: { month: [1, 2, 3] },
+        lastUpdated: 1234567890,
+      });
+    };
+
+    beforeEach(() => {
+      bindToCompany('company-1');
+    });
+
+    it('setSelectedPeriod с чужим companyId не должен менять состояние и писать в LS', () => {
+      const before = useDashboardDataStore.getState();
+
+      useDashboardDataStore.getState().setSelectedPeriod({
+        companyId: 'company-2',
+        period: { type: PeriodType.THREE_MONTHS },
+      });
+
+      expect(useDashboardDataStore.getState()).toEqual(before);
+      expect(LS.setDataState).not.toHaveBeenCalled();
+    });
+
+    it('setActivePeriod с чужим companyId не должен менять состояние и писать в LS', () => {
+      const before = useDashboardDataStore.getState();
+
+      useDashboardDataStore.getState().setActivePeriod({
+        companyId: 'company-2',
+        period: { type: PeriodType.ONE_MONTH },
+      });
+
+      expect(useDashboardDataStore.getState()).toEqual(before);
+      expect(LS.setDataState).not.toHaveBeenCalled();
+    });
+
+    it('finishGetData с чужим companyId не должен применять данные и писать в LS', () => {
+      const before = useDashboardDataStore.getState();
+
+      useDashboardDataStore.getState().finishGetData({
+        companyId: 'company-2',
+        startEntities: { 'kod-b': { kod: 'kod-b' } as any },
+        startDates: { month: [9, 9, 9] },
+      });
+
+      expect(useDashboardDataStore.getState()).toEqual(before);
+      expect(LS.setDataState).not.toHaveBeenCalled();
+    });
+
+    it('finishGetData с тем же companyId применяет данные и пишет в LS', () => {
+      useDashboardDataStore.getState().finishGetData({
+        companyId: 'company-1',
+        startEntities: { 'kod-b': { kod: 'kod-b' } as any },
+        startDates: { month: [9, 9, 9] },
+      });
+
+      const state = useDashboardDataStore.getState();
+      expect(state.companyId).toBe('company-1');
+      expect(state.startEntities).toEqual({ 'kod-b': { kod: 'kod-b' } as any });
+      expect(LS.setDataState).toHaveBeenCalledWith('company-1', expect.objectContaining({ companyId: 'company-1' }));
     });
   });
 

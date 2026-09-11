@@ -16,6 +16,11 @@ export interface StateSchemaDashboardData {
   loading: boolean;
   errors: Errors;
   _isMounted: boolean;
+  // Компания, к которой относится текущее состояние стора.
+  // Используется как защита от гонки при переключении компании: экшены периода/данных
+  // игнорируют вызовы с «чужим» companyId, чтобы данные предыдущей компании не попали
+  // в кеш/на экран текущей (см. store.ts).
+  companyId?: string;
 
   startEntities: DashboardDataEntities;
   startDates: DashboardDataDates;

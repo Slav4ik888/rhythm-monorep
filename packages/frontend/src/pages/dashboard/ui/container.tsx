@@ -35,8 +35,11 @@ export const DashboardPageContainer: FC = memo(() => {
     [paramsBunchesUpdated, paramsCompanyId],
   );
 
-  // TanStack Query: автоматическая загрузка данных из Google Sheets
-  const hasCachedData = !!LS.getDataState(paramsCompanyId)?.startEntities && !!paramsCompanyId;
+  // TanStack Query: автоматическая загрузка данных из Google Sheets.
+  // Проверяем не просто наличие ключа, а реальное количество сущностей: пустой объект `{}`
+  // (truthy в JS) раньше считался «есть кеш» и блокировал автозагрузку после переключения компании.
+  const cachedEntities = LS.getDataState(paramsCompanyId)?.startEntities;
+  const hasCachedData = !!paramsCompanyId && Object.keys(cachedEntities ?? {}).length > 0;
 
   useGetDashboardDataQuery({
     companyId: paramsCompanyId,

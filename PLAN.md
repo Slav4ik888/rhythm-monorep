@@ -217,6 +217,26 @@ Zustand-стор (`...state`). `state` включает action-функции с
 - [x] 57.3 `README.dev.md`: добавлена заметка о DataCloneError в structured clone при записи в IndexedDB.
 - [x] 57.4 Верификация: `lint` (0), backend (181 suites / 1179 тестов), frontend (460 suites / 3195 тестов) — зелёные.
 
+### Этап 58 — Фикс: утечка состояния dashboard-data между компаниями
+
+**Симптом (продакшен):** гость обновил данные чужой компании Б (11.09) → залогинился в свою А →
+в дашборде видит «последнее обновление 11.09» и неотрисованные графики (данные Б, view А — коды
+не совпадают). Авто-загрузка `/api/getData` не срабатывала.
+
+**Причина:** глобальный Zustand-стор `dashboard-data` не был изолирован по `companyId`. При
+переключении компании (логин / SPA-переход `:companyId` → `:companyId` без ремоунта) экшены
+`setSelectedPeriod`/`setActivePeriod` вызывались с новым `companyId`, но записывали в кеш
+`dataState-${новыйCompanyId}` состояние стора, которое ещё относилось к предыдущей компании
+(`pickDashboardData(state)` содержал чужие `startEntities`/`lastUpdated`). Дополнительно
+`hasCachedData = !!startEntities` считал пустой объект `{}` за «есть кеш», блокируя автозагрузку.
+
+- ⚠️ **Ключевой момент на будущее:** данные дашборда изолируются по компании только через `companyId` в состоянии стора — любые новые экшены, пишущие в `LS.setDataState(companyId, ...)`, обязаны проверять `companyId === state.companyId`, иначе утечка вернётся.
+- [x] 58.1 `StateSchemaDashboardData` + поле `companyId`; `getInitialState`/`pickDashboardData`/`finishGetData` прокидывают его.
+- [x] 58.2 Защита от гонки: `setActivePeriod`/`setSelectedPeriod`/`finishGetData` игнорируют вызовы с «чужим» `companyId` (`state.companyId && companyId !== state.companyId → return state`).
+- [x] 58.3 `hasCachedData` в `pages/dashboard/ui/container.tsx` — проверка реального количества сущностей (`Object.keys(startEntities).length > 0`), а не truthy-объекта.
+- [x] 58.4 Тесты изоляции по `companyId` (+4: «чужой companyId — no-op», «свой companyId — применяется»).
+- [x] 58.5 Верификация: `lint` (0), backend (181 suites / 1179 тестов), frontend (460 suites) — зелёные.
+
 ---
 
 ## Правила ведения плана
