@@ -237,6 +237,20 @@ Zustand-стор (`...state`). `state` включает action-функции с
 - [x] 58.4 Тесты изоляции по `companyId` (+4: «чужой companyId — no-op», «свой companyId — применяется»).
 - [x] 58.5 Верификация: `lint` (0), backend (181 suites / 1179 тестов), frontend (460 suites) — зелёные.
 
+### Этап 59 — Проверки перед публикацией в прод (Firebase rules, LOGS_PASS, Redis, секреты)
+
+**Закрытие пункта «Следующие шаги» сессий 55/56 — проверки продакшен-готовности.**
+
+- [x] 59.1 Добавлен `firestore.rules` (закрыт: `allow read, write: if false`) — в репо был только
+      `storage.rules`, и `firebase deploy --only firestore:rules` не имел файла правил. Подключён в
+      `firebase.json` (`"firestore": { "rules": "firestore.rules" }`) и смонтирован в `docker-compose.yml`.
+      Безопасно: все обращения к Firestore идут через бэкенд (Admin SDK, который правила обходит).
+- [x] 59.2 Добавлен скрипт `check-prod-readiness.sh` (корень репо): проверка секретов `/etc/rhythm/`,
+      `LOGS_PASS`, Redis, systemd-юнита, Nginx + напоминание про Firebase rules.
+- [x] 59.3 `README.dev.md`: раздел «Проверки перед публикацией в прод (checklist)» + упоминание `firestore.rules`.
+- [x] 59.4 `VERSION` → `2.58.0` в ДВУХ конфигах (клиентский код не менялся, бандл версии синхронизирован).
+- [x] 59.5 Верификация: `lint` (0), backend / frontend тесты — зелёные.
+
 ---
 
 ## Правила ведения плана

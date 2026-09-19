@@ -410,11 +410,11 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
   Swagger UI на `/api/docs`, OpenAPI JSON на `/api/docs-json`. Документированы все контроллеры
   (9 тегов, 25 эндпоинтов: `@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiParam`).
   В production Swagger **отключён** (`main.ts`: `SwaggerModule.setup` только при `NODE_ENV !== 'production'`).
-- **Firebase-правила (production).** `firebase.json`/`storage.rules` в репо применяются только к локальным
-  эмуляторам (монтируются в docker-compose). Боевые правила Firestore/Storage настраиваются в Firebase Console
-  (`firebase deploy --only firestore|storage`). `storage.rules` закрыт (`allow read, write: if false`).
-  Firestore: вся работа идёт через бэкенд (Admin SDK), поэтому правила должны стоять в режиме «закрыто»
-  (`allow read, write: if false`) — как второй контур защиты.
+- **Firebase-правила (production).** `firebase.json`/`firestore.rules`/`storage.rules` в репо применяются
+  к локальным эмуляторам (монтируются в docker-compose). Боевые правила Firestore/Storage настраиваются
+  в Firebase Console (`firebase deploy --only firestore:rules,storage:rules`). Оба файла закрыты
+  (`allow read, write: if false`): Firestore и Storage — как второй контур защиты, вся работа идёт
+  через бэкенд (Admin SDK, который правила обходит).
 - **Swagger DTO-схемы** (сессия 49): детальные схемы запросов/ответов для всех 25 эндпоинтов.
   DTO лежат в `packages/backend/src/dto/` (сущности: `user.dto`, `company.dto`, `view-item.dto`,
   `template.dto`, `base.dto`, `common.dto`) и `packages/backend/src/controllers/<name>/dto/`
@@ -527,6 +527,28 @@ systemctl restart rhythm-server
 - **Nginx** — конфиг `packages/backend/rhy.thm.su` (`/api/` → `127.0.0.1:7575`, SPA-fallback на
   `/index.html`). На сервере ставится в `/etc/nginx/sites-available/` + symlink в
   `sites-enabled/` (или через панель ISPmanager).
+
+### Проверки перед публикацией в прод (checklist)
+
+Перед/после выката в прод проверяй готовность скриптом (read-only, ничего не меняет):
+
+```bash
+bash check-prod-readiness.sh
+```
+
+Скрипт проверяет:
+
+1. **Секреты `/etc/rhythm/`** — `rhythm-server.env` и `firebase-adminsdk.json` существуют, права `600`
+   (root:root), а `firebase-adminsdk.json` — валидный JSON с `project_id`/`client_email`/`private_key`.
+2. **`LOGS_PASS`** — задан и не пуст в `rhythm-server.env` (иначе `/loggers/*` остаются с пустым паролем).
+3. **Redis** — отвечает на `redis-cli ping` (в production при недоступном Redis сервер падает на старте).
+4. **systemd-юнит** — `/etc/systemd/system/rhythm-server.service` существует, сервис `active`.
+5. **Nginx** — `nginx -t` валиден, сайт в `sites-enabled/`.
+6. **Firebase rules** — напоминание применить закрытые правила:
+   `firebase deploy --only firestore:rules,storage:rules` (или проверить в Firebase Console, project
+   `rhythm-g2d7`). Файлы `firestore.rules` и `storage.rules` в репо закрыты (`allow read, write: if false`).
+
+Выходной код `1` при критичных проблемах (`[FAIL]`); предупреждения (`[WARN]`) на выход не влияют.
 
 ### Docker Compose (Firebase эмуляторы)
 

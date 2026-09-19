@@ -21,6 +21,7 @@ services:
       # перекачивать при каждом пересоздании контейнера.
       - firebase-emulator-cache:/root/.cache/firebase/emulators
       - ./firebase.json:/firebase/firebase.json:ro
+      - ./firestore.rules:/firebase/firestore.rules:ro
       - ./storage.rules:/firebase/storage.rules:ro
 
   # Redis — кэш сессий и signup-данных
