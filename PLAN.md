@@ -251,6 +251,24 @@ Zustand-стор (`...state`). `state` включает action-функции с
 - [x] 59.4 `VERSION` → `2.58.0` в ДВУХ конфигах (клиентский код не менялся, бандл версии синхронизирован).
 - [x] 59.5 Верификация: `lint` (0), backend / frontend тесты — зелёные.
 
+### Этап 60 — Выкат в прод: проверки готовности + боевые Firebase-правила
+
+**Ручные шаги на боевом сервере (выполняет человек).**
+
+- [x] 60.1 `bash check-prod-readiness.sh` — все критические проверки пройдены
+      (14 OK / 0 FAIL / 5 WARN; WARN — только напоминание про Firebase rules).
+- [ ] 60.2 Применить боевые правила Firestore: `firebase deploy --only firestore:rules` +
+      убедиться в Firebase Console (project `rhythm-g2d7`), что Firestore закрыт
+      (`allow read, write: if false`).
+- [x] 60.3 Выяснено при деплое: **Firebase Storage в проекте не используется** (только
+      Firestore + Auth — в коде нет `uploadBytes`/`getStorage`/`admin.storage()`, лишь поле
+      `storageBucket` в стандартном web-конфиге). Деплой `firestore:rules,storage:rules` падает
+      с «Firebase Storage has not been set up» (сервис Storage на проекте не включён), поэтому
+      деплоятся только `firestore:rules`. `storage.rules` остаётся в репо для эмуляторов и на будущее.
+- [x] 60.4 Обновлены `check-prod-readiness.sh` и `README.dev.md`: деплой правил — только
+      `firebase deploy --only firestore:rules` + заметка, что Storage в прод не используется.
+- [x] 60.5 `VERSION` → `2.59.0` + `ASSEMBLY_DATE` → `2026-09-19` в ДВУХ конфигах.
+
 ---
 
 ## Правила ведения плана

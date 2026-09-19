@@ -411,10 +411,12 @@ SMTP_USER=you@mail.com SMTP_PASS=... npm run dev -w packages/backend
   (9 тегов, 25 эндпоинтов: `@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiParam`).
   В production Swagger **отключён** (`main.ts`: `SwaggerModule.setup` только при `NODE_ENV !== 'production'`).
 - **Firebase-правила (production).** `firebase.json`/`firestore.rules`/`storage.rules` в репо применяются
-  к локальным эмуляторам (монтируются в docker-compose). Боевые правила Firestore/Storage настраиваются
-  в Firebase Console (`firebase deploy --only firestore:rules,storage:rules`). Оба файла закрыты
-  (`allow read, write: if false`): Firestore и Storage — как второй контур защиты, вся работа идёт
-  через бэкенд (Admin SDK, который правила обходит).
+  к локальным эмуляторам (монтируются в docker-compose). Боевые правила Firestore настраиваются
+  в Firebase Console (`firebase deploy --only firestore:rules`). `firestore.rules` закрыт
+  (`allow read, write: if false`): Firestore — как второй контур защиты, вся работа идёт
+  через бэкенд (Admin SDK, который правила обходит). **Storage в прод не используется** (только
+  Firestore + Auth): сервис Storage на проекте не включён, поэтому деплой `storage:rules` падает
+  с «Firebase Storage has not been set up». `storage.rules` в репо — только для эмуляторов и на будущее.
 - **Swagger DTO-схемы** (сессия 49): детальные схемы запросов/ответов для всех 25 эндпоинтов.
   DTO лежат в `packages/backend/src/dto/` (сущности: `user.dto`, `company.dto`, `view-item.dto`,
   `template.dto`, `base.dto`, `common.dto`) и `packages/backend/src/controllers/<name>/dto/`
@@ -544,9 +546,10 @@ bash check-prod-readiness.sh
 3. **Redis** — отвечает на `redis-cli ping` (в production при недоступном Redis сервер падает на старте).
 4. **systemd-юнит** — `/etc/systemd/system/rhythm-server.service` существует, сервис `active`.
 5. **Nginx** — `nginx -t` валиден, сайт в `sites-enabled/`.
-6. **Firebase rules** — напоминание применить закрытые правила:
-   `firebase deploy --only firestore:rules,storage:rules` (или проверить в Firebase Console, project
-   `rhythm-g2d7`). Файлы `firestore.rules` и `storage.rules` в репо закрыты (`allow read, write: if false`).
+6. **Firebase rules** — напоминание применить закрытые правила Firestore:
+   `firebase deploy --only firestore:rules` (или проверить в Firebase Console, project
+   `rhythm-g2d7`). `firestore.rules` в репо закрыт (`allow read, write: if false`). Storage в прод
+   не используется — деплой `storage:rules` не нужен (сервис Storage на проекте не включён).
 
 Выходной код `1` при критичных проблемах (`[FAIL]`); предупреждения (`[WARN]`) на выход не влияют.
 

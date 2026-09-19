@@ -192,11 +192,13 @@ else
   warn "$REPO_DIR/storage.rules не найден"
 fi
 
-warn "Проверь, что боевые правила закрыты: выполни на машине с firebase CLI"
-warn "  firebase deploy --only firestore:rules,storage:rules"
-warn "и/или убедись в Firebase Console (project rhythm-g2d7), что Firestore и Storage"
-warn "стоят в режиме «закрыто» (allow read, write: if false). Firestore доступен только"
-warn "через бэкенд (Admin SDK), прямых клиентских обращений нет."
+warn "Проверь, что боевые правила Firestore закрыты: выполни на машине с firebase CLI"
+warn "  firebase deploy --only firestore:rules"
+warn "Storage в прод НЕ используется (только Firestore + Auth): сервис Storage на проекте"
+warn "не включён, и деплой 'firestore:rules,storage:rules' падает с «Firebase Storage has"
+warn "not been set up». storage.rules в репо — только для эмуляторов и на будущее."
+warn "Убедись в Firebase Console (project rhythm-g2d7), что Firestore в режиме «закрыто»"
+warn "(allow read, write: if false). Firestore доступен только через бэкенд (Admin SDK)."
 
 # ---------------------------------------------------------------------------
 echo
