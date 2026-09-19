@@ -257,7 +257,7 @@ Zustand-стор (`...state`). `state` включает action-функции с
 
 - [x] 60.1 `bash check-prod-readiness.sh` — все критические проверки пройдены
       (14 OK / 0 FAIL / 5 WARN; WARN — только напоминание про Firebase rules).
-- [ ] 60.2 Применить боевые правила Firestore: `firebase deploy --only firestore:rules` +
+- [x] 60.2 Применить боевые правила Firestore: `firebase deploy --only firestore:rules` +
       убедиться в Firebase Console (project `rhythm-g2d7`), что Firestore закрыт
       (`allow read, write: if false`).
 - [x] 60.3 Выяснено при деплое: **Firebase Storage в проекте не используется** (только
@@ -268,6 +268,8 @@ Zustand-стор (`...state`). `state` включает action-функции с
 - [x] 60.4 Обновлены `check-prod-readiness.sh` и `README.dev.md`: деплой правил — только
       `firebase deploy --only firestore:rules` + заметка, что Storage в прод не используется.
 - [x] 60.5 `VERSION` → `2.59.0` + `ASSEMBLY_DATE` → `2026-09-19` в ДВУХ конфигах.
+- [ ] 60.6 Выкатить код в прод (`./deploy.sh` на сервере), чтобы `VERSION 2.59.0` ушёл в прод
+      (сейчас бэкенд и фронт в проде на 2.58.0, а в git — 2.59.0).
 
 ---
 
